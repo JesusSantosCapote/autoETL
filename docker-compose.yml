@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+ 
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    networks:
+      mynet:
+        ipv4_address: 172.20.0.2
+
+  app:
+    build: .
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    networks:
+      mynet:
+        ipv4_address: 172.20.0.3
+
+networks:
+  mynet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
