@@ -1,8 +1,10 @@
 import sqlalchemy
-from sqlalchemy import create_engine, Table
+from sqlalchemy import create_engine, Table, text
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy import Column, Integer, String, ForeignKey, Date
 from config import connection_info
+import psycopg2
+
 
 dialect = connection_info['dialect']
 driver = connection_info['driver']
@@ -12,22 +14,25 @@ host = connection_info['host']
 port = connection_info['port']
 database = connection_info['database']
 
-engine = create_engine(f'{dialect}+{driver}://{user}:{password}@{host}:{port}/{database}', echo=True, future=True)
-Base = declarative_base()
+connection = psycopg2.connect(user=user, password=password, host=host, port=port)
+cursor = connection.cursor()
+connection.autocommit = True
 
+# Database table list
+cursor.execute("SELECT datname FROM pg_catalog.pg_database WHERE datname = '{}'".format(database))
+existing_databases = cursor.fetchall()
 
 # Check if the database exists
-database_name = 'retailSales'
-existing_databases = engine.execute("SELECT datname FROM pg_catalog.pg_database WHERE datname = '{}'".format(database_name)).fetchall()
-
 if existing_databases:
-    print("Database '{}' already exists.".format(database_name))
+    print("Database '{}' already exists.".format(database))
 else:
     # Create the database
-    engine.execute("CREATE DATABASE {}".format(database_name))
-    print("Database '{}' created successfully.".format(database_name))
+    cursor.execute("CREATE DATABASE {}".format(database))
+    print("Database '{}' created successfully.".format(database))
 
 
+engine = create_engine(f'{dialect}+{driver}://{user}:{password}@{host}:{port}/{database}', echo=True, future=True)
+Base = declarative_base()
 
 class Province(Base):
     __tablename__ = 'Provincia'
@@ -42,7 +47,7 @@ class Municipality(Base):
     id_Mun = Column(Integer, primary_key=True, name='IdMunicipio')
     name = Column(String, name='Nombre')
 
-    id_prov = Column(Integer, ForeignKey('Provincia.id_Prov'), name='IdProvincia')
+    id_prov = Column(Integer, ForeignKey('Provincia.IdProvincia'), name='IdProvincia')
     province = relationship('Province', back_populates='municipalitys')
 
     neighborhoods = relationship('Neighborhood', back_populates='municipality')
@@ -53,7 +58,7 @@ class Neighborhood(Base):
     id_Neighb = Column(Integer, primary_key=True, name='IdReparto')
     name = Column(String, name='Nombre')
 
-    id_mun = Column(Integer, ForeignKey('Municipality.id_Mun'), name='IdMunicipio')
+    id_mun = Column(Integer, ForeignKey('Municipio.IdMunicipio'), name='IdMunicipio')
     municipality = relationship('Municipality', back_populates='neighborhoods')
 
     stores = relationship('Store', back_populates='neighborhood')
@@ -62,8 +67,8 @@ class Neighborhood(Base):
 store_depart_association_table = Table(
     'Tienda Departamento',
     Base.metadata,
-    Column(Integer, ForeignKey('Store.id_Store'), primary_key=True, name='IdTienda'),
-    Column(Integer, ForeignKey('Department.id_depart'), primary_key=True, name='IdDepartamento'), 
+    Column(Integer, ForeignKey('Tienda.IdTienda'), primary_key=True, name='IdTienda'),
+    Column(Integer, ForeignKey('Departamento.IdDepartamento'), primary_key=True, name='IdDepartamento'), 
 )
 
 
@@ -72,7 +77,7 @@ class Store(Base):
     id_Store = Column(Integer, primary_key=True, name='IdTienda')
     name = Column(String, name='Nombre')
 
-    id_neighb = Column(Integer, ForeignKey('Neighborhood.id_Neighb'), name='IdReparto')
+    id_neighb = Column(Integer, ForeignKey('Reparto.IdReparto'), name='IdReparto')
     neighborhood = relationship('Neighborhood', back_populates='stores')
 
     departments = relationship('Department', secondary=store_depart_association_table, back_populates='stores')
@@ -121,16 +126,16 @@ class Product(Base):
     price = Column(Integer, name='Precio')
     cost = Column(Integer, name='Costo')
 
-    id_brand = Column(Integer, ForeignKey('Brand.id_brand'), name='IdMarca')
+    id_brand = Column(Integer, ForeignKey('Marca.IdMarca'), name='IdMarca')
     brand = relationship('Brand', back_populates='products')
 
-    id_cat = Column(Integer, ForeignKey('Category.id_cat'), name='IdCategoría')
+    id_cat = Column(Integer, ForeignKey('Categoría.IdCategoría'), name='IdCategoría')
     category = relationship('Category', back_populates='products')
 
-    id_pack = Column(Integer, ForeignKey('Package.id_pack'), name='IdTipoPaquete')
+    id_pack = Column(Integer, ForeignKey('TipoPaquete.IdTipoPaquete'), name='IdTipoPaquete')
     package = relationship('Package', back_populates='products')
 
-    id_depart = Column(Integer, ForeignKey('Department.id_depart'), name='IdDepartamento')
+    id_depart = Column(Integer, ForeignKey('Departamento.IdDepartamento'), name='IdDepartamento')
     department = relationship('Department', back_populates='products')
 
     sales = relationship('Sale')
@@ -141,8 +146,8 @@ class Sale(Base):
     id_sale = Column(Integer, primary_key=True, name='IdVenta')
     date = Column(Date, name='Fecha')
 
-    id_prod = Column(Integer, ForeignKey('Product.id_Prod'), name='IdProducto')
-    id_store = Column(Integer, ForeignKey('Store.id_Store'), name='IdTienda')
+    id_prod = Column(Integer, ForeignKey('Producto.IdProducto'), name='IdProducto')
+    id_store = Column(Integer, ForeignKey('Tienda.IdTienda'), name='IdTienda')
 
     quantity_sold = Column(Integer, name='Cantidad Vendida')
     payment = Column(Integer, name='Pago')

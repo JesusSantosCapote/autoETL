@@ -1,4 +1,7 @@
+Faker==19.11.0
 greenlet==3.0.0
 psycopg2-binary==2.9.9
+python-dateutil==2.8.2
+six==1.16.0
 SQLAlchemy==2.0.22
 typing_extensions==4.8.0

@@ -5,6 +5,4 @@ COPY . /home/app
 
 WORKDIR /home/app
 
-RUN pip3 install virtualenv
-
-RUN source venv/bin/activate
+RUN pip install -r requirements.txt
