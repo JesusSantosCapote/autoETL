@@ -2,17 +2,17 @@ import sqlalchemy
 from sqlalchemy import create_engine, Table, text
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy import Column, Integer, String, ForeignKey, Date
-from config import connection_info
+from config import CONNECTION_INFO
 import psycopg2
 
 
-dialect = connection_info['dialect']
-driver = connection_info['driver']
-user = connection_info['username']
-password = connection_info['password']
-host = connection_info['host']
-port = connection_info['port']
-database = connection_info['database']
+dialect = CONNECTION_INFO['dialect']
+driver = CONNECTION_INFO['driver']
+user = CONNECTION_INFO['username']
+password = CONNECTION_INFO['password']
+host = CONNECTION_INFO['host']
+port = CONNECTION_INFO['port']
+database = CONNECTION_INFO['database']
 
 connection = psycopg2.connect(user=user, password=password, host=host, port=port)
 cursor = connection.cursor()
