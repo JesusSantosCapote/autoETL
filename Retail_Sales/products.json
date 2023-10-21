@@ -1,0 +1,202 @@
+{
+    "Electr\u00f3nica": [
+        {
+            "producto": "Iphone 14",
+            "marca": "Apple",
+            "categoria": "Tel\u00e9fono inteligente",
+            "empaquetado": "Caja"
+        },
+        {
+            "producto": "Tuf Dash F15",
+            "marca": "ASUS",
+            "categoria": "Computadora port\u00e1til",
+            "empaquetado": "Caja"
+        },
+        {
+            "producto": "Earbuds 12 pro",
+            "marca": "Sony",
+            "categoria": "Auriculares inal\u00e1mbricos",
+            "empaquetado": "Bl\u00edster"
+        }
+    ],
+    "Ropa": [
+        {
+            "producto": "Camiseta",
+            "marca": "H&M",
+            "categoria": "Tops",
+            "empaquetado": "Bolsa"
+        },
+        {
+            "producto": "Pantalones vaqueros",
+            "marca": "Levi's",
+            "categoria": "Bottoms",
+            "empaquetado": "Caja"
+        },
+        {
+            "producto": "Vestido",
+            "marca": "Zara",
+            "categoria": "Tops",
+            "empaquetado": "Bolsa"
+        }
+    ],
+    "Calzado": [
+        {
+            "producto": "Air Force 1",
+            "marca": "Nike",
+            "categoria": "Calzado_Deportivo",
+            "empaquetado": "Caja"
+        },
+        {
+            "producto": "Botas de invierno",
+            "marca": "Timberland",
+            "categoria": "Calzado_Trabajo",
+            "empaquetado": "Caja"
+        },
+        {
+            "producto": "Sandalias",
+            "marca": "Birkenstock",
+            "categoria": "Calzado_Verano",
+            "empaquetado": "Bolsa"
+        }
+    ],
+    "Hogar": [
+        {
+            "producto": "Juego de s\u00e1banas",
+            "marca": "Ikea",
+            "categoria": "Ropa_Cama",
+            "empaquetado": "Bolsa"
+        },
+        {
+            "producto": "Mesa de centro",
+            "marca": "West Elm",
+            "categoria": "Muebles",
+            "empaquetado": "Caja"
+        },
+        {
+            "producto": "L\u00e1mpara de escritorio",
+            "marca": "Philips",
+            "categoria": "Iluminaci\u00f3n",
+            "empaquetado": "Caja"
+        }
+    ],
+    "Belleza": [
+        {
+            "producto": "Crema hidratante",
+            "marca": "Neutrogena",
+            "categoria": "Cremas",
+            "empaquetado": "Tubo"
+        },
+        {
+            "producto": "Labial",
+            "marca": "MAC",
+            "categoria": "Labiales",
+            "empaquetado": "Bl\u00edster"
+        },
+        {
+            "producto": "Perfume",
+            "marca": "Chanel",
+            "categoria": "Fragancias",
+            "empaquetado": "Caja"
+        }
+    ],
+    "Juguetes": [
+        {
+            "producto": "Celia Cruz Doll",
+            "marca": "Barbie",
+            "categoria": "Mu\u00f1eca",
+            "empaquetado": "Caja"
+        },
+        {
+            "producto": "Rompecabezas Iron Man",
+            "marca": "Ravensburger",
+            "categoria": "Puzzles",
+            "empaquetado": "Caja"
+        },
+        {
+            "producto": "Pelota de f\u00fatbol",
+            "marca": "Nike",
+            "categoria": "Pelotas",
+            "empaquetado": "Bolsa"
+        }
+    ],
+    "Deportes": [
+        {
+            "producto": "Nadal F5",
+            "marca": "Wilson",
+            "categoria": "Raquetas",
+            "empaquetado": "Caja"
+        },
+        {
+            "producto": "Bal\u00f3n de baloncesto",
+            "marca": "Spalding",
+            "categoria": "Pelotas",
+            "empaquetado": "Bolsa"
+        },
+        {
+            "producto": "Cinta de correr",
+            "marca": "ProForm",
+            "categoria": "M\u00e1quina_Deporte",
+            "empaquetado": "Caja"
+        }
+    ],
+    "Alimentos": [
+        {
+            "producto": "Frutas frescas",
+            "marca": "Dole",
+            "categoria": "Frutas",
+            "empaquetado": "Bolsa"
+        },
+        {
+            "producto": "Arroz",
+            "marca": "Uncle Ben's",
+            "categoria": "Cereales",
+            "empaquetado": "Paquete"
+        },
+        {
+            "producto": "Aceite de oliva",
+            "marca": "Bertolli",
+            "categoria": "Aceites",
+            "empaquetado": "Botella"
+        }
+    ],
+    "Muebles": [
+        {
+            "producto": "Sof\u00e1 seccional",
+            "marca": "Ashley Furniture",
+            "categoria": "Muebles",
+            "empaquetado": "Caja"
+        },
+        {
+            "producto": "Mesa de comedor",
+            "marca": "IKEA",
+            "categoria": "Muebles",
+            "empaquetado": "Caja"
+        },
+        {
+            "producto": "Armario",
+            "marca": "Hodedah",
+            "categoria": "Muebles",
+            "empaquetado": "Caja"
+        }
+    ],
+    "Libros": [
+        {
+            "producto": "The Witcher",
+            "marca": "Penguin Random House",
+            "categoria": "Libros_Ficci\u00f3n",
+            "empaquetado": "Tapa blanda"
+        },
+        {
+            "producto": "Ratatouille",
+            "marca": "America's Test Kitchen",
+            "categoria": "Libros_Cocina",
+            "empaquetado": "Tapa dura"
+        },
+        {
+            "producto": "Libro de autoayuda",
+            "marca": "Tony Robbins",
+            "categoria": "Libros_Educaci\u00f3n",
+            "empaquetado": "Tapa dura"
+        }
+    ]
+}

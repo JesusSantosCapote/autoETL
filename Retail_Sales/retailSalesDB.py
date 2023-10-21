@@ -64,12 +64,13 @@ class Neighborhood(Base):
     stores = relationship('Store', back_populates='neighborhood')
 
 
-store_depart_association_table = Table(
-    'Tienda Departamento',
-    Base.metadata,
-    Column(Integer, ForeignKey('Tienda.IdTienda'), primary_key=True, name='IdTienda'),
-    Column(Integer, ForeignKey('Departamento.IdDepartamento'), primary_key=True, name='IdDepartamento'), 
-)
+class Store_Department(Base):
+    __tablename__ = 'Tienda_Departamento'
+    id_store = Column(Integer, ForeignKey('Tienda.IdTienda'), primary_key=True, name='IdTienda')
+    id_depart = Column(Integer, ForeignKey('Departamento.IdDepartamento'), primary_key=True, name='IdDepartamento')
+
+    store = relationship('Store', back_populates='departments')
+    department = relationship('Department', back_populates='stores')
 
 
 class Store(Base):
@@ -80,7 +81,7 @@ class Store(Base):
     id_neighb = Column(Integer, ForeignKey('Reparto.IdReparto'), name='IdReparto')
     neighborhood = relationship('Neighborhood', back_populates='stores')
 
-    departments = relationship('Department', secondary=store_depart_association_table, back_populates='stores')
+    departments = relationship('Store_Department', back_populates='store')
     sales = relationship('Sale')
 
 
@@ -90,7 +91,7 @@ class Department(Base):
     name = Column(String, name='Nombre')
     description = Column(String, name='Descripción')
 
-    stores = relationship('Store', secondary=store_depart_association_table, back_populates='departments')
+    stores = relationship('Store_Department', back_populates='department')
 
     products = relationship('Product', back_populates='department')
 
@@ -149,8 +150,9 @@ class Sale(Base):
     id_prod = Column(Integer, ForeignKey('Producto.IdProducto'), name='IdProducto')
     id_store = Column(Integer, ForeignKey('Tienda.IdTienda'), name='IdTienda')
 
-    quantity_sold = Column(Integer, name='Cantidad Vendida')
+    quantity_sold = Column(Integer, name='Cantidad_Vendida')
     payment = Column(Integer, name='Pago')
 
 
-Base.metadata.create_all(engine)
+if __name__ == "__main__":
+    Base.metadata.create_all(engine)
