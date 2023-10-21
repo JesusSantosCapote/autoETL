@@ -37,7 +37,7 @@ Base = declarative_base()
 class Province(Base):
     __tablename__ = 'Provincia'
     id_Prov = Column(Integer, primary_key=True, name='IdProvincia')
-    name = Column(String, name='Nombre')
+    name = Column(String, name='Nombre', unique=True)
 
     municipalitys = relationship('Municipality', back_populates='province')
 
@@ -45,7 +45,7 @@ class Province(Base):
 class Municipality(Base):
     __tablename__ = 'Municipio'
     id_Mun = Column(Integer, primary_key=True, name='IdMunicipio')
-    name = Column(String, name='Nombre')
+    name = Column(String, name='Nombre', unique=True)
 
     id_prov = Column(Integer, ForeignKey('Provincia.IdProvincia'), name='IdProvincia')
     province = relationship('Province', back_populates='municipalitys')
@@ -56,7 +56,7 @@ class Municipality(Base):
 class Neighborhood(Base):
     __tablename__ = 'Reparto'
     id_Neighb = Column(Integer, primary_key=True, name='IdReparto')
-    name = Column(String, name='Nombre')
+    name = Column(String, name='Nombre', unique=True)
 
     id_mun = Column(Integer, ForeignKey('Municipio.IdMunicipio'), name='IdMunicipio')
     municipality = relationship('Municipality', back_populates='neighborhoods')
@@ -64,34 +64,22 @@ class Neighborhood(Base):
     stores = relationship('Store', back_populates='neighborhood')
 
 
-class Store_Department(Base):
-    __tablename__ = 'Tienda_Departamento'
-    id_store = Column(Integer, ForeignKey('Tienda.IdTienda'), primary_key=True, name='IdTienda')
-    id_depart = Column(Integer, ForeignKey('Departamento.IdDepartamento'), primary_key=True, name='IdDepartamento')
-
-    store = relationship('Store', back_populates='departments')
-    department = relationship('Department', back_populates='stores')
-
-
 class Store(Base):
     __tablename__ = 'Tienda'
     id_Store = Column(Integer, primary_key=True, name='IdTienda')
-    name = Column(String, name='Nombre')
+    name = Column(String, name='Nombre', unique=True)
 
     id_neighb = Column(Integer, ForeignKey('Reparto.IdReparto'), name='IdReparto')
     neighborhood = relationship('Neighborhood', back_populates='stores')
 
-    departments = relationship('Store_Department', back_populates='store')
     sales = relationship('Sale')
 
 
 class Department(Base):
     __tablename__ = 'Departamento'
     id_depart = Column(Integer, primary_key=True, name='IdDepartamento')
-    name = Column(String, name='Nombre')
+    name = Column(String, name='Nombre', unique=True)
     description = Column(String, name='Descripción')
-
-    stores = relationship('Store_Department', back_populates='department')
 
     products = relationship('Product', back_populates='department')
 
@@ -99,7 +87,7 @@ class Department(Base):
 class Brand(Base):
     __tablename__ = 'Marca'
     id_brand = Column(Integer, primary_key=True, name='IdMarca')
-    name = Column(String, name='Nombre')
+    name = Column(String, name='Nombre', unique=True)
 
     products = relationship('Product', back_populates='brand')
 
@@ -107,7 +95,7 @@ class Brand(Base):
 class Category(Base):
     __tablename__ = 'Categoría'
     id_cat = Column(Integer, primary_key=True, name='IdCategoría')
-    name = Column(String, name='Nombre')
+    name = Column(String, name='Nombre', unique=True)
 
     products = relationship('Product', back_populates='category')
 
@@ -115,7 +103,7 @@ class Category(Base):
 class Package(Base):
     __tablename__ = 'TipoPaquete'
     id_pack = Column(Integer, primary_key=True, name='IdTipoPaquete')
-    name = Column(String, name='Nombre')
+    name = Column(String, name='Nombre', unique=True)
 
     products = relationship('Product', back_populates='package')
 
@@ -123,7 +111,7 @@ class Package(Base):
 class Product(Base):
     __tablename__ = 'Producto'
     id_Prod = Column(Integer, primary_key=True, name='IdProducto')
-    name = Column(String, name='Nombre')
+    name = Column(String, name='Nombre', unique=True)
     price = Column(Integer, name='Precio')
     cost = Column(Integer, name='Costo')
 

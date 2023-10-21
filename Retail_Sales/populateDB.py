@@ -111,20 +111,6 @@ def department_stores_populate():
     session.add_all(stores)
     session.flush()
 
-    stores_pk = session.execute(select(Store.id_Store)).fetchall()
-    department_pk = session.execute(select(Department.id_depart)).fetchall()
-
-    stores_departments = []
-
-    for i in stores_pk:
-        depart_number = rand.randint(1, len(department_pk))
-        rand.shuffle(department_pk)
-        for j in range(depart_number):
-            stores_departments.append(Store_Department(id_store=i[0], id_depart=department_pk[j][0]))
-
-    session.add_all(stores_departments)
-    session.flush()
-
 
 def product_tables_populate():
     pwd = os.getcwd()
