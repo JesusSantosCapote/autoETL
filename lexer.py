@@ -6,7 +6,9 @@ reserved = {
     'sum' : 'SUM',
     'avg' : 'AVG',
     'groupby' : 'GROUP',
-    'self' : 'SELF'
+    'self' : 'SELF',
+    'as' : 'AS',
+    'DK' : 'DK'
 }
 
 tokens = [
@@ -20,7 +22,7 @@ tokens = [
    'LBRACE',
    'RBRACE',
    'TWODOTS',
-   'SEMICOLON'
+   'SEMICOLON',
    'ID'
 ] + list(reserved.values())
 
@@ -30,14 +32,14 @@ t_TIMES   = r'\*'
 t_DIVIDE  = r'/'
 t_LPAREN  = r'\('
 t_RPAREN  = r'\)'
-t_LBRACE  = r'\{'
-t_RBRACE  = r'\}'
-t_TWODOTS = r'\:'
-t_SEMICOLON = r'\;'
+t_LBRACE  = r'{'
+t_RBRACE  = r'}'
+t_TWODOTS = r':'
+t_SEMICOLON = r';'
 
 
 def t_ID(t):
-    r'[a-zA-Z_][a-zA-Z_0-9]*'
+    r'[a-zA-Z_][a-zA-Z_0-9ÁÉÍÓÚáéíóú]*'
     t.type = reserved.get(t.value,'ID')    # Check for reserved words
     return t
 
@@ -57,4 +59,4 @@ def t_error(t):
     t.lexer.skip(1)
 
 # Build the lexer
-lexer = lex.lex(debug=True)
+lexer = lex(debug=True)

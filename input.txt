@@ -23,11 +23,11 @@ self:month_str(Fecha) as Mes
 }
 
 fact Venta {
-DK Producto;
-DK Tienda;
-DK Fecha;
+Dim.Producto: DK;
+Dim.Tienda: DK;
+Dim.Fecha: DK;
 Venta:sum(CantidadVendida) groupby Venta:IdProducto as CantidadVendidaTotal;
 Venta:sum(Pago) groupby Venta:IdProducto as ImporteTotal;
-Dim_Producto:Costo * self:CantidadVendidaTotal as CosteTotal;
+Dim.Producto:Costo * self:CantidadVendidaTotal as CosteTotal;
 self:ImporteTotal - self:CosteTotal;
 }
