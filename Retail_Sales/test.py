@@ -1,11 +1,17 @@
-import os
-import json
+import networkx
+from networkx import ArborescenceIterator
+from networkx import DiGraph
 
-pwd = os.getcwd()
-data_path = os.path.join(pwd, 'Retail_Sales', 'products.json')
-data = {}
+G = DiGraph()
 
-with open(data_path) as file:
-    data = json.load(file)
+e = [(1,2), (1,3), (1,4), (1,5), (3,2), (3,4), (4,6), (5,7), (7,6), (6,8)]
 
-print(data.keys())
+for edge in e:
+    G.add_edge(*edge, weight=1)
+
+print(G.edges)
+
+l = []
+for graph in ArborescenceIterator(G):
+    print(graph)
+
