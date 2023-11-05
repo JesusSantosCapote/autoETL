@@ -1,4 +1,4 @@
-from lexer import lexer
+from dsl.lexer import lexer
 import os
 
 path = os.path.join(os.getcwd(), 'input.txt')

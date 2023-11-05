@@ -1,33 +1,9 @@
-dimension Tienda {
-Tienda:Nombre;
-Reparto:Nombre as Reparto;
-Municipio:Nombre as Municipio;
-Provincia:Nombre as Provincia;
-}
-
-dimension Producto {
-Marca:Nombre as Marca;
-Categoría:Nombre as Categoría;
-Tipo_Paquete:Nombre as Paquete;
-Departamento:Nombre as Departamento;
-Departamento:Descripción as Departamento_Descripción;
-Producto:Nombre as Producto;
-Producto:Precio;
-Producto:Costo;
-}
-
-dimension Fecha {
-Venta Fecha
-self:week_day(Fecha) as Día
-self:month_str(Fecha) as Mes
-}
-
 fact Venta {
-Dim.Producto: DK;
-Dim.Tienda: DK;
-Dim.Fecha: DK;
-Venta:sum(CantidadVendida) groupby Venta:IdProducto as CantidadVendidaTotal;
-Venta:sum(Pago) groupby Venta:IdProducto as ImporteTotal;
-Dim.Producto:Costo * self:CantidadVendidaTotal as CosteTotal;
-self:ImporteTotal - self:CosteTotal;
+Dim.Producto: DK
+Dim.Tienda: DK
+Dim.Fecha: DK
+Venta:sum(CantidadVendida) groupby Venta:IdProducto as CantidadVendidaTotal
+Venta:sum(Pago) groupby Venta:IdProducto as ImporteTotal
+Dim.Producto:Costo * self:CantidadVendidaTotal as CosteTotal
+self:ImporteTotal - self:CosteTotal
 }

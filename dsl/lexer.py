@@ -5,10 +5,12 @@ reserved = {
     'fact' : 'FACT',
     'sum' : 'SUM',
     'avg' : 'AVG',
+    'count': 'COUNT',
     'groupby' : 'GROUP',
     'self' : 'SELF',
     'as' : 'AS',
-    'DK' : 'DK'
+    'week_day' : 'WEEKDAY',
+    'month_str': 'MONTHSTR'
 }
 
 tokens = [
@@ -22,7 +24,6 @@ tokens = [
    'LBRACE',
    'RBRACE',
    'TWODOTS',
-   'SEMICOLON',
    'ID'
 ] + list(reserved.values())
 
@@ -35,11 +36,10 @@ t_RPAREN  = r'\)'
 t_LBRACE  = r'{'
 t_RBRACE  = r'}'
 t_TWODOTS = r':'
-t_SEMICOLON = r';'
 
 
 def t_ID(t):
-    r'[a-zA-Z_][a-zA-Z_0-9ÁÉÍÓÚáéíóú]*'
+    r'[a-zA-Z_][a-zA-Z_0-9ÁÉÍÓÚáéíóú.]*'
     t.type = reserved.get(t.value,'ID')    # Check for reserved words
     return t
 
