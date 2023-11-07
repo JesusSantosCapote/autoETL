@@ -24,10 +24,9 @@ class AggAttribute(Attribute):
         self.table_grouping_attr = table_grouping_attr
 
 
-class ArithmeticAttribute():
-    def __init__(self, list_attr, arith_expr_string, alias=None) -> None:
-        self.list_attr = list_attr
-        self.arith_expr_string = arith_expr_string
+class AttributeExpression():
+    def __init__(self, elements, alias=None) -> None:
+        self.elements = elements
         self.alias = alias
 
 

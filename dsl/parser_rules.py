@@ -26,7 +26,7 @@ def p_Dimensional_Table(p):
         p[0] = Dimension(p[2], p[4])
 
     if p[1] == 'fact':
-        p[0] == Fact(p[2], p[4])
+        p[0] = Fact(p[2], p[4])
 
 
 def p_List_Attr_Def(p):
@@ -36,75 +36,59 @@ def p_List_Attr_Def(p):
 
 
 def p_Attr_Def(p):
-    '''Attr_Def : Simple_Attr
-                | Compound_Attr'''
+    '''Attr_Def : Attr_Expression Alias'''
     p[0] = p[1]
+    p[0].alias = p[2]
 
 
-def p_Simple_Attr(p):
-    '''Simple_Attr : Attr Alias'''
-    p[1].alias = p[2]
-    p[0] = p[1]
-
-
-def p_Compound_Attr(p):
-    '''Compound_Attr : Arithmetic_Attr Alias'''
-    p[1].alias = p[2]
-    p[0] = p[1]
-
-
-def p_Arithmetic_Attr(p):
-    '''Arithmetic_Attr : T X'''
-    p[0] = ArithmeticAttribute(p[1][0]+p[2][0], p[1][1] + p[2][1])
-    p[1] + p[2]
+def p_Attr_Expression(p):
+    '''Attr_Expression : T X'''
+    p[0] = AttributeExpression(p[1] + p[2])
 
 
 def p_X(p):
     '''X : PLUS T X
          | MINUS T X
-         | empty'''
+         | empty_list'''
     if p[1] == '+':
-       p[0] = (p[2][0] + p[3][0], '+' + p[2][1] + p[3][1])
+       p[0] = ['+'] + p[2] + p[3]
 
-    if p[1] == '-':
-       p[0] = (p[2][0] + p[3][0], '-' + p[2][1] + p[3][1])
+    elif p[1] == '-':
+       p[0] = ['-'] + p[2] + p[3]
+
+    else:
+        p[0] = p[1]
 
    
 def p_T(p):
     '''T : F Y'''
-    p[0] = (p[1][0] + p[2][0], p[1][1] + p[2][1])   
+    p[0] = p[1] + p[2] 
 
 
 def p_Y(p):
     '''Y : TIMES F Y
          | DIVIDE F Y
-         | empty'''
+         | empty_list'''
     if p[1] == '*':
-       p[0] = (p[2][0] + p[3][0], '*' + p[2][1] + p[3][1])   
+       p[0] = ['*'] + p[2] + p[3]  
 
-    if p[1] == '/':
-       p[0] = (p[2][0] + p[3][0], '/' + p[2][1] + p[3][1])       
+    elif p[1] == '/':
+       p[0] = ['/'] + p[2] + p[3]
+
+    else:
+        p[0] = p[1]       
 
 
 def p_F(p):
-    '''F : Simple_Attr
+    '''F : Attr
          | NUMBER
-         | LPAREN Arithmetic_Attr RPAREN'''
+         | LPAREN Attr_Expression RPAREN'''
     if len(p) == 2:
-        if type(p[1].value) == int:
-            p[0] = ([], str(p[1]))
-
-        else:        
-            p[0] = ([p[1]], f'{p[1].name}')
+        p[0] = [p[1]]
 
     if len(p) == 4:
-        p[0] =  (p[2][0], '(' + p[2][1] + ')') 
+        p[0] = ['('] + p[2].elements + [')'] 
     
-
-# def p_F_Number(p):
-#     '''F : NUMBER'''
-#     p[0] = ([], str(p[1]))
-
 
 def p_Attr(p):
     '''Attr : Table TWODOTS ID
@@ -119,7 +103,7 @@ def p_Attr(p):
     if len(p) == 7:
         p[0] = AttributeFunction(p[1], p[5], p[3])
 
-    if len(p) == 9:
+    if len(p) == 11:
         p[0] = AggAttribute(p[1], p[5], p[3], p[10], p[8])
 
 
@@ -145,5 +129,10 @@ def p_Alias(p):
 def p_empty(p):
     'empty : '
     pass
+
+
+def p_empty_list(p):
+    'empty_list : '
+    p[0] = []
 
 parser = yacc.yacc(debug=True)
