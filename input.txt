@@ -22,19 +22,6 @@ self:week_day(Fecha) as Día
 self:month_str(Fecha) as Mes
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 fact Venta {
 Dim.Producto: DK
 Dim.Tienda: DK
