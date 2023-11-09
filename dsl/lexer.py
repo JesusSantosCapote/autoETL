@@ -1,4 +1,6 @@
 from ply.lex import lex
+from global_config import LOG_FILE_PATH
+from logger import logger
 
 reserved = {
     'dimension' : 'DIM',
@@ -10,7 +12,8 @@ reserved = {
     'self' : 'SELF',
     'as' : 'AS',
     'week_day' : 'WEEKDAY',
-    'month_str': 'MONTHSTR'
+    'month_str': 'MONTHSTR',
+    'PK'       : 'PK'
 }
 
 tokens = [
@@ -55,7 +58,7 @@ def t_newline(t):
 t_ignore  = ' \t'
 
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
+    logger.error("Illegal character '%s' at line" % t.value[0])
     t.lexer.skip(1)
 
 # Build the lexer

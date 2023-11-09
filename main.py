@@ -1,5 +1,6 @@
 from dsl.parser_rules import parser
 import os
+from dsl.visitors import VisitorSymbolTable
 
 path = os.path.join(os.getcwd(), 'input.txt')
 
@@ -10,4 +11,8 @@ with open(path) as file:
 
 a = parser.parse(code)
 
-print(a)
+st = VisitorSymbolTable()
+
+st.visit_dimensional_model(a)
+
+print(st.symbol_table)

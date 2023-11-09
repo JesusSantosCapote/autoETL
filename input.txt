@@ -1,28 +1,33 @@
 dimension Tienda {
+self:T_Id PK
 Tienda:Nombre
 Reparto:Nombre as Reparto
 Municipio:Nombre as Municipio
 Provincia:Nombre as Provincia
+
 }
 
 dimension Producto {
+self:Prod_Id PK
 Marca:Nombre as Marca
 Categoría:Nombre as Categoría
 Tipo_Paquete:Nombre as Paquete
 Departamento:Nombre as Departamento
 Departamento:Descripción as Departamento_Descripción
-Producto:Nombre as Producto
+Producto:Nombre PK as Producto
 Producto:Precio
 Producto:Costo
 }
 
 dimension Fecha {
+self:F_Id PK
 Venta:Fecha
 self:week_day(Fecha) as Día
 self:month_str(Fecha) as Mes
 }
 
 fact Venta {
+self:V_Id PK
 Dim.Producto: DK
 Dim.Tienda: DK
 Dim.Fecha: week_day(DK)

@@ -1,6 +1,8 @@
 from ply import yacc
 from dsl.ast_nodes import *
 from dsl.lexer import tokens
+from logger import logger
+
 
 def p_Dimensional_Model(p):
     '''Dimensional_Model : List_Dimensional_Tables'''
@@ -91,14 +93,14 @@ def p_F(p):
     
 
 def p_Attr(p):
-    '''Attr : Table TWODOTS ID
+    '''Attr : Table TWODOTS ID Primary_Key_Modifier
             | Table TWODOTS Func LPAREN ID RPAREN
             | Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID
             | Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID
             | Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID'''
             
-    if len(p) == 4:
-        p[0] = Attribute(p[1], p[3])
+    if len(p) == 5:
+        p[0] = Attribute(p[1], p[3], p[4])
 
     if len(p) == 7:
         p[0] = AttributeFunction(p[1], p[5], p[3])
@@ -126,6 +128,12 @@ def p_Alias(p):
         p[0] = p[2]
 
 
+def p_PK(p):
+    '''Primary_Key_Modifier : PK
+                            | empty'''
+    p[0] = p[1]
+
+
 def p_empty(p):
     'empty : '
     pass
@@ -134,5 +142,10 @@ def p_empty(p):
 def p_empty_list(p):
     'empty_list : '
     p[0] = []
+
+
+def p_error(p):
+    logger.error(f'Syntax error {p.value} in input at line: {p.lineno}')
+
 
 parser = yacc.yacc(debug=True)

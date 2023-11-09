@@ -1,15 +1,6 @@
 from dsl.lexer import lexer
 import os
+from dsl.ast_nodes import Attribute
 
-path = os.path.join(os.getcwd(), 'input.txt')
-with open(path) as file:
-    data = file.read()
+a = Attribute('a', 'b')
 
-lexer.input(data)
-
-# Tokenize
-while True:
-    tok = lexer.token()
-    if not tok:
-        break      # No more input
-    print(tok)
