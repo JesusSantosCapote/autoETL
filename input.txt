@@ -4,11 +4,12 @@ Tienda:Nombre
 Reparto:Nombre as Reparto
 Municipio:Nombre as Municipio
 Provincia:Nombre as Provincia
-
+7 + 4
 }
 
 dimension Producto {
 self:Prod_Id PK
+self:Id2 PK
 Marca:Nombre as Marca
 Categoría:Nombre as Categoría
 Tipo_Paquete:Nombre as Paquete
@@ -20,10 +21,11 @@ Producto:Costo
 }
 
 dimension Fecha {
-self:F_Id PK
 Venta:Fecha
 self:week_day(Fecha) as Día
 self:month_str(Fecha) as Mes
+Dim.Producto:hola
+Dim.Hola: Nombre
 }
 
 fact Venta {
@@ -32,7 +34,8 @@ Dim.Producto: DK
 Dim.Tienda: DK
 Dim.Fecha: week_day(DK)
 Venta:sum(CantidadVendida) groupby Venta:IdProducto as CantidadVendidaTotal
-Venta:sum(Pago) groupby Venta:IdProducto as ImporteTotal
+Venta:sum(Pago) groupby Venta:IdProducto + Venta:avg(importe) groupby Venta:IdProducto as ImporteTotal
+Venta:sum(Pago) groupby Venta:IdProducto + Venta:avg(importe) groupby Venta:IdProducto
 Dim.Producto:Costo * self:CantidadVendidaTotal as CosteTotal
 self:ImporteTotal - self:CosteTotal * (Reparto:Name / 2 * (Municipio:Name - Tienda:Cantidad)) * 8 as Combinada
 }
