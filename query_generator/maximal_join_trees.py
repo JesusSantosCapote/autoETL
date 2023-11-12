@@ -4,17 +4,6 @@ from networkx.algorithms.components import strongly_connected_components
 from collections import deque
 
 
-def set_parents(graph:DiGraph, source):
-    queue = deque()
-    queue.append(source)
-
-    while queue:
-        current = queue.popleft()
-        for node in graph.neighbors(current):
-            graph.nodes[node]['parents'].append(current)
-            queue.append(node)
-
-
 def find_reachable(graph:DiGraph, source):
     visited = {node:False for node in graph.nodes}
     reached_nodes = []
