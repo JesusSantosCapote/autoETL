@@ -4,6 +4,22 @@ from networkx.algorithms.components import strongly_connected_components
 from collections import deque
 
 
+def set_height(graph:DiGraph, root):
+    visited = {node:False for node in graph.nodes}
+    visited[root] = True
+    queue = deque()
+    queue.append(root)
+    graph.nodes[root]['heigth'] = 0
+
+    while queue:
+        current = queue.popleft()
+        for node in graph.neighbors(current):
+            if not visited[node]:
+                visited[node] = True
+                queue.append(node)
+                graph.nodes[node]['heigth'] = graph.nodes[current]['heigth'] + 1
+
+
 def find_reachable(graph:DiGraph, source):
     visited = {node:False for node in graph.nodes}
     reached_nodes = []
@@ -55,6 +71,7 @@ def maximal_join_trees_generator(join_graph:DiGraph):
         for join_tree in max_join_trees:
             if join_tree.in_degree(root) == 0:
                 join_tree.graph['root'] = root
+                set_height(join_tree, root)
                 result.append(join_tree)
 
     return result
