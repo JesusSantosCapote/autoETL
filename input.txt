@@ -1,9 +1,9 @@
 dimension Tienda {
 self:T_Id PK
 Tienda:Nombre
-Reparto:Nombre as Reparto
+Reparto:Nombre as Municipio
 Municipio:Nombre as Municipio
-Provincia:Nombre as Provincia
+Provincia:Nombre
 7 + 4
 }
 

@@ -25,6 +25,7 @@ class Visitor(metaclass = abc.ABCMeta):
 class VisitorSymbolTable(Visitor):
     def __init__(self) -> None:
         self.symbol_table = {}
+        self.good_naming = True
 
     def visit_dimensional_model(self, dimensional_model: DimensionalModel):
         for table in dimensional_model.dimensional_table_list:
@@ -36,16 +37,26 @@ class VisitorSymbolTable(Visitor):
     def visit_dimensional_table(self, dimensional_table: DimensionalTable):
         for attr_def, index in zip(dimensional_table.list_attr, range(1, len(dimensional_table.list_attr) + 1)):
             if attr_def.alias:
-                self.symbol_table[dimensional_table.name].append(attr_def.alias)
+                if attr_def.alias in self.symbol_table[dimensional_table.name]:
+                    logger.error(f'The alias {attr_def.alias} is used twice in table {dimensional_table.name}')
+                    self.good_naming = False
+                else:
+                    self.symbol_table[dimensional_table.name].append(attr_def.alias)
             else:
                 if len(attr_def.elements) == 1:
                     try: #attr_def.elements[0] may be a number and dont have name. SemanticCheck is responsable for notify this 
-                        self.symbol_table[dimensional_table.name].append(attr_def.elements[0].name)
+                        if attr_def.elements[0].name in self.symbol_table[dimensional_table.name]:
+                            logger.error(f'The name {attr_def.elements[0].name} is used twice in table {dimensional_table.name}. Use an alias for fix this error.')
+                            self.good_naming = False
+                        else:
+                            self.symbol_table[dimensional_table.name].append(attr_def.elements[0].name)
                     except:
                         self.symbol_table[dimensional_table.name].append('error')
+                        self.good_naming = False
                 else:
                     logger.error(f'Attribute number {index} in dimensional table {dimensional_table.name} is compound and dont have an alias.')
                     self.symbol_table[dimensional_table.name].append(None)
+                    self.good_naming = False
 
     def visit_agg_attr(self, agg_attr):
         return super().visit_agg_attr(agg_attr)
@@ -70,9 +81,9 @@ class VisitorSemanticCheck(Visitor):
         dimension = False
 
         for table in dimensional_model.dimensional_table_list:
-            if table is Fact:
+            if isinstance(table, Fact):
                 fact = True
-            if table is Dimension:
+            if isinstance(table, Dimension):
                 dimension = True
         
         if not dimension and fact:
@@ -89,11 +100,11 @@ class VisitorSemanticCheck(Visitor):
         number_of_attr = 0
         for attr_expr, index in zip(dimensional_table.list_attr, range(1, len(dimensional_table.list_attr) + 1)):
             for attr in attr_expr.elements:
-                if attr is Attribute:
+                if isinstance(attr, Attribute):
                     if attr.primary_key:
                         PK_count += 1
                 
-                if attr is AggAttribute:
+                if isinstance(attr, AggAttribute):
                     agg_attr_count += 1
                 
                 if isinstance(attr, (AggAttribute, Attribute, AttributeFunction)):
@@ -105,7 +116,7 @@ class VisitorSemanticCheck(Visitor):
                             self.good_semantic = False
                         else:
                             if not attr.name in self.symbol_table[table]:
-                                logger.error(f"Attribute with {attr.name} as name or alias is not defined in Dimensional Table {table}")
+                                logger.error(f"Attribute with {attr.name} as name or alias, refered in table {dimensional_table.name} is not defined in Dimensional Table {table}")
                                 self.good_semantic = False
 
             if agg_attr_count > 1:
@@ -124,7 +135,7 @@ class VisitorSemanticCheck(Visitor):
             number_of_attr = 0
 
         if PK_count > 1:
-            logger.error(f"Dimensional Table: {dimensional_table.name} must have only one primary key.")
+            logger.error(f"Dimensional Table: {dimensional_table.name} must have only one primary key")
             self.good_semantic = False
 
         if PK_count == 0:
@@ -144,4 +155,6 @@ class VisitorSemanticCheck(Visitor):
         return super().visit_attribute(attribute)
         
 
-    
+class VisitorPostgreSQL(Visitor):
+    def __init__(self) -> None:
+        pass   

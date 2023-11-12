@@ -1,7 +1,18 @@
 from all_spanning_trees import networkX_all_spanning_trees
-from networkx import DiGraph
+from networkx import DiGraph, set_node_attributes
 from networkx.algorithms.components import strongly_connected_components
 from collections import deque
+
+
+def set_parents(graph:DiGraph, source):
+    queue = deque()
+    queue.append(source)
+
+    while queue:
+        current = queue.popleft()
+        for node in graph.neighbors(current):
+            graph.nodes[node]['parents'].append(current)
+            queue.append(node)
 
 
 def find_reachable(graph:DiGraph, source):
@@ -41,30 +52,37 @@ def maximal_join_trees_generator(join_graph:DiGraph):
         scc = list(scc)
         if len(scc) == 1 and join_graph.in_degree(scc[0]) == 0:
             reachable = find_reachable(join_graph, scc[0])
-            reachable_graphs.append(reachable)
+            reachable_graphs.append((reachable, scc[0]))
 
         else:
             for node in scc:
                 if not in_edge_from_outside(join_graph, node, scc):
                     reachable = find_reachable(join_graph, node)
-                    reachable_graphs.append(reachable)
+                    reachable_graphs.append((reachable, node))
 
-    for graph in reachable_graphs:
+    for graph, root in reachable_graphs:
         max_join_trees = networkX_all_spanning_trees(graph)
-        result.extend(max_join_trees)
+
+        for join_tree in max_join_trees:
+            if join_tree.in_degree(root) == 0:
+                join_tree.graph['root'] = root
+                result.append(join_tree)
 
     return result
 
 
 
-# g = DiGraph()
-# edges = [(1,2), (2,4), (4,3), (3,2), (5,4), (5,6), (5,7), (9,7), (7,8)]
+g = DiGraph()
+edges = [(1,2), (2,4), (4,3), (3,2), (5,4), (5,6), (5,7), (9,7), (7,8)]
 
-# g.add_edges_from(edges, weight=1)
+g.add_edges_from(edges, weight=1)
 
-# # print(in_edge_from_outside(g, 2, [2, 3, 4]))
-# # print(find_reachable(g, 2))
 
-# for i in maximal_join_trees_generator(g):
-#     print(i.edges)
+# print(in_edge_from_outside(g, 2, [2, 3, 4]))
+# print(find_reachable(g, 2))
+
+for i in maximal_join_trees_generator(g):
+    print(i.nodes.data())
+    print(i.pred)
+    print(i.graph['root'])
 
