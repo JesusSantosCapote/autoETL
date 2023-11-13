@@ -1,5 +1,5 @@
 from all_spanning_trees import networkX_all_spanning_trees
-from networkx import DiGraph, set_node_attributes
+from networkx import DiGraph
 from networkx.algorithms.components import strongly_connected_components
 from collections import deque
 
@@ -83,12 +83,37 @@ edges = [(1,2), (2,4), (4,3), (3,2), (5,4), (5,6), (5,7), (9,7), (7,8)]
 
 g.add_edges_from(edges, weight=1)
 
+tpc_h = DiGraph()
+tpc_h.add_node('part', attrs=['partkey', 'name', 'brand'])
+tpc_h.add_node('supplier', attrs=['supkey', 'name', 'nationkey'])
+tpc_h.add_node('partsupp', attrs=['partkey', 'supkey', 'qty'])
+tpc_h.add_node('customer', attrs=['custkey', 'name', 'address', 'nationkey'])
+tpc_h.add_node('orders', attrs=['orderkey', 'custkey', 'status', 'totalprice'])
+tpc_h.add_node('lineitem', attrs=['orderkey', 'partkey', 'supkey', 'linenumber', 'status', 'qty'])
+tpc_h.add_node('nation', attrs=['nationkey', 'name', 'regionkey', 'comment'])
+tpc_h.add_node('region', attrs=['regionkey', 'name', 'comment'])
+
+edges = [
+    ('lineitem', 'part', {'condition': [('partkey', 'partkey')], 'weight':1}),
+    ('lineitem', 'partsupp', {'condition': [('partkey', 'partkey'), ('supkey', 'supkey')], 'weight':1}),
+    ('lineitem', 'supplier', {'condition': [('supkey', 'supkey')], 'weight':1}),
+    ('lineitem', 'orders', {'condition':[('orderkey', 'orderkey')], 'weight':1}),
+    ('partsupp', 'part', {'condition': [('partkey', 'partkey')], 'weight':1}),
+    ('partsupp', 'supplier', {'condition': [('supkey', 'supkey')], 'weight':1}),
+    ('supplier', 'nation', {'condition': [('nationkey', 'nationkey')], 'weight':1}),
+    ('nation', 'region', {'condition': [('regionkey', 'regionkey')], 'weight':1}),
+    ('orders', 'customer', {'condition': [('custkey', 'custkey')], 'weight':1}),
+    ('customer', 'nation', {'condition': [('nationkey', 'nationkey')], 'weight':1})
+]
+
+tpc_h.add_edges_from(edges)
+
 
 # print(in_edge_from_outside(g, 2, [2, 3, 4]))
 # print(find_reachable(g, 2))
 
-for i in maximal_join_trees_generator(g):
-    print(i.nodes.data())
-    print(i.pred)
+for i in maximal_join_trees_generator(tpc_h):
+    print(i.nodes)
+    print(i.edges)
     print(i.graph['root'])
 
