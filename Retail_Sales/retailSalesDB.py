@@ -35,111 +35,111 @@ engine = create_engine(f'{dialect}+{driver}://{user}:{password}@{host}:{port}/{d
 Base = declarative_base()
 
 class Province(Base):
-    __tablename__ = 'Provincia'
-    id_Prov = Column(Integer, primary_key=True, name='IdProvincia')
-    name = Column(String, name='Nombre', unique=True)
+    __tablename__ = 'provincia'
+    id_Prov = Column(Integer, primary_key=True, name='idprovincia')
+    name = Column(String, name='nombre', unique=True)
 
     municipalitys = relationship('Municipality', back_populates='province')
 
 
 class Municipality(Base):
-    __tablename__ = 'Municipio'
-    id_Mun = Column(Integer, primary_key=True, name='IdMunicipio')
-    name = Column(String, name='Nombre', unique=True)
+    __tablename__ = 'municipio'
+    id_Mun = Column(Integer, primary_key=True, name='idmunicipio')
+    name = Column(String, name='nombre', unique=True)
 
-    id_prov = Column(Integer, ForeignKey('Provincia.IdProvincia'), name='IdProvincia')
+    id_prov = Column(Integer, ForeignKey('provincia.idprovincia'), name='idprovincia')
     province = relationship('Province', back_populates='municipalitys')
 
     neighborhoods = relationship('Neighborhood', back_populates='municipality')
 
 
 class Neighborhood(Base):
-    __tablename__ = 'Reparto'
-    id_Neighb = Column(Integer, primary_key=True, name='IdReparto')
-    name = Column(String, name='Nombre', unique=True)
+    __tablename__ = 'reparto'
+    id_Neighb = Column(Integer, primary_key=True, name='idreparto')
+    name = Column(String, name='nombre', unique=True)
 
-    id_mun = Column(Integer, ForeignKey('Municipio.IdMunicipio'), name='IdMunicipio')
+    id_mun = Column(Integer, ForeignKey('municipio.idmunicipio'), name='idmunicipio')
     municipality = relationship('Municipality', back_populates='neighborhoods')
 
     stores = relationship('Store', back_populates='neighborhood')
 
 
 class Store(Base):
-    __tablename__ = 'Tienda'
-    id_Store = Column(Integer, primary_key=True, name='IdTienda')
-    name = Column(String, name='Nombre', unique=True)
+    __tablename__ = 'tienda'
+    id_Store = Column(Integer, primary_key=True, name='idtienda')
+    name = Column(String, name='nombre', unique=True)
 
-    id_neighb = Column(Integer, ForeignKey('Reparto.IdReparto'), name='IdReparto')
+    id_neighb = Column(Integer, ForeignKey('reparto.idreparto'), name='idreparto')
     neighborhood = relationship('Neighborhood', back_populates='stores')
 
     sales = relationship('Sale')
 
 
 class Department(Base):
-    __tablename__ = 'Departamento'
-    id_depart = Column(Integer, primary_key=True, name='IdDepartamento')
-    name = Column(String, name='Nombre', unique=True)
-    description = Column(String, name='Descripción')
+    __tablename__ = 'departamento'
+    id_depart = Column(Integer, primary_key=True, name='iddepartamento')
+    name = Column(String, name='nombre', unique=True)
+    description = Column(String, name='descripcion')
 
     products = relationship('Product', back_populates='department')
 
     
 class Brand(Base):
-    __tablename__ = 'Marca'
-    id_brand = Column(Integer, primary_key=True, name='IdMarca')
-    name = Column(String, name='Nombre', unique=True)
+    __tablename__ = 'marca'
+    id_brand = Column(Integer, primary_key=True, name='idmarca')
+    name = Column(String, name='nombre', unique=True)
 
     products = relationship('Product', back_populates='brand')
 
 
 class Category(Base):
-    __tablename__ = 'Categoría'
-    id_cat = Column(Integer, primary_key=True, name='IdCategoría')
-    name = Column(String, name='Nombre', unique=True)
+    __tablename__ = 'categoria'
+    id_cat = Column(Integer, primary_key=True, name='idcategoria')
+    name = Column(String, name='nombre', unique=True)
 
     products = relationship('Product', back_populates='category')
 
 
 class Package(Base):
-    __tablename__ = 'TipoPaquete'
-    id_pack = Column(Integer, primary_key=True, name='IdTipoPaquete')
-    name = Column(String, name='Nombre', unique=True)
+    __tablename__ = 'tipopaquete'
+    id_pack = Column(Integer, primary_key=True, name='idtipopaquete')
+    name = Column(String, name='nombre', unique=True)
 
     products = relationship('Product', back_populates='package')
 
 
 class Product(Base):
-    __tablename__ = 'Producto'
-    id_Prod = Column(Integer, primary_key=True, name='IdProducto')
-    name = Column(String, name='Nombre', unique=True)
-    price = Column(Integer, name='Precio')
-    cost = Column(Integer, name='Costo')
+    __tablename__ = 'producto'
+    id_Prod = Column(Integer, primary_key=True, name='idproducto')
+    name = Column(String, name='nombre', unique=True)
+    price = Column(Integer, name='precio')
+    cost = Column(Integer, name='costo')
 
-    id_brand = Column(Integer, ForeignKey('Marca.IdMarca'), name='IdMarca')
+    id_brand = Column(Integer, ForeignKey('marca.idmarca'), name='idmarca')
     brand = relationship('Brand', back_populates='products')
 
-    id_cat = Column(Integer, ForeignKey('Categoría.IdCategoría'), name='IdCategoría')
+    id_cat = Column(Integer, ForeignKey('categoria.idcategoria'), name='idcategoria')
     category = relationship('Category', back_populates='products')
 
-    id_pack = Column(Integer, ForeignKey('TipoPaquete.IdTipoPaquete'), name='IdTipoPaquete')
+    id_pack = Column(Integer, ForeignKey('tipopaquete.idtipopaquete'), name='idtipopaquete')
     package = relationship('Package', back_populates='products')
 
-    id_depart = Column(Integer, ForeignKey('Departamento.IdDepartamento'), name='IdDepartamento')
+    id_depart = Column(Integer, ForeignKey('departamento.iddepartamento'), name='iddepartamento')
     department = relationship('Department', back_populates='products')
 
     sales = relationship('Sale')
 
 
 class Sale(Base):
-    __tablename__ = 'Venta'
-    id_sale = Column(Integer, primary_key=True, name='IdVenta')
-    date = Column(Date, name='Fecha')
+    __tablename__ = 'venta'
+    id_sale = Column(Integer, primary_key=True, name='idventa')
+    date = Column(Date, name='fecha')
 
-    id_prod = Column(Integer, ForeignKey('Producto.IdProducto'), name='IdProducto')
-    id_store = Column(Integer, ForeignKey('Tienda.IdTienda'), name='IdTienda')
+    id_prod = Column(Integer, ForeignKey('producto.idproducto'), name='idproducto')
+    id_store = Column(Integer, ForeignKey('tienda.idtienda'), name='idtienda')
 
-    quantity_sold = Column(Integer, name='Cantidad_Vendida')
-    payment = Column(Integer, name='Pago')
+    quantity_sold = Column(Integer, name='cantidad_vendida')
+    payment = Column(Integer, name='pago')
 
 
 if __name__ == "__main__":
