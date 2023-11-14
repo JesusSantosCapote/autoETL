@@ -24,7 +24,7 @@ class PostgreSqlCrawler(Crawler):
                 'attributes': [],
                 'relations': []
             }
-            self._metadata_str.join(f"Table: {table_name[0]}\n")
+            self._metadata_str = self._metadata_str + f"Table: {table_name[0]}\n"
 
             # Get table column information
             cursor.execute(sql.SQL("SELECT column_name, data_type FROM information_schema.columns WHERE table_name = %s"),
@@ -33,7 +33,7 @@ class PostgreSqlCrawler(Crawler):
 
             for column in columns:
                 table_info['attributes'].append((column[0], column[1]))
-                self._metadata_str.join(f"  Column: {column[0]} - Type: {column[1]}\n")
+                self._metadata_str = self._metadata_str + f"  Column: {column[0]} - Type: {column[1]}\n"
 
             # Get the foreign keys of the table
             cursor.execute(sql.SQL("""
@@ -59,12 +59,10 @@ class PostgreSqlCrawler(Crawler):
                 to_elements = [tupla[2] for tupla in table_info['relations']]
                 if fk_to_save[0] not in from_elements and fk_to_save[2] not in to_elements:
                     table_info['relations'].append(fk_to_save)
-                    self._metadata_str.join(
-                        f"  Foreign Key: {foreign_key[0]} - Table Name: {foreign_key[1]} - Column Name: {foreign_key[2]} - "
-                        f"Referenced Table Name: {foreign_key[3]} - Referenced Column Name: {foreign_key[4]}\n")
+                    self._metadata_str = self._metadata_str + f"  Foreign Key: {foreign_key[0]} - Table Name: {foreign_key[1]} - Column Name: {foreign_key[2]} - " + f"Referenced Table Name: {foreign_key[3]} - Referenced Column Name: {foreign_key[4]}\n"
 
             self._db_dict[table_name[0]] = table_info
-            self._metadata_str.join('\n')
+            self._metadata_str = self._metadata_str + '\n'
 
         cursor.close()
         connection.close()
@@ -81,7 +79,7 @@ class PostgreSqlCrawler(Crawler):
 
     def export_metadata_to_file(self):
         path = os.path.join(os.getcwd(), 'crawler', 'data', f"{self._db_params['dbname']}_metadata.txt")
-        with open(path) as file:
+        with open(path, mode='w') as file:
             try:
                 file.write(self._metadata_str)
                 logger.info('Metadata exported correctly')
