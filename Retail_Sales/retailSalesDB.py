@@ -8,11 +8,11 @@ import psycopg2
 
 dialect = CONNECTION_INFO['dialect']
 driver = CONNECTION_INFO['driver']
-user = CONNECTION_INFO['username']
+user = CONNECTION_INFO['user']
 password = CONNECTION_INFO['password']
 host = CONNECTION_INFO['host']
 port = CONNECTION_INFO['port']
-database = CONNECTION_INFO['database']
+database = CONNECTION_INFO['dbname']
 
 connection = psycopg2.connect(user=user, password=password, host=host, port=port)
 cursor = connection.cursor()

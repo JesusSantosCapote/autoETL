@@ -20,11 +20,11 @@ rand.seed(SEED)
 
 dialect = CONNECTION_INFO['dialect']
 driver = CONNECTION_INFO['driver']
-user = CONNECTION_INFO['username']
+user = CONNECTION_INFO['user']
 password = CONNECTION_INFO['password']
 host = CONNECTION_INFO['host']
 port = CONNECTION_INFO['port']
-database = CONNECTION_INFO['database']
+database = CONNECTION_INFO['dbname']
 
 engine = create_engine(f'{dialect}+{driver}://{user}:{password}@{host}:{port}/{database}', echo=True, future=True)
 conn = engine.connect()

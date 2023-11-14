@@ -109,15 +109,15 @@ class VisitorSemanticCheck(Visitor):
                 
                 if isinstance(attr, (AggAttribute, Attribute, AttributeFunction)):
                     number_of_attr += 1
-                    if attr.table_name.startswith('Dim.'):
-                        table = attr.table_name.split('.')[1]
-                        if not table in self.symbol_table.keys():
-                            logger.error(f"Dimensional Table {table} used but not defined")
-                            self.good_semantic = False
-                        else:
-                            if not attr.name in self.symbol_table[table]:
-                                logger.error(f"Attribute with {attr.name} as name or alias, refered in table {dimensional_table.name} is not defined in Dimensional Table {table}")
-                                self.good_semantic = False
+                    # if attr.table_name.startswith('Dim.'):
+                    #     table = attr.table_name.split('.')[1]
+                    #     if not table in self.symbol_table.keys():
+                    #         logger.error(f"Dimensional Table {table} used but not defined")
+                    #         self.good_semantic = False
+                    #     else:
+                    #         if not attr.name in self.symbol_table[table]:
+                    #             logger.error(f"Attribute with {attr.name} as name or alias, refered in table {dimensional_table.name} is not defined in Dimensional Table {table}")
+                    #             self.good_semantic = False
 
             if agg_attr_count > 1:
                 if attr_expr.alias:
@@ -157,4 +157,22 @@ class VisitorSemanticCheck(Visitor):
 
 class VisitorPostgreSQL(Visitor):
     def __init__(self) -> None:
-        pass   
+        super().__init__()
+        self.query_list = []
+
+    def visit_dimensional_model(self, dimensional_model:DimensionalModel):
+        for table in dimensional_model.dimensional_table_list:
+            table.accept(self)
+
+    def visit_dimensional_table(self, dimensional_table:DimensionalTable):
+        query = ''
+        attr_to_select = []
+        for attr_expr in dimensional_table.list_attr:
+            for elem in attr_expr.elements:
+                if isinstance(elem, (Attribute, AttributeFunction, AggAttribute)):
+                    if elem.table_name != 'self':
+                            attr_to_select.append(elem)
+
+                #join = compute_join(attr_to_select)
+                        
+            
