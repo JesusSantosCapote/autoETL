@@ -12,9 +12,14 @@ class PostgreSqlCrawler(Crawler):
         
     
     def explore_db(self):
-        connection = psycopg2.connect(**self._db_params)
-        cursor = connection.cursor()
-
+        try:
+            connection = psycopg2.connect(**self._db_params)
+            cursor = connection.cursor()
+            logger.info(f"Connection with database: {self._db_params['dbname']} succefully")
+        except Exception as e:
+            logger.error(e)
+            return
+        
         # Database table list
         cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'")
         table_names = cursor.fetchall()
@@ -27,13 +32,28 @@ class PostgreSqlCrawler(Crawler):
             self._metadata_str = self._metadata_str + f"Table: {table_name[0]}\n"
 
             # Get table column information
-            cursor.execute(sql.SQL("SELECT column_name, data_type FROM information_schema.columns WHERE table_name = %s"),
+            cursor.execute(sql.SQL("""SELECT c.column_name
+                                        FROM information_schema.key_column_usage AS c
+                                        LEFT JOIN information_schema.table_constraints AS t
+                                        ON t.constraint_name = c.constraint_name
+                                        WHERE t.table_name = %s AND t.constraint_type = 'PRIMARY KEY';"""),
                         [table_name[0]])
+            result = cursor.fetchall()
+            primary_keys = []
+            for pk in result:
+                primary_keys.append(pk[0])
+
+            cursor.execute(sql.SQL("SELECT column_name, data_type FROM information_schema.columns WHERE table_name = %s"),
+                       [table_name[0]])
             columns = cursor.fetchall()
 
             for column in columns:
-                table_info['attributes'].append((column[0], column[1]))
-                self._metadata_str = self._metadata_str + f"  Column: {column[0]} - Type: {column[1]}\n"
+                if column[0] in primary_keys: 
+                    table_info['attributes'].append((column[0], column[1], 'PRIMARY KEY'))
+                    self._metadata_str = self._metadata_str + f"  Column: {column[0]} - Type: {column[1]} - PK: TRUE\n"
+                else:
+                    table_info['attributes'].append((column[0], column[1]))
+                    self._metadata_str = self._metadata_str + f"  Column: {column[0]} - Type: {column[1]}\n"
 
             # Get the foreign keys of the table
             cursor.execute(sql.SQL("""
