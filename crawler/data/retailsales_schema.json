@@ -37,29 +37,211 @@
             ]
         ]
     },
-    "testeando": {
+    "marca": {
         "attributes": [
+            [
+                "idmarca",
+                "integer",
+                "PRIMARY KEY"
+            ],
+            [
+                "nombre",
+                "character varying"
+            ]
+        ],
+        "relations": []
+    },
+    "producto": {
+        "attributes": [
+            [
+                "iddepartamento",
+                "integer"
+            ],
             [
                 "idproducto",
                 "integer",
                 "PRIMARY KEY"
             ],
             [
+                "precio",
+                "integer"
+            ],
+            [
+                "costo",
+                "integer"
+            ],
+            [
+                "idmarca",
+                "integer"
+            ],
+            [
+                "idcategoria",
+                "integer"
+            ],
+            [
+                "idtipopaquete",
+                "integer"
+            ],
+            [
+                "nombre",
+                "character varying"
+            ]
+        ],
+        "relations": [
+            [
+                "idmarca",
+                "marca",
+                "idmarca"
+            ],
+            [
+                "idcategoria",
+                "categoria",
+                "idcategoria"
+            ],
+            [
+                "idtipopaquete",
+                "tipopaquete",
+                "idtipopaquete"
+            ],
+            [
+                "iddepartamento",
+                "departamento",
+                "iddepartamento"
+            ]
+        ]
+    },
+    "categoria": {
+        "attributes": [
+            [
+                "idcategoria",
+                "integer",
+                "PRIMARY KEY"
+            ],
+            [
+                "nombre",
+                "character varying"
+            ]
+        ],
+        "relations": []
+    },
+    "tipopaquete": {
+        "attributes": [
+            [
+                "idtipopaquete",
+                "integer",
+                "PRIMARY KEY"
+            ],
+            [
+                "nombre",
+                "character varying"
+            ]
+        ],
+        "relations": []
+    },
+    "departamento": {
+        "attributes": [
+            [
+                "iddepartamento",
+                "integer",
+                "PRIMARY KEY"
+            ],
+            [
+                "nombre",
+                "character varying"
+            ],
+            [
+                "descripcion",
+                "character varying"
+            ]
+        ],
+        "relations": []
+    },
+    "reparto": {
+        "attributes": [
+            [
+                "idreparto",
+                "integer",
+                "PRIMARY KEY"
+            ],
+            [
+                "idmunicipio",
+                "integer"
+            ],
+            [
+                "nombre",
+                "character varying"
+            ]
+        ],
+        "relations": [
+            [
+                "idmunicipio",
+                "municipio",
+                "idmunicipio"
+            ]
+        ]
+    },
+    "tienda": {
+        "attributes": [
+            [
                 "idtienda",
                 "integer",
                 "PRIMARY KEY"
+            ],
+            [
+                "idreparto",
+                "integer"
+            ],
+            [
+                "nombre",
+                "character varying"
+            ]
+        ],
+        "relations": [
+            [
+                "idreparto",
+                "reparto",
+                "idreparto"
+            ]
+        ]
+    },
+    "venta": {
+        "attributes": [
+            [
+                "idventa",
+                "integer",
+                "PRIMARY KEY"
+            ],
+            [
+                "fecha",
+                "date"
+            ],
+            [
+                "idproducto",
+                "integer"
+            ],
+            [
+                "idtienda",
+                "integer"
+            ],
+            [
+                "cantidad_vendida",
+                "integer"
+            ],
+            [
+                "pago",
+                "integer"
             ]
         ],
         "relations": [
             [
                 "idproducto",
-                "provincia",
-                "idprovincia"
+                "producto",
+                "idproducto"
             ],
             [
                 "idtienda",
-                "municipio",
-                "idmunicipio"
+                "tienda",
+                "idtienda"
             ]
         ]
     }

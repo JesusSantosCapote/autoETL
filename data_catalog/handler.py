@@ -28,18 +28,16 @@ class DataCatalogHandler():
 
             for table in self.db_dict.keys():
                 attrs = [] #This is needed because neo4j dont support list of lists
-                rels = []
-                for attr, attr_type in self.db_dict[table]['attributes']:
-                    attrs.append(attr)
-                    attrs.append(attr_type)
+                for attr_properties in self.db_dict[table]['attributes']:
+                    attrs.append(attr_properties[0])
+                    attrs.append(attr_properties[1])
+                    if len(attr_properties) == 3:
+                        attrs.append(attr_properties[2])
+                    else:
+                        attrs.append('Constraint_Not_Specified')
 
-                for fk, ref_table, ref_attr in self.db_dict[table]['relations']:
-                    rels.append(fk)
-                    rels.append(ref_table)
-                    rels.append(ref_attr)
-
-                query = """MERGE (:Table {name:$table, attributes: $attr_list, relations: $rel})"""
-                session.run(query, parameters={'table':table, 'attr_list': attrs, 'rel': rels})
+                query = """MERGE (:Table {name:$table, attributes: $attr_list})"""
+                session.run(query, parameters={'table':table, 'attr_list': attrs})
                 
             for table in self.db_dict.keys():
                 for fk, ref_table, ref_attr in self.db_dict[table]['relations']:
@@ -60,5 +58,44 @@ class DataCatalogHandler():
         except Exception as e:
             logger.error(e)
 
-        with driver.session(database='neo4j') as session:
-            query = """MATCH (t1:Table) -[r1:HAS_FK_TO]"""
+        join_graph = DiGraph()
+        query = """MATCH (t1:Table) RETURN t1"""
+        tables,_,_ = driver.execute_query(query,database_='neo4j')
+
+        #Graph Nodes
+        for table in tables:
+            atributes = []
+            pks = []
+            for i in range(0, len(table['t1']['attributes']), 3):
+                temp = []
+                for j in range(i, i+3):
+                    temp.append(table['t1']['attributes'][j])
+                atributes.append(tuple(temp))
+                if 'PRIMARY KEY' in temp:
+                    pks.append(temp[0])
+
+            join_graph.add_node(table['t1']['name'], attrs = atributes, pks = pks)
+
+        #Graph Edges
+        query = """MATCH (t1:Table) -[r:HAS_FK_TO]-> (t2:Table) RETURN t1.name, r, t2.name"""
+        edges,_,_ = driver.execute_query(query, database_='neo4j')
+
+        for edge in edges:
+            t1 = edge[0]
+            t2 = edge[2]
+            if join_graph.has_edge(t1, t2):
+                join_graph.edges[t1, t2]['conditions'].append((edge['r']['foreign_key'], edge['r']['referenced_attr']))
+
+            else:
+                join_graph.add_edge(t1, t2, 
+                                    conditions = [(edge['r']['foreign_key'], edge['r']['referenced_attr'])], 
+                                    weight = 1)
+                
+                        
+        
+            
+
+
+
+        
+                

@@ -19,3 +19,5 @@ c.export_metadata_to_file()
 dc = DataCatalogHandler(c.get_db_dict(), 'neo4j', 'datacatalog', 'bolt://172.20.0.4:7687')
 
 dc.create_data_catalog()
+
+dc.get_join_graph()
