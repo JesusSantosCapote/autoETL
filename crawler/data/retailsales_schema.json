@@ -22,7 +22,8 @@
             ],
             [
                 "idprovincia",
-                "integer"
+                "integer",
+                "FOREIGN KEY"
             ],
             [
                 "nombre",
@@ -55,7 +56,8 @@
         "attributes": [
             [
                 "iddepartamento",
-                "integer"
+                "integer",
+                "FOREIGN KEY"
             ],
             [
                 "idproducto",
@@ -72,15 +74,18 @@
             ],
             [
                 "idmarca",
-                "integer"
+                "integer",
+                "FOREIGN KEY"
             ],
             [
                 "idcategoria",
-                "integer"
+                "integer",
+                "FOREIGN KEY"
             ],
             [
                 "idtipopaquete",
-                "integer"
+                "integer",
+                "FOREIGN KEY"
             ],
             [
                 "nombre",
@@ -165,7 +170,8 @@
             ],
             [
                 "idmunicipio",
-                "integer"
+                "integer",
+                "FOREIGN KEY"
             ],
             [
                 "nombre",
@@ -189,7 +195,8 @@
             ],
             [
                 "idreparto",
-                "integer"
+                "integer",
+                "FOREIGN KEY"
             ],
             [
                 "nombre",
@@ -217,11 +224,13 @@
             ],
             [
                 "idproducto",
-                "integer"
+                "integer",
+                "FOREIGN KEY"
             ],
             [
                 "idtienda",
-                "integer"
+                "integer",
+                "FOREIGN KEY"
             ],
             [
                 "cantidad_vendida",

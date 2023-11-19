@@ -84,26 +84,55 @@ edges = [(1,2), (2,4), (4,3), (3,2), (5,4), (5,6), (5,7), (9,7), (7,8)]
 g.add_edges_from(edges, weight=1)
 
 tpc_h = DiGraph()
-tpc_h.add_node('part', attrs=['partkey', 'name', 'brand'])
-tpc_h.add_node('supplier', attrs=['supkey', 'name', 'nationkey'])
-tpc_h.add_node('partsupp', attrs=['partkey', 'supkey', 'qty'])
-tpc_h.add_node('customer', attrs=['custkey', 'name', 'address', 'nationkey'])
-tpc_h.add_node('orders', attrs=['orderkey', 'custkey', 'status', 'totalprice'])
-tpc_h.add_node('lineitem', attrs=['orderkey', 'partkey', 'supkey', 'linenumber', 'status', 'qty'])
-tpc_h.add_node('nation', attrs=['nationkey', 'name', 'regionkey', 'comment'])
-tpc_h.add_node('region', attrs=['regionkey', 'name', 'comment'])
+tpc_h.add_node('part', attrs=[('partkey', 'integer', 'PRIMARY KEY'), 
+                              ('name', 'character varying', 'Constraint_Not_Specified'), 
+                              ('brand', 'character varying', 'Constraint_Not_Specified')])
+
+tpc_h.add_node('supplier', attrs=[('supkey', 'integer', 'PRIMARY KEY'), 
+                                  ('name', 'character varying', 'Constraint_Not_Specified'), 
+                                  ('nationkey', 'integer', 'FOREIGN KEY')])
+
+tpc_h.add_node('partsupp', attrs=[('partkey', 'integer', 'PK FK'), 
+                                  ('supkey', 'integer', 'PK FK'), 
+                                  ('qty', 'integer', 'Constraint_Not_Specified')])
+
+tpc_h.add_node('customer', attrs=[('custkey', 'integer', 'PRIMARY KEY'), 
+                                  ('name', 'character varying', 'Constraint_Not_Specified'), 
+                                  ('address', 'character varying', 'Constraint_Not_Specified'), 
+                                  ('nationkey', 'integer', 'FOREIGN KEY')])
+
+tpc_h.add_node('orders', attrs=[('orderkey', 'integer', 'PRIMARY KEY'), 
+                                ('custkey', 'integer', 'FOREIGN KEY'), 
+                                ('status', 'character varying', 'Constraint_Not_Specified'), 
+                                ('totalprice', 'integer', 'Constraint_Not_Specified')])
+
+tpc_h.add_node('lineitem', attrs=[('orderkey', 'integer', 'FOREIGN KEY'), 
+                                  ('partkey', 'integer', 'FOREIGN KEY'), 
+                                  ('supkey', 'integer', 'FOREIGN KEY'), 
+                                  ('linenumber', 'integer', 'PRIMARY KEY'), 
+                                  ('status', 'character varying', 'Constraint_Not_Specified'), 
+                                  ('qty', 'integer', 'Constraint_Not_Specified')])
+
+tpc_h.add_node('nation', attrs=[('nationkey', 'integer', 'PRIMARY KEY'), 
+                                ('name', 'character varying', 'Constraint_Not_Specified'), 
+                                ('regionkey', 'integer', 'FOREIGN KEY'), 
+                                ('comment', 'character varying', 'Constraint_Not_Specified')])
+
+tpc_h.add_node('region', attrs=[('regionkey', 'integer', 'PRIMARY KEY'), 
+                                ('name', 'character varying', 'Constraint_Not_Specified'), 
+                                ('comment', 'character varying', 'Constraint_Not_Specified')])
 
 edges = [
-    ('lineitem', 'part', {'condition': [('partkey', 'partkey')], 'weight':1}),
-    ('lineitem', 'partsupp', {'condition': [('partkey', 'partkey'), ('supkey', 'supkey')], 'weight':1}),
-    ('lineitem', 'supplier', {'condition': [('supkey', 'supkey')], 'weight':1}),
-    ('lineitem', 'orders', {'condition':[('orderkey', 'orderkey')], 'weight':1}),
-    ('partsupp', 'part', {'condition': [('partkey', 'partkey')], 'weight':1}),
-    ('partsupp', 'supplier', {'condition': [('supkey', 'supkey')], 'weight':1}),
-    ('supplier', 'nation', {'condition': [('nationkey', 'nationkey')], 'weight':1}),
-    ('nation', 'region', {'condition': [('regionkey', 'regionkey')], 'weight':1}),
-    ('orders', 'customer', {'condition': [('custkey', 'custkey')], 'weight':1}),
-    ('customer', 'nation', {'condition': [('nationkey', 'nationkey')], 'weight':1})
+    ('lineitem', 'part', {'conditions': [('partkey', 'partkey')], 'weight':1}),
+    ('lineitem', 'partsupp', {'conditions': [('partkey', 'partkey'), ('supkey', 'supkey')], 'weight':1}),
+    ('lineitem', 'supplier', {'conditions': [('supkey', 'supkey')], 'weight':1}),
+    ('lineitem', 'orders', {'conditions':[('orderkey', 'orderkey')], 'weight':1}),
+    ('partsupp', 'part', {'conditions': [('partkey', 'partkey')], 'weight':1}),
+    ('partsupp', 'supplier', {'conditions': [('supkey', 'supkey')], 'weight':1}),
+    ('supplier', 'nation', {'conditions': [('nationkey', 'nationkey')], 'weight':1}),
+    ('nation', 'region', {'conditions': [('regionkey', 'regionkey')], 'weight':1}),
+    ('orders', 'customer', {'conditions': [('custkey', 'custkey')], 'weight':1}),
+    ('customer', 'nation', {'conditions': [('nationkey', 'nationkey')], 'weight':1})
 ]
 
 tpc_h.add_edges_from(edges)

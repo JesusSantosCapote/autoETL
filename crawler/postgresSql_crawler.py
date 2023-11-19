@@ -49,10 +49,10 @@ class PostgreSqlCrawler(Crawler):
 
             for column in columns:
                 if column[0] in primary_keys: 
-                    table_info['attributes'].append((column[0], column[1], 'PRIMARY KEY'))
+                    table_info['attributes'].append([column[0], column[1], 'PRIMARY KEY'])
                     self._metadata_str = self._metadata_str + f"  Column: {column[0]} - Type: {column[1]} - PK: TRUE\n"
                 else:
-                    table_info['attributes'].append((column[0], column[1]))
+                    table_info['attributes'].append([column[0], column[1]])
                     self._metadata_str = self._metadata_str + f"  Column: {column[0]} - Type: {column[1]}\n"
 
             # Get the foreign keys of the table
@@ -74,6 +74,14 @@ class PostgreSqlCrawler(Crawler):
             foreign_keys = cursor.fetchall()
 
             for foreign_key in foreign_keys:
+
+                for attr, index in zip(table_info['attributes'], range(len(table_info['attributes']))):
+                    if attr[0] == foreign_key[2]:
+                        if len(attr) == 2:
+                            table_info['attributes'][index].append('FOREIGN KEY')
+                        else:
+                            table_info['attributes'][index].append('PK FK')
+
                 fk_to_save = (foreign_key[2], foreign_key[3], foreign_key[4])
                 from_elements = [tupla[0] for tupla in table_info['relations']]
                 to_elements = [tupla[2] for tupla in table_info['relations']]
