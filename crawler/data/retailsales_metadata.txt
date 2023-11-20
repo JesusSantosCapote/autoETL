@@ -1,63 +1,41 @@
-Table: provincia
-  Column: idprovincia - Type: integer - PK: TRUE
-  Column: nombre - Type: character varying
+Table: region
+  Column: regionkey - Type: integer - PK: TRUE
 
-Table: municipio
-  Column: idmunicipio - Type: integer - PK: TRUE
-  Column: idprovincia - Type: integer
-  Column: nombre - Type: character varying
-  Foreign Key: municipio_idprovincia_fkey - Table Name: municipio - Column Name: idprovincia - Referenced Table Name: provincia - Referenced Column Name: idprovincia
+Table: nation
+  Column: nationkey - Type: integer - PK: TRUE
+  Column: regionkey - Type: integer
+  Foreign Key: nation_regionkey_fkey - Table Name: nation - Column Name: regionkey - Referenced Table Name: region - Referenced Column Name: regionkey
 
-Table: marca
-  Column: idmarca - Type: integer - PK: TRUE
-  Column: nombre - Type: character varying
+Table: customer
+  Column: custkey - Type: integer - PK: TRUE
+  Column: nationkey - Type: integer
+  Foreign Key: customer_nationkey_fkey - Table Name: customer - Column Name: nationkey - Referenced Table Name: nation - Referenced Column Name: nationkey
 
-Table: producto
-  Column: iddepartamento - Type: integer
-  Column: idproducto - Type: integer - PK: TRUE
-  Column: precio - Type: integer
-  Column: costo - Type: integer
-  Column: idmarca - Type: integer
-  Column: idcategoria - Type: integer
-  Column: idtipopaquete - Type: integer
-  Column: nombre - Type: character varying
-  Foreign Key: producto_idmarca_fkey - Table Name: producto - Column Name: idmarca - Referenced Table Name: marca - Referenced Column Name: idmarca
-  Foreign Key: producto_idcategoria_fkey - Table Name: producto - Column Name: idcategoria - Referenced Table Name: categoria - Referenced Column Name: idcategoria
-  Foreign Key: producto_idtipopaquete_fkey - Table Name: producto - Column Name: idtipopaquete - Referenced Table Name: tipopaquete - Referenced Column Name: idtipopaquete
-  Foreign Key: producto_iddepartamento_fkey - Table Name: producto - Column Name: iddepartamento - Referenced Table Name: departamento - Referenced Column Name: iddepartamento
+Table: supplier
+  Column: supkey - Type: integer - PK: TRUE
+  Column: nationkey - Type: integer
+  Foreign Key: supplier_nationkey_fkey - Table Name: supplier - Column Name: nationkey - Referenced Table Name: nation - Referenced Column Name: nationkey
 
-Table: categoria
-  Column: idcategoria - Type: integer - PK: TRUE
-  Column: nombre - Type: character varying
+Table: buy_order
+  Column: orderkey - Type: integer - PK: TRUE
+  Column: custkey - Type: integer
+  Foreign Key: buy_order_custkey_fkey - Table Name: buy_order - Column Name: custkey - Referenced Table Name: customer - Referenced Column Name: custkey
 
-Table: tipopaquete
-  Column: idtipopaquete - Type: integer - PK: TRUE
-  Column: nombre - Type: character varying
+Table: part
+  Column: partkey - Type: integer - PK: TRUE
 
-Table: departamento
-  Column: iddepartamento - Type: integer - PK: TRUE
-  Column: nombre - Type: character varying
-  Column: descripcion - Type: character varying
+Table: partsup
+  Column: partkey - Type: integer - PK: TRUE
+  Column: supkey - Type: integer - PK: TRUE
+  Foreign Key: partsup_partkey_fkey - Table Name: partsup - Column Name: partkey - Referenced Table Name: part - Referenced Column Name: partkey
+  Foreign Key: partsup_supkey_fkey - Table Name: partsup - Column Name: supkey - Referenced Table Name: supplier - Referenced Column Name: supkey
 
-Table: reparto
-  Column: idreparto - Type: integer - PK: TRUE
-  Column: idmunicipio - Type: integer
-  Column: nombre - Type: character varying
-  Foreign Key: reparto_idmunicipio_fkey - Table Name: reparto - Column Name: idmunicipio - Referenced Table Name: municipio - Referenced Column Name: idmunicipio
-
-Table: tienda
-  Column: idtienda - Type: integer - PK: TRUE
-  Column: idreparto - Type: integer
-  Column: nombre - Type: character varying
-  Foreign Key: tienda_idreparto_fkey - Table Name: tienda - Column Name: idreparto - Referenced Table Name: reparto - Referenced Column Name: idreparto
-
-Table: venta
-  Column: idventa - Type: integer - PK: TRUE
-  Column: fecha - Type: date
-  Column: idproducto - Type: integer
-  Column: idtienda - Type: integer
-  Column: cantidad_vendida - Type: integer
-  Column: pago - Type: integer
-  Foreign Key: venta_idproducto_fkey - Table Name: venta - Column Name: idproducto - Referenced Table Name: producto - Referenced Column Name: idproducto
-  Foreign Key: venta_idtienda_fkey - Table Name: venta - Column Name: idtienda - Referenced Table Name: tienda - Referenced Column Name: idtienda
+Table: line
+  Column: linenumber - Type: integer - PK: TRUE
+  Column: partkey - Type: integer
+  Column: supkey - Type: integer
+  Column: orderkey - Type: integer
+  Foreign Key: line_partkey_fkey - Table Name: line - Column Name: partkey - Referenced Table Name: part - Referenced Column Name: partkey
+  Foreign Key: line_supkey_fkey - Table Name: line - Column Name: supkey - Referenced Table Name: supplier - Referenced Column Name: supkey
+  Foreign Key: line_orderkey_fkey - Table Name: line - Column Name: orderkey - Referenced Table Name: buy_order - Referenced Column Name: orderkey
 
