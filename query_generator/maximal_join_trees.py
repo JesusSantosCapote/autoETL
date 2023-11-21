@@ -2,14 +2,15 @@ from all_spanning_trees import networkX_all_spanning_trees
 from networkx import DiGraph
 from networkx.algorithms.components import strongly_connected_components
 from collections import deque
-
+from join_computation import compute_joins
+#TODO fix imports
 
 def set_height(graph:DiGraph, root):
     visited = {node:False for node in graph.nodes}
     visited[root] = True
     queue = deque()
     queue.append(root)
-    graph.nodes[root]['heigth'] = 0
+    graph.nodes[root]['height'] = 0
 
     while queue:
         current = queue.popleft()
@@ -17,7 +18,7 @@ def set_height(graph:DiGraph, root):
             if not visited[node]:
                 visited[node] = True
                 queue.append(node)
-                graph.nodes[node]['heigth'] = graph.nodes[current]['heigth'] + 1
+                graph.nodes[node]['height'] = graph.nodes[current]['height'] + 1
 
 
 def find_reachable(graph:DiGraph, source):
@@ -77,7 +78,6 @@ def maximal_join_trees_generator(join_graph:DiGraph):
     return result
 
 
-
 g = DiGraph()
 edges = [(1,2), (2,4), (4,3), (3,2), (5,4), (5,6), (5,7), (9,7), (7,8)]
 
@@ -86,46 +86,46 @@ g.add_edges_from(edges, weight=1)
 tpc_h = DiGraph()
 tpc_h.add_node('part', attrs=[('partkey', 'integer', 'PRIMARY KEY'), 
                               ('name', 'character varying', 'Constraint_Not_Specified'), 
-                              ('brand', 'character varying', 'Constraint_Not_Specified')])
+                              ('brand', 'character varying', 'Constraint_Not_Specified')], pks=['partkey'])
 
 tpc_h.add_node('supplier', attrs=[('supkey', 'integer', 'PRIMARY KEY'), 
                                   ('name', 'character varying', 'Constraint_Not_Specified'), 
-                                  ('nationkey', 'integer', 'FOREIGN KEY')])
+                                  ('nationkey', 'integer', 'FOREIGN KEY')], pks=['supkey'])
 
 tpc_h.add_node('partsupp', attrs=[('partkey', 'integer', 'PK FK'), 
                                   ('supkey', 'integer', 'PK FK'), 
-                                  ('qty', 'integer', 'Constraint_Not_Specified')])
+                                  ('qty', 'integer', 'Constraint_Not_Specified')], pks=['partkey', 'supkey'])
 
 tpc_h.add_node('customer', attrs=[('custkey', 'integer', 'PRIMARY KEY'), 
                                   ('name', 'character varying', 'Constraint_Not_Specified'), 
                                   ('address', 'character varying', 'Constraint_Not_Specified'), 
-                                  ('nationkey', 'integer', 'FOREIGN KEY')])
+                                  ('nationkey', 'integer', 'FOREIGN KEY')], pks=['custkey'])
 
 tpc_h.add_node('orders', attrs=[('orderkey', 'integer', 'PRIMARY KEY'), 
                                 ('custkey', 'integer', 'FOREIGN KEY'), 
                                 ('status', 'character varying', 'Constraint_Not_Specified'), 
-                                ('totalprice', 'integer', 'Constraint_Not_Specified')])
+                                ('totalprice', 'integer', 'Constraint_Not_Specified')], pks=['orderkey'])
 
 tpc_h.add_node('lineitem', attrs=[('orderkey', 'integer', 'FOREIGN KEY'), 
                                   ('partkey', 'integer', 'FOREIGN KEY'), 
                                   ('supkey', 'integer', 'FOREIGN KEY'), 
                                   ('linenumber', 'integer', 'PRIMARY KEY'), 
                                   ('status', 'character varying', 'Constraint_Not_Specified'), 
-                                  ('qty', 'integer', 'Constraint_Not_Specified')])
+                                  ('qty', 'integer', 'Constraint_Not_Specified')], pks=['linenumber'])
 
 tpc_h.add_node('nation', attrs=[('nationkey', 'integer', 'PRIMARY KEY'), 
                                 ('name', 'character varying', 'Constraint_Not_Specified'), 
                                 ('regionkey', 'integer', 'FOREIGN KEY'), 
-                                ('comment', 'character varying', 'Constraint_Not_Specified')])
+                                ('comment', 'character varying', 'Constraint_Not_Specified')], pks=['nationkey'])
 
 tpc_h.add_node('region', attrs=[('regionkey', 'integer', 'PRIMARY KEY'), 
                                 ('name', 'character varying', 'Constraint_Not_Specified'), 
-                                ('comment', 'character varying', 'Constraint_Not_Specified')])
+                                ('comment', 'character varying', 'Constraint_Not_Specified')], pks=['regionkey'])
 
 edges = [
     ('lineitem', 'part', {'conditions': [('partkey', 'partkey')], 'weight':1}),
-    ('lineitem', 'partsupp', {'conditions': [('partkey', 'partkey'), ('supkey', 'supkey')], 'weight':1}),
     ('lineitem', 'supplier', {'conditions': [('supkey', 'supkey')], 'weight':1}),
+    ('lineitem', 'partsupp', {'conditions': [('partkey', 'partkey'), ('supkey', 'supkey')], 'weight':1}),
     ('lineitem', 'orders', {'conditions':[('orderkey', 'orderkey')], 'weight':1}),
     ('partsupp', 'part', {'conditions': [('partkey', 'partkey')], 'weight':1}),
     ('partsupp', 'supplier', {'conditions': [('supkey', 'supkey')], 'weight':1}),
@@ -138,11 +138,7 @@ edges = [
 tpc_h.add_edges_from(edges)
 
 
-# print(in_edge_from_outside(g, 2, [2, 3, 4]))
-# print(find_reachable(g, 2))
+t = maximal_join_trees_generator(tpc_h)
 
-for i in maximal_join_trees_generator(tpc_h):
-    print(i.nodes)
-    print(i.edges)
-    print(i.graph['root'])
-
+a = [('part','name'), ('supplier', 'name')]
+j = compute_joins(t, a)
