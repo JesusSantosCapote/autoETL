@@ -8,7 +8,3 @@ def networkX_all_spanning_trees(graph:DiGraph) -> list[DiGraph]:
         result.append(tree)
 
     return result
-
-
-
-

@@ -58,34 +58,44 @@ class PostgreSqlCrawler(Crawler):
             # Get the foreign keys of the table
             cursor.execute(sql.SQL("""
                 SELECT 
-                    conname AS foreign_key_name,
-                    conrelid::regclass AS table_name,
-                    a.attname AS column_name,
-                    confrelid::regclass AS referenced_table_name,
-                    af.attname AS referenced_column_name
+                    conname AS foreign_key_name
                 FROM 
                     pg_constraint AS c
-                    JOIN pg_attribute AS a ON a.attnum = ANY(c.conkey) AND a.attrelid = c.conrelid
-                    JOIN pg_attribute AS af ON af.attnum = ANY(c.confkey) AND af.attrelid = c.confrelid
                 WHERE 
                     c.contype = 'f' 
                     AND c.conrelid = %s::regclass;
             """), [table_name[0]])
-            foreign_keys = cursor.fetchall()
+            foreign_keys_names = cursor.fetchall()
+
+            foreign_keys = []
+            for fk_name in foreign_keys_names:
+                cursor.execute(sql.SQL("""
+                    SELECT conname AS constraint_name, conrelid::regclass AS table_name, ta.attname AS column_name,
+                        confrelid::regclass AS foreign_table_name, fa.attname AS foreign_column_name
+                    FROM (
+                            SELECT conname, conrelid, confrelid,
+                                    unnest(conkey) AS conkey, unnest(confkey) AS confkey
+                            FROM pg_constraint
+                            WHERE conname = %s
+                        ) AS sub
+                    JOIN pg_attribute AS ta ON ta.attrelid = sub.conrelid AND ta.attnum = sub.conkey
+                    JOIN pg_attribute AS fa ON fa.attrelid = sub.confrelid AND fa.attnum = sub.confkey;"""), [fk_name])
+                records = cursor.fetchall()
+                print(records)
+                foreign_keys.extend(records)
 
             for foreign_key in foreign_keys:
-
                 for attr, index in zip(table_info['attributes'], range(len(table_info['attributes']))):
                     if attr[0] == foreign_key[2]:
                         if len(attr) == 2:
                             table_info['attributes'][index].append('FOREIGN KEY')
                         else:
-                            table_info['attributes'][index].append('PK FK')
+                            table_info['attributes'][index][2] = 'PK FK'
 
                 fk_to_save = (foreign_key[2], foreign_key[3], foreign_key[4])
                 from_elements = [tupla[0] for tupla in table_info['relations']]
                 to_elements = [tupla[2] for tupla in table_info['relations']]
-                if fk_to_save[0] not in from_elements and fk_to_save[2] not in to_elements:
+                if fk_to_save not in table_info['relations']:
                     table_info['relations'].append(fk_to_save)
                     self._metadata_str = self._metadata_str + f"  Foreign Key: {foreign_key[0]} - Table Name: {foreign_key[1]} - Column Name: {foreign_key[2]} - " + f"Referenced Table Name: {foreign_key[3]} - Referenced Column Name: {foreign_key[4]}\n"
 

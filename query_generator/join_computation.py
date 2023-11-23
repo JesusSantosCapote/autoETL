@@ -1,15 +1,15 @@
-#from query_generator.maximal_join_trees import maximal_join_trees_generator
 from networkx import DiGraph
 from copy import deepcopy
 from collections import deque
+from logger import logger
 
-def get_join(tree:DiGraph, lca, list_attr_tables):
+def _get_parents(tree:DiGraph, root):
     parents = {}
     visited = {node:False for node in tree.nodes}
-    visited[lca] = True
+    visited[root] = True
     queue = deque()
-    queue.append(lca)
-    parents[lca] = None
+    queue.append(root)
+    parents[root] = None
 
     while queue:
         current = queue.popleft()
@@ -19,16 +19,51 @@ def get_join(tree:DiGraph, lca, list_attr_tables):
                 queue.append(node)
                 parents[node] = current
 
+    return parents
+
+
+def _get_answer_edges(parents, list_attr_tables):
     answer_edges = []
+
     for table, _ in list_attr_tables:
-        pass
+        current_parent = table
+        try:
+            next_parent = parents[table]
+        except KeyError:
+            logger.error(f'Table: {table} not defined in database')
+            pass
+        
+        while next_parent:
+            temp = current_parent
+            current_parent = parents[temp]
+            edge = (current_parent, temp)
+            if edge not in answer_edges:
+                answer_edges.append(edge)
+            next_parent = parents[current_parent]
+        
+    return answer_edges
 
-    tree.edge_subgraph()
-                
+
+def _get_join(tree:DiGraph, lca, list_attr_tables):
+    parents = _get_parents(tree, lca)
+    answer_edges = _get_answer_edges(parents, list_attr_tables)
+    answer_subtree = tree.edge_subgraph(answer_edges)
+    join = []
+
+    def join_visit(node):
+        join.append(node)
+
+        for child in answer_subtree.neighbors(node):
+            condition = answer_subtree[node][child]['conditions']
+            join.append(condition)
+            join_visit(child)
+
+    join_visit(lca)
+
+    return join
 
 
-
-def lower_common_acestor(graph:DiGraph, nodes_set):
+def _lower_common_acestor(graph:DiGraph, nodes_set):
     visited = set()
     ancestors_dict = {}
 
@@ -43,7 +78,7 @@ def lower_common_acestor(graph:DiGraph, nodes_set):
         dfs_visit(graph, node)
         ancestors_dict[node] = deepcopy(visited)
 
-    common_acestors = ancestors_dict.items()[0][1]
+    common_acestors = list(ancestors_dict.items())[0][1]
     for node, acestors in ancestors_dict.items():
         common_acestors = acestors.intersection(common_acestors)
 
@@ -57,11 +92,11 @@ def lower_common_acestor(graph:DiGraph, nodes_set):
     return lower_common_acestor
 
 
-def compute_join(join_trees: list[DiGraph], list_attr) -> str:
+def _get_answer_trees(join_trees, list_attr):
     valid_join_trees = []
     visited_attrs = 0
     for tree in join_trees:
-        for table, attr in list_attr: #TODO: Check in other place if all the attr are in the table declared
+        for table, attr in list_attr: 
             if table in tree.nodes.keys():
                 visited_attrs += 1
         
@@ -69,35 +104,16 @@ def compute_join(join_trees: list[DiGraph], list_attr) -> str:
             valid_join_trees.append(tree)
         
         visited_attrs = 0
+    return valid_join_trees
 
+
+def compute_joins(join_trees: list[DiGraph], list_attr) -> str:
+    valid_join_trees = _get_answer_trees(join_trees, list_attr)
+    all_joins = []
     for tree in valid_join_trees:
-        lca = lower_common_acestor(tree, list_attr)
+        lca = _lower_common_acestor(tree, list_attr)
+        join = _get_join(tree, lca, list_attr)
+        if join not in all_joins:
+            all_joins.append(join)
 
-        
-tpc_h = DiGraph()
-tpc_h.add_node('part', attrs=['partkey', 'name', 'brand'])
-tpc_h.add_node('supplier', attrs=['supkey', 'name', 'nationkey'])
-tpc_h.add_node('partsupp', attrs=['partkey', 'supkey', 'qty'])
-tpc_h.add_node('customer', attrs=['custkey', 'name', 'address', 'nationkey'])
-tpc_h.add_node('orders', attrs=['orderkey', 'custkey', 'status', 'totalprice'])
-tpc_h.add_node('lineitem', attrs=['orderkey', 'partkey', 'supkey', 'linenumber', 'status', 'qty'])
-tpc_h.add_node('nation', attrs=['nationkey', 'name', 'regionkey', 'comment'])
-tpc_h.add_node('region', attrs=['regionkey', 'name', 'comment'])
-
-edges = [
-    ('lineitem', 'part', {'condition': [('partkey', 'partkey')], 'weight':1}),
-    ('lineitem', 'partsupp', {'condition': [('partkey', 'partkey'), ('supkey', 'supkey')], 'weight':1}),
-    ('lineitem', 'supplier', {'condition': [('supkey', 'supkey')], 'weight':1}),
-    ('lineitem', 'order', {'condition':[('orderkey', 'orderkey')], 'weight':1}),
-    ('partsupp', 'part', {'condition': [('partkey', 'partkey')], 'weight':1}),
-    ('partsupp', 'supplier', {'condition': [('supkey', 'supkey')], 'weight':1}),
-    ('supplier', 'nation', {'condition': [('nationkey', 'nationkey')], 'weight':1}),
-    ('nation', 'region', {'condition': [('regionkey', 'regionkey')], 'weight':1}),
-    ('orders', 'customer', {'condition': [('custkey', 'custkey')], 'weight':1}),
-    ('customer', 'nation', {'condition': [('nationkey', 'nationkey')], 'weight':1})
-]
-
-tpc_h.add_edges_from(edges)
-
-print(tpc_h.nodes.data())
-print(tpc_h.edges.data())
+    return all_joins
