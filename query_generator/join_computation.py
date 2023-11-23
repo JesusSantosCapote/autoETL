@@ -1,11 +1,9 @@
-#from query_generator.maximal_join_trees import maximal_join_trees_generator
 from networkx import DiGraph
 from copy import deepcopy
 from collections import deque
-#from logger import logger
-from itertools import combinations
-#TODO fix imports
-def get_parents(tree:DiGraph, root):
+from logger import logger
+
+def _get_parents(tree:DiGraph, root):
     parents = {}
     visited = {node:False for node in tree.nodes}
     visited[root] = True
@@ -24,16 +22,17 @@ def get_parents(tree:DiGraph, root):
     return parents
 
 
-def get_answer_edges(list_attr_tables, parents):
+def _get_answer_edges(parents, list_attr_tables):
     answer_edges = []
+
     for table, _ in list_attr_tables:
         current_parent = table
         try:
             next_parent = parents[table]
         except KeyError:
-            #logger.error(f'Table: {table} not defined in database')
+            logger.error(f'Table: {table} not defined in database')
             pass
-
+        
         while next_parent:
             temp = current_parent
             current_parent = parents[temp]
@@ -41,34 +40,30 @@ def get_answer_edges(list_attr_tables, parents):
             if edge not in answer_edges:
                 answer_edges.append(edge)
             next_parent = parents[current_parent]
-
+        
     return answer_edges
 
-def get_joins(tree:DiGraph, lca, list_attr_tables):
-    parents = get_parents(tree, lca)
-    answer_edges = get_answer_edges(list_attr_tables, parents)
-    answer_sub_tree = tree.edge_subgraph(answer_edges)
 
-    joins = []
-    def join_visit(actual_join, table):
-        global joins
-        if len(actual_join) == 2 * len(answer_sub_tree.nodes()) - 1:
-            joins.append(actual_join)
-        
-        else:
-            for child in answer_sub_tree.neighbors(table):
-                conditions = answer_sub_tree[table][child]['conditions']
-                for i in range(1, len(conditions)+1):
-                    for join_cond in combinations(conditions, i):
-                        actual_join = actual_join + [join_cond[0]]
-                        join_visit(actual_join, child)
-    
-    join_visit([], lca)
+def _get_join(tree:DiGraph, lca, list_attr_tables):
+    parents = _get_parents(tree, lca)
+    answer_edges = _get_answer_edges(parents, list_attr_tables)
+    answer_subtree = tree.edge_subgraph(answer_edges)
+    join = []
 
-    return joins
+    def join_visit(node):
+        join.append(node)
+
+        for child in answer_subtree.neighbors(node):
+            condition = answer_subtree[node][child]['conditions']
+            join.append(condition)
+            join_visit(child)
+
+    join_visit(lca)
+
+    return join
 
 
-def lower_common_acestor(graph:DiGraph, nodes_set):
+def _lower_common_acestor(graph:DiGraph, nodes_set):
     visited = set()
     ancestors_dict = {}
 
@@ -97,7 +92,7 @@ def lower_common_acestor(graph:DiGraph, nodes_set):
     return lower_common_acestor
 
 
-def get_answer_trees(join_trees, list_attr):
+def _get_answer_trees(join_trees, list_attr):
     valid_join_trees = []
     visited_attrs = 0
     for tree in join_trees:
@@ -113,13 +108,12 @@ def get_answer_trees(join_trees, list_attr):
 
 
 def compute_joins(join_trees: list[DiGraph], list_attr) -> str:
-    valid_join_trees = get_answer_trees(join_trees, list_attr)
+    valid_join_trees = _get_answer_trees(join_trees, list_attr)
     all_joins = []
     for tree in valid_join_trees:
-        lca = lower_common_acestor(tree, list_attr)
-        joins = get_joins(tree, lca, list_attr)
-        all_joins.extend(joins)
+        lca = _lower_common_acestor(tree, list_attr)
+        join = _get_join(tree, lca, list_attr)
+        if join not in all_joins:
+            all_joins.append(join)
 
-    print(all_joins)
-
-
+    return all_joins
