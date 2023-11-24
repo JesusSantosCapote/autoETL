@@ -9,10 +9,11 @@ class DimensionalModel(Visitable):
 
 
 class Attribute(Visitable):
-    def __init__(self, table_name, attr, primary_key=None) -> None:
+    def __init__(self, table_name, attr, primary_key=None, foreign_key=None) -> None:
         self.table_name = table_name
         self.name = attr
         self.primary_key = primary_key
+        self.foreign_key = foreign_key
     
     def accept(self, visitor):
         visitor.visit_attribute(self)
@@ -41,9 +42,10 @@ class AggAttribute(Visitable):
 
 
 class AttributeExpression(Visitable):
-    def __init__(self, elements, alias=None) -> None:
+    def __init__(self, elements, exp_type=None, alias=None) -> None:
         self.elements = elements
         self.alias = alias
+        self.exp_type = exp_type
     
     def accept(self, visitor):
         visitor.visit_attr_expression(self)

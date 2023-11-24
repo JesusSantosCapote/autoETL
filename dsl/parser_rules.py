@@ -38,9 +38,10 @@ def p_List_Attr_Def(p):
 
 
 def p_Attr_Def(p):
-    '''Attr_Def : Attr_Expression Alias'''
+    '''Attr_Def : Attr_Expression Type Alias'''
     p[0] = p[1]
-    p[0].alias = p[2]
+    p[0].alias = p[3]
+    p[0].exp_type = p[2]
 
 
 def p_Attr_Expression(p):
@@ -93,14 +94,17 @@ def p_F(p):
     
 
 def p_Attr(p):
-    '''Attr : Table TWODOTS ID Primary_Key_Modifier
+    '''Attr : Table TWODOTS ID Modifier
             | Table TWODOTS Func LPAREN ID RPAREN
             | Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID
             | Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID
             | Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID'''
             
     if len(p) == 5:
-        p[0] = Attribute(p[1], p[3], p[4])
+        if p[4] == 'PK':
+            p[0] = Attribute(p[1], p[3], primary_key=p[4])
+        if p[4] == 'FK':
+            p[0] = Attribute(p[1], p[3], foreign_key=p[4])
 
     if len(p) == 7:
         p[0] = AttributeFunction(p[1], p[5], p[3])
@@ -128,9 +132,19 @@ def p_Alias(p):
         p[0] = p[2]
 
 
-def p_PK(p):
-    '''Primary_Key_Modifier : PK
-                            | empty'''
+def p_Type(p):
+    '''Type : INT
+            | STR
+            | DATE
+            | DATETIME
+            | empty'''
+    p[0] = p[1]
+
+
+def p_Modifier(p):
+    '''Modifier : PK
+                | FK
+                | empty'''
     p[0] = p[1]
 
 

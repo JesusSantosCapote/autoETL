@@ -13,7 +13,12 @@ reserved = {
     'as' : 'AS',
     'week_day' : 'WEEKDAY',
     'month_str': 'MONTHSTR',
-    'PK'       : 'PK'
+    'PK'       : 'PK',
+    'FK' : 'FK',
+    'int' : 'INT',
+    'str': 'STR',
+    'date': 'DATE',
+    'datetime': 'DATETIME'
 }
 
 tokens = [

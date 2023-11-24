@@ -30,7 +30,7 @@ Dim.Hola: Nombre
 
 fact Venta {
 self:V_Id PK
-Dim.Producto: DK
+Dim.Producto: prod_id FK 
 Dim.Tienda: DK
 Dim.Fecha: week_day(DK)
 Venta:sum(CantidadVendida) groupby Venta:IdProducto as CantidadVendidaTotal

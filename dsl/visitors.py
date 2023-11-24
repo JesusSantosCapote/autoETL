@@ -54,7 +54,7 @@ class VisitorSymbolTable(Visitor):
                         self.symbol_table[dimensional_table.name].append('error')
                         self.good_naming = False
                 else:
-                    logger.error(f'Attribute number {index} in dimensional table {dimensional_table.name} is compound and dont have an alias.')
+                    logger.error(f'Attribute number {index} in dimensional table {dimensional_table.name} is composite and dont have an alias.')
                     self.symbol_table[dimensional_table.name].append(None)
                     self.good_naming = False
 
@@ -69,6 +69,23 @@ class VisitorSymbolTable(Visitor):
     
     def visit_attribute(self, attribute):
         return super().visit_attribute(attribute)
+
+
+class VisitorTypeCheck(Visitor):
+    def __init__(self) -> None:
+        super().__init__()
+        self.good_type = True
+
+    def visit_dimensional_model(self, dimensional_model:DimensionalModel):
+        for table in dimensional_model.dimensional_table_list:
+            table.accept(self)
+
+    def visit_dimensional_table(self, dimensional_table:DimensionalTable):
+        for attr_expr in dimensional_table.list_attr:
+            if len(attr_expr.elements) > 1:
+                if not attr_expr.exp_type:
+                    logger.error(f'Missing type declaration for composite attribute definition in table: {dimensional_table.name}')
+                    self.good_type = False
 
 
 class VisitorSemanticCheck(Visitor):
@@ -155,24 +172,126 @@ class VisitorSemanticCheck(Visitor):
         return super().visit_attribute(attribute)
         
 
-class VisitorPostgreSQL(Visitor):
+class VisitorGetSelects(Visitor):
     def __init__(self) -> None:
         super().__init__()
+        self.selects_for_dimensions = []
+
+    def visit_dimensional_model(self, dimensional_model:DimensionalModel):
+        for table in dimensional_model.dimensional_table_list:
+            table.accept(self)
+
+    def visit_dimensional_table(self, dimensional_table):
+        attr_to_select = []
+        for attr_expr in dimensional_table.list_attr:
+            for elem in attr_expr.elements:
+                if isinstance(elem, (Attribute, AttributeFunction, AggAttribute)):
+                    if elem.table_name != 'self':
+                            attr_to_select.append((elem.table_name, elem.name))
+
+        self.selects_for_dimensions(attr_to_select)
+
+
+class VisitorPostgreSQL(Visitor):
+    def __init__(self, join_list, join_tree) -> None:
+        super().__init__()
         self.query_list = []
+        self.join_tree = join_tree
+        self.dsl_types_to_postgres = {'int': 'INT', 'str': 'TEXT', 'date': 'DATE', 'datetime': 'TIMESTAMP'}
+        self.dsl_agg_to_postgres = {'sum': 'SUM', 'avg': 'AVG', 'count': 'COUNT'}
+        self.join_list = join_list
+        self.join_index = 0
 
     def visit_dimensional_model(self, dimensional_model:DimensionalModel):
         for table in dimensional_model.dimensional_table_list:
             table.accept(self)
 
     def visit_dimensional_table(self, dimensional_table:DimensionalTable):
-        query = ''
-        attr_to_select = []
-        for attr_expr in dimensional_table.list_attr:
-            for elem in attr_expr.elements:
-                if isinstance(elem, (Attribute, AttributeFunction, AggAttribute)):
-                    if elem.table_name != 'self':
-                            attr_to_select.append(elem)
+        query_create = 'CREATE TABLE [IF NOT EXIST] %s ('
+        select_part = 'SELECT '
+        from_part = 'FROM '
+        groupby_part = ''
 
-                #join = compute_join(attr_to_select)
-                        
+        for attr_expr in dimensional_table.list_attr:
+            #Name
+            if attr_expr.alias:
+                query_create = query_create + attr_expr.alias
+            else:
+                query_create = query_create + attr_expr.elements[0].name
+            #Type
+            if attr_expr.type:
+                query_create = query_create + self.dsl_types_to_postgres[attr_expr.type]
+            else:
+                source_table = attr_expr.elements[0].table_name
+                source_attr = attr_expr.elements[0].name
+                for attr_name, attr_type, _ in self.join_tree[source_table]['attrs']:
+                    if attr_name == source_attr:
+                        query_create = query_create + attr_type
+                        break
+            #PK Constraint
+            if len(attr_expr.elements) == 1:
+                if isinstance(attr_expr.elements[0], Attribute):
+                    if attr_expr.elements[0].primary_key:
+                        query_create = query_create + 'PRIMARY KEY'
+
+            query_create = query_create + ', \n'    
+
+        #FK Constraints
+        for attr_expr in dimensional_table.list_attr:
+            if len(attr_expr.elements) == 1:
+                if isinstance(attr_expr.elements[0], Attribute):
+                    if attr_expr.elements[0].foreign_key:
+                        references = attr_expr.elements[0].table_name.split('.')[1]
+                        name = attr_expr.elements[0].name
+                        if attr_expr.alias:
+                            name = attr_expr.alias
+                        query_create = query_create + f'FOREIGN KEY ({name})' + f'REFERENCES {references} ({attr_expr.elements[0].name}), \n'
+
+        query_create = query_create[0:-2] #Deleting the last ,
+        query_create = query_create + ');'
+
+        #SELECT statement
+        for attr_expr, index in zip(dimensional_table.list_attr, len(dimensional_table.list_attr)):
+            for elem in attr_expr.elements:
+                if isinstance(elem, Attribute):
+                    select_part = select_part + f'{elem.table_name}.{elem.name}'
+                elif isinstance(elem, AttributeFunction):
+                    if elem.func == 'week_day':
+                        if elem.table_name != 'self':
+                            select_part = select_part + f"to_char({elem.table_name}.{elem.name}, 'Day')"
+                        else:
+                            select_part = select_part + f"to_char({elem.name}, 'Day')"
+
+                    if elem.func == 'month_str':
+                        if elem.table_name != 'self':
+                            select_part = select_part + f"to_char({elem.table_name}.{elem.name}, 'Month')"
+                        else:
+                            select_part = select_part + f"to_char({elem.name}, 'Month')"
+                
+                elif isinstance(elem, AggAttribute): #TODO check if here i must to check if self is a valid table_name for this kind of attr
+                    select_part = select_part + f'{self.dsl_agg_to_postgres[elem.agg_function]}({elem.table_name}.{elem.name})'
+                    groupby_part = groupby_part + f'GROUP BY {elem.table_grouping_attr}.{elem.grouping_attr}'
+
+                else:
+                    select_part = select_part + elem
             
+            if index < len(dimensional_table.list_attr) - 1:
+                select_part = select_part + ','
+
+        #FROM statement
+        join = self.join_list[self.join_index]
+        from_part = from_part
+        for i in range(0, len(join), 2):
+            if i == 0:
+                select_part = select_part + join[i]
+            else:
+                conditions = ''
+                for cond, index in zip(join[i-1], len(join[i-1])):
+                    conditions = conditions + f'{join[i-2]}.{cond[0]} = {join[i]}.{cond[1]}'
+                    if index != len(join[i-1]) - 1:
+                        conditions = conditions + 'AND'
+                select_part = select_part + f'JOIN f{join[i]} ON' + conditions
+
+        select_part = select_part + from_part + groupby_part + ';'
+        return query_create, select_part
+        
