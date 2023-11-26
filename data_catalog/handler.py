@@ -110,3 +110,5 @@ class DataCatalogHandler():
                 join_graph.add_edge(t1, t2, 
                                     conditions = [(edge[2], edge[3])], 
                                     weight = 1)
+
+        return join_graph

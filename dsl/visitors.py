@@ -86,6 +86,15 @@ class VisitorTypeCheck(Visitor):
                 if not attr_expr.exp_type:
                     logger.error(f'Missing type declaration for composite attribute definition in table: {dimensional_table.name}')
                     self.good_type = False
+    
+    def visit_agg_attr(self, agg_attr):
+        return super().visit_agg_attr(agg_attr)
+    def visit_attr_expression(self, attr_expression):
+        return super().visit_attr_expression(attr_expression)
+    def visit_attr_function(self, attr_func):
+        return super().visit_attr_function(attr_func)
+    def visit_attribute(self, attribute):
+        return super().visit_attribute(attribute)
 
 
 class VisitorSemanticCheck(Visitor):
@@ -186,10 +195,89 @@ class VisitorGetSelects(Visitor):
         for attr_expr in dimensional_table.list_attr:
             for elem in attr_expr.elements:
                 if isinstance(elem, (Attribute, AttributeFunction, AggAttribute)):
-                    if elem.table_name != 'self':
+                    if elem.table_name != 'self' and not elem.table_name.startswith('Dim.') :
                             attr_to_select.append((elem.table_name, elem.name))
 
-        self.selects_for_dimensions(attr_to_select)
+        self.selects_for_dimensions.append(attr_to_select)
+
+    def visit_attribute(self, attribute):
+        return super().visit_attribute(attribute)
+    def visit_attr_function(self, attr_func):
+        return super().visit_attr_function(attr_func)
+    def visit_agg_attr(self, agg_attr):
+        return super().visit_agg_attr(agg_attr)
+    def visit_attr_expression(self, attr_expression):
+        return super().visit_attr_expression(attr_expression)
+
+
+class VisitorGetTypes(Visitor):
+    def __init__(self, join_graph) -> None:
+        super().__init__()
+        self.dimensions_attrs = {}
+        self.good_type = True
+        self.join_graph = join_graph
+
+    def visit_dimensional_model(self, dimensional_model:DimensionalModel):
+        for dimension_table in dimensional_model.dimensional_table_list:
+            self.dimensions_attrs[dimension_table] = {}
+            dimension_table.accept(self)
+
+    def visit_dimensional_table(self, dimensional_table:DimensionalTable):
+        for attr_expr, index in zip(dimensional_table.list_attr, range(len(dimensional_table.list_attr))):
+            if len(attr_expr.elements) > 1:
+                if not attr_expr.exp_type:
+                    logger.error(f'Missing type declaration for composite attribute definition number {index} in table: {dimensional_table.name}')
+                    self.good_type = False
+
+                else:
+                    self.dimensions_attrs[dimensional_table.name][attr_expr.alias] = attr_expr.exp_type
+
+            else:
+                if attr_expr.alias:
+                    if attr_expr.exp_type:
+                        self.dimensions_attrs[dimensional_table.name][attr_expr.alias] = attr_expr.exp_type
+                    
+                    else:
+                        attr = attr_expr.elements[0]
+                        if attr.table_name == 'self':
+                            if isinstance(attr, AttributeFunction):
+                                if attr.func in ['week_day', 'month_str']:
+                                    self.dimensions_attrs[dimensional_table.name][attr_expr.alias] = 'str'
+                            #This is because i dont allow declarations of new attr for the moment
+                            else:
+                                logger.error(f'Definitions of new attributes are not allowed: attribute number {index} in dimensional table {dimensional_table.name}')
+                                self.good_type = False
+                        
+                        elif attr.table_name.startswith('Dim.'):
+                            if isinstance(attr, Attribute):
+                                if attr.foreign_key:
+                                    dimension = attr.table_name.split('.')[1]
+                                    try:
+                                        attr_type = self.dimensions_attrs[dimension][attr.name]
+                                        self.dimensions_attrs[dimensional_table.name][attr_expr.alias] = attr_type
+                                    except KeyError:
+                                        logger.error(f'Attribute {attr.name} not declared in dimensional table {dimension}')
+                                        self.good_type = False
+                                    
+                                else:
+                                    logger.error(f'For referencing another table the attribute must be a foreign key: attribute number {index} in dimensional table {dimensional_table.name}')
+                                    self.good_type = False
+
+                            else:
+                                logger.error(f'Invalid combination of table and attribute: attribute number {index} in dimensional table {dimensional_table.name}')
+
+                        else:
+                            for attr_name, attr_type, _ in self.join_graph.nodes[attr.table_name]['attrs']:
+                                if attr.name == attr_name:
+                                    self.dimensions_attrs[dimensional_table.name][attr_expr.alias] = attr_type
+                                    break
+                    
+                else: #TODO si no tiene alias hay que hacer lo mismo de arriba, modificar la estructura del if
+                    attr = attr_expr.elements[0]
+                    for attr_name, attr_type, _ in self.join_graph.nodes[attr.table_name]['attrs']:
+                            if attr.name == attr_name:
+                                self.dimensions_attrs[dimensional_table.name][attr.name] = attr_type
+                                break
 
 
 class VisitorPostgreSQL(Visitor):
@@ -219,12 +307,12 @@ class VisitorPostgreSQL(Visitor):
             else:
                 query_create = query_create + attr_expr.elements[0].name
             #Type
-            if attr_expr.type:
-                query_create = query_create + self.dsl_types_to_postgres[attr_expr.type]
+            if attr_expr.exp_type:
+                query_create = query_create + self.dsl_types_to_postgres[attr_expr.exp_type]
             else:
                 source_table = attr_expr.elements[0].table_name
                 source_attr = attr_expr.elements[0].name
-                for attr_name, attr_type, _ in self.join_tree[source_table]['attrs']:
+                for attr_name, attr_type, _ in self.join_tree.nodes[source_table]['attrs']:
                     if attr_name == source_attr:
                         query_create = query_create + attr_type
                         break
@@ -251,7 +339,7 @@ class VisitorPostgreSQL(Visitor):
         query_create = query_create + ');'
 
         #SELECT statement
-        for attr_expr, index in zip(dimensional_table.list_attr, len(dimensional_table.list_attr)):
+        for attr_expr, index in zip(dimensional_table.list_attr, range(len(dimensional_table.list_attr))):
             for elem in attr_expr.elements:
                 if isinstance(elem, Attribute):
                     select_part = select_part + f'{elem.table_name}.{elem.name}'
@@ -286,12 +374,21 @@ class VisitorPostgreSQL(Visitor):
                 select_part = select_part + join[i]
             else:
                 conditions = ''
-                for cond, index in zip(join[i-1], len(join[i-1])):
+                for cond, index in zip(join[i-1], range(len(join[i-1]))):
                     conditions = conditions + f'{join[i-2]}.{cond[0]} = {join[i]}.{cond[1]}'
                     if index != len(join[i-1]) - 1:
                         conditions = conditions + 'AND'
                 select_part = select_part + f'JOIN f{join[i]} ON' + conditions
 
         select_part = select_part + from_part + groupby_part + ';'
-        return query_create, select_part
+        self.query_list.append((query_create, select_part)) 
+
+    def visit_attr_expression(self, attr_expression):
+        return super().visit_attr_expression(attr_expression)
+    def visit_agg_attr(self, agg_attr):
+        return super().visit_agg_attr(agg_attr)
+    def visit_attr_function(self, attr_func):
+        return super().visit_attr_function(attr_func)
+    def visit_attribute(self, attribute):
+        return super().visit_attribute(attribute)
         

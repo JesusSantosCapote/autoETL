@@ -47,7 +47,10 @@ def _get_answer_edges(parents, list_attr_tables):
 def _get_join(tree:DiGraph, lca, list_attr_tables):
     parents = _get_parents(tree, lca)
     answer_edges = _get_answer_edges(parents, list_attr_tables)
-    answer_subtree = tree.edge_subgraph(answer_edges)
+    if not answer_edges:
+        answer_subtree = tree.subgraph([lca])
+    else:
+        answer_subtree = tree.edge_subgraph(answer_edges)
     join = []
 
     def join_visit(node):

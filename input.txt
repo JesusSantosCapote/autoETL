@@ -1,41 +1,36 @@
-dimension Tienda {
-self:T_Id PK
-Tienda:Nombre
-Reparto:Nombre as Municipio
-Municipio:Nombre as Municipio
-Provincia:Nombre
-7 + 4
+dimension tienda {
+tienda: idtienda PK
+tienda:nombre
+reparto:nombre as reparto
+municipio:nombre as municipio
+provincia:nombre as provincia
 }
 
-dimension Producto {
-self:Prod_Id PK
-self:Id2 PK
-Marca:Nombre as Marca
-Categoría:Nombre as Categoría
-Tipo_Paquete:Nombre as Paquete
-Departamento:Nombre as Departamento
-Departamento:Descripción as Departamento_Descripción
-Producto:Nombre PK as Producto
-Producto:Precio
-Producto:Costo
+dimension producto {
+producto:idproducto PK
+marca:nombre as marca
+categoria:nombre as categoria
+tipopaquete:nombre as paquete
+departamento:nombre as departamento
+departamento:descripción as descripcion
+producto:nombre as producto
+producto:precio
+producto:costo
 }
 
-dimension Fecha {
-Venta:Fecha
-self:week_day(Fecha) as Día
-self:month_str(Fecha) as Mes
-Dim.Producto:hola
-Dim.Hola: Nombre
+dimension fecha {
+venta:fecha PK
+self:week_day(fecha) str as Dia
+self:month_str(fecha) str as Mes
 }
 
-fact Venta {
-self:V_Id PK
-Dim.Producto: prod_id FK 
-Dim.Tienda: DK
-Dim.Fecha: week_day(DK)
-Venta:sum(CantidadVendida) groupby Venta:IdProducto as CantidadVendidaTotal
-Venta:sum(Pago) groupby Venta:IdProducto + Venta:avg(importe) groupby Venta:IdProducto as ImporteTotal
-Venta:sum(Pago) groupby Venta:IdProducto + Venta:avg(importe) groupby Venta:IdProducto
-Dim.Producto:Costo * self:CantidadVendidaTotal as CosteTotal
-self:ImporteTotal - self:CosteTotal * (Reparto:Name / 2 * (Municipio:Name - Tienda:Cantidad)) * 8 as Combinada
+fact venta {
+venta:idventa PK
+Dim.Producto: idproducto FK
+Dim.Tienda: idtienda FK
+Dim.Fecha: fecha FK
+venta:sum(cantidad_vendida) groupby venta:idproducto as CantidadVendidaTotal
+venta:sum(pago) groupby venta:idproducto as ImporteTotal
+producto:Costo * self:CantidadVendidaTotal int as CosteTotal
+self:ImporteTotal - self:CosteTotal int as Ganancia 
 }

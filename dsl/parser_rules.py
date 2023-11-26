@@ -103,8 +103,10 @@ def p_Attr(p):
     if len(p) == 5:
         if p[4] == 'PK':
             p[0] = Attribute(p[1], p[3], primary_key=p[4])
-        if p[4] == 'FK':
+        elif p[4] == 'FK':
             p[0] = Attribute(p[1], p[3], foreign_key=p[4])
+        else:
+            p[0] = Attribute(p[1], p[3])
 
     if len(p) == 7:
         p[0] = AttributeFunction(p[1], p[5], p[3])

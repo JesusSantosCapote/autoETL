@@ -10,7 +10,7 @@ Rule 4     List_Dimensional_Tables -> List_Dimensional_Tables Dimensional_Table
 Rule 5     Dimensional_Table -> DIM ID LBRACE List_Attr_Def RBRACE
 Rule 6     Dimensional_Table -> FACT ID LBRACE List_Attr_Def RBRACE
 Rule 7     List_Attr_Def -> List_Attr_Def Attr_Def
-Rule 8     Attr_Def -> Attr_Expression Alias
+Rule 8     Attr_Def -> Attr_Expression Type Alias
 Rule 9     Attr_Expression -> T X
 Rule 10    X -> PLUS T X
 Rule 11    X -> MINUS T X
@@ -22,7 +22,7 @@ Rule 16    Y -> empty_list
 Rule 17    F -> Attr
 Rule 18    F -> NUMBER
 Rule 19    F -> LPAREN Attr_Expression RPAREN
-Rule 20    Attr -> Table TWODOTS ID Primary_Key_Modifier
+Rule 20    Attr -> Table TWODOTS ID Modifier
 Rule 21    Attr -> Table TWODOTS Func LPAREN ID RPAREN
 Rule 22    Attr -> Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID
 Rule 23    Attr -> Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID
@@ -33,31 +33,42 @@ Rule 27    Func -> WEEKDAY
 Rule 28    Func -> MONTHSTR
 Rule 29    Alias -> AS ID
 Rule 30    Alias -> empty
-Rule 31    Primary_Key_Modifier -> PK
-Rule 32    Primary_Key_Modifier -> empty
-Rule 33    empty -> <empty>
-Rule 34    empty_list -> <empty>
+Rule 31    Type -> INT
+Rule 32    Type -> STR
+Rule 33    Type -> DATE
+Rule 34    Type -> DATETIME
+Rule 35    Type -> empty
+Rule 36    Modifier -> PK
+Rule 37    Modifier -> FK
+Rule 38    Modifier -> empty
+Rule 39    empty -> <empty>
+Rule 40    empty_list -> <empty>
 
 Terminals, with rules where they appear
 
 AS                   : 29
 AVG                  : 23
 COUNT                : 24
+DATE                 : 33
+DATETIME             : 34
 DIM                  : 5
 DIVIDE               : 15
 FACT                 : 6
+FK                   : 37
 GROUP                : 22 23 24
 ID                   : 5 6 20 21 22 22 23 23 24 24 25 29
+INT                  : 31
 LBRACE               : 5 6
 LPAREN               : 19 21 22 23 24
 MINUS                : 11
 MONTHSTR             : 28
 NUMBER               : 18
-PK                   : 31
+PK                   : 36
 PLUS                 : 10
 RBRACE               : 5 6
 RPAREN               : 19 21 22 23 24
 SELF                 : 26
+STR                  : 32
 SUM                  : 22
 TIMES                : 14
 TWODOTS              : 20 21 22 22 23 23 24 24
@@ -76,12 +87,13 @@ F                    : 13 14 15
 Func                 : 21
 List_Attr_Def        : 5 6 7
 List_Dimensional_Tables : 1 4
-Primary_Key_Modifier : 20
+Modifier             : 20
 T                    : 9 10 11
 Table                : 20 21 22 22 23 23 24 24
+Type                 : 8
 X                    : 9 10 11
 Y                    : 13 14 15
-empty                : 30 32
+empty                : 30 35 38
 empty_list           : 12 16
 
 Parsing method: LALR
@@ -172,13 +184,13 @@ state 9
     (5) Dimensional_Table -> DIM ID LBRACE . List_Attr_Def RBRACE
     (3) List_Attr_Def -> . Attr_Def
     (7) List_Attr_Def -> . List_Attr_Def Attr_Def
-    (8) Attr_Def -> . Attr_Expression Alias
+    (8) Attr_Def -> . Attr_Expression Type Alias
     (9) Attr_Expression -> . T X
     (13) T -> . F Y
     (17) F -> . Attr
     (18) F -> . NUMBER
     (19) F -> . LPAREN Attr_Expression RPAREN
-    (20) Attr -> . Table TWODOTS ID Primary_Key_Modifier
+    (20) Attr -> . Table TWODOTS ID Modifier
     (21) Attr -> . Table TWODOTS Func LPAREN ID RPAREN
     (22) Attr -> . Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID
     (23) Attr -> . Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID
@@ -204,13 +216,13 @@ state 10
     (6) Dimensional_Table -> FACT ID LBRACE . List_Attr_Def RBRACE
     (3) List_Attr_Def -> . Attr_Def
     (7) List_Attr_Def -> . List_Attr_Def Attr_Def
-    (8) Attr_Def -> . Attr_Expression Alias
+    (8) Attr_Def -> . Attr_Expression Type Alias
     (9) Attr_Expression -> . T X
     (13) T -> . F Y
     (17) F -> . Attr
     (18) F -> . NUMBER
     (19) F -> . LPAREN Attr_Expression RPAREN
-    (20) Attr -> . Table TWODOTS ID Primary_Key_Modifier
+    (20) Attr -> . Table TWODOTS ID Modifier
     (21) Attr -> . Table TWODOTS Func LPAREN ID RPAREN
     (22) Attr -> . Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID
     (23) Attr -> . Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID
@@ -242,13 +254,13 @@ state 12
 
     (5) Dimensional_Table -> DIM ID LBRACE List_Attr_Def . RBRACE
     (7) List_Attr_Def -> List_Attr_Def . Attr_Def
-    (8) Attr_Def -> . Attr_Expression Alias
+    (8) Attr_Def -> . Attr_Expression Type Alias
     (9) Attr_Expression -> . T X
     (13) T -> . F Y
     (17) F -> . Attr
     (18) F -> . NUMBER
     (19) F -> . LPAREN Attr_Expression RPAREN
-    (20) Attr -> . Table TWODOTS ID Primary_Key_Modifier
+    (20) Attr -> . Table TWODOTS ID Modifier
     (21) Attr -> . Table TWODOTS Func LPAREN ID RPAREN
     (22) Attr -> . Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID
     (23) Attr -> . Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID
@@ -282,20 +294,27 @@ state 13
 
 state 14
 
-    (8) Attr_Def -> Attr_Expression . Alias
-    (29) Alias -> . AS ID
-    (30) Alias -> . empty
-    (33) empty -> .
+    (8) Attr_Def -> Attr_Expression . Type Alias
+    (31) Type -> . INT
+    (32) Type -> . STR
+    (33) Type -> . DATE
+    (34) Type -> . DATETIME
+    (35) Type -> . empty
+    (39) empty -> .
 
-    AS              shift and go to state 26
-    RBRACE          reduce using rule 33 (empty -> .)
-    NUMBER          reduce using rule 33 (empty -> .)
-    LPAREN          reduce using rule 33 (empty -> .)
-    ID              reduce using rule 33 (empty -> .)
-    SELF            reduce using rule 33 (empty -> .)
+    INT             shift and go to state 26
+    STR             shift and go to state 27
+    DATE            shift and go to state 28
+    DATETIME        shift and go to state 29
+    AS              reduce using rule 39 (empty -> .)
+    RBRACE          reduce using rule 39 (empty -> .)
+    NUMBER          reduce using rule 39 (empty -> .)
+    LPAREN          reduce using rule 39 (empty -> .)
+    ID              reduce using rule 39 (empty -> .)
+    SELF            reduce using rule 39 (empty -> .)
 
-    Alias                          shift and go to state 25
-    empty                          shift and go to state 27
+    Type                           shift and go to state 25
+    empty                          shift and go to state 30
 
 state 15
 
@@ -303,20 +322,24 @@ state 15
     (10) X -> . PLUS T X
     (11) X -> . MINUS T X
     (12) X -> . empty_list
-    (34) empty_list -> .
+    (40) empty_list -> .
 
-    PLUS            shift and go to state 29
-    MINUS           shift and go to state 30
-    AS              reduce using rule 34 (empty_list -> .)
-    RBRACE          reduce using rule 34 (empty_list -> .)
-    NUMBER          reduce using rule 34 (empty_list -> .)
-    LPAREN          reduce using rule 34 (empty_list -> .)
-    ID              reduce using rule 34 (empty_list -> .)
-    SELF            reduce using rule 34 (empty_list -> .)
-    RPAREN          reduce using rule 34 (empty_list -> .)
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    INT             reduce using rule 40 (empty_list -> .)
+    STR             reduce using rule 40 (empty_list -> .)
+    DATE            reduce using rule 40 (empty_list -> .)
+    DATETIME        reduce using rule 40 (empty_list -> .)
+    AS              reduce using rule 40 (empty_list -> .)
+    RBRACE          reduce using rule 40 (empty_list -> .)
+    NUMBER          reduce using rule 40 (empty_list -> .)
+    LPAREN          reduce using rule 40 (empty_list -> .)
+    ID              reduce using rule 40 (empty_list -> .)
+    SELF            reduce using rule 40 (empty_list -> .)
+    RPAREN          reduce using rule 40 (empty_list -> .)
 
-    X                              shift and go to state 28
-    empty_list                     shift and go to state 31
+    X                              shift and go to state 31
+    empty_list                     shift and go to state 34
 
 state 16
 
@@ -324,22 +347,26 @@ state 16
     (14) Y -> . TIMES F Y
     (15) Y -> . DIVIDE F Y
     (16) Y -> . empty_list
-    (34) empty_list -> .
+    (40) empty_list -> .
 
-    TIMES           shift and go to state 33
-    DIVIDE          shift and go to state 34
-    PLUS            reduce using rule 34 (empty_list -> .)
-    MINUS           reduce using rule 34 (empty_list -> .)
-    AS              reduce using rule 34 (empty_list -> .)
-    RBRACE          reduce using rule 34 (empty_list -> .)
-    NUMBER          reduce using rule 34 (empty_list -> .)
-    LPAREN          reduce using rule 34 (empty_list -> .)
-    ID              reduce using rule 34 (empty_list -> .)
-    SELF            reduce using rule 34 (empty_list -> .)
-    RPAREN          reduce using rule 34 (empty_list -> .)
+    TIMES           shift and go to state 36
+    DIVIDE          shift and go to state 37
+    PLUS            reduce using rule 40 (empty_list -> .)
+    MINUS           reduce using rule 40 (empty_list -> .)
+    INT             reduce using rule 40 (empty_list -> .)
+    STR             reduce using rule 40 (empty_list -> .)
+    DATE            reduce using rule 40 (empty_list -> .)
+    DATETIME        reduce using rule 40 (empty_list -> .)
+    AS              reduce using rule 40 (empty_list -> .)
+    RBRACE          reduce using rule 40 (empty_list -> .)
+    NUMBER          reduce using rule 40 (empty_list -> .)
+    LPAREN          reduce using rule 40 (empty_list -> .)
+    ID              reduce using rule 40 (empty_list -> .)
+    SELF            reduce using rule 40 (empty_list -> .)
+    RPAREN          reduce using rule 40 (empty_list -> .)
 
-    Y                              shift and go to state 32
-    empty_list                     shift and go to state 35
+    Y                              shift and go to state 35
+    empty_list                     shift and go to state 38
 
 state 17
 
@@ -349,6 +376,10 @@ state 17
     DIVIDE          reduce using rule 17 (F -> Attr .)
     PLUS            reduce using rule 17 (F -> Attr .)
     MINUS           reduce using rule 17 (F -> Attr .)
+    INT             reduce using rule 17 (F -> Attr .)
+    STR             reduce using rule 17 (F -> Attr .)
+    DATE            reduce using rule 17 (F -> Attr .)
+    DATETIME        reduce using rule 17 (F -> Attr .)
     AS              reduce using rule 17 (F -> Attr .)
     RBRACE          reduce using rule 17 (F -> Attr .)
     NUMBER          reduce using rule 17 (F -> Attr .)
@@ -366,6 +397,10 @@ state 18
     DIVIDE          reduce using rule 18 (F -> NUMBER .)
     PLUS            reduce using rule 18 (F -> NUMBER .)
     MINUS           reduce using rule 18 (F -> NUMBER .)
+    INT             reduce using rule 18 (F -> NUMBER .)
+    STR             reduce using rule 18 (F -> NUMBER .)
+    DATE            reduce using rule 18 (F -> NUMBER .)
+    DATETIME        reduce using rule 18 (F -> NUMBER .)
     AS              reduce using rule 18 (F -> NUMBER .)
     RBRACE          reduce using rule 18 (F -> NUMBER .)
     NUMBER          reduce using rule 18 (F -> NUMBER .)
@@ -383,7 +418,7 @@ state 19
     (17) F -> . Attr
     (18) F -> . NUMBER
     (19) F -> . LPAREN Attr_Expression RPAREN
-    (20) Attr -> . Table TWODOTS ID Primary_Key_Modifier
+    (20) Attr -> . Table TWODOTS ID Modifier
     (21) Attr -> . Table TWODOTS Func LPAREN ID RPAREN
     (22) Attr -> . Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID
     (23) Attr -> . Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID
@@ -396,7 +431,7 @@ state 19
     ID              shift and go to state 11
     SELF            shift and go to state 21
 
-    Attr_Expression                shift and go to state 36
+    Attr_Expression                shift and go to state 39
     T                              shift and go to state 15
     F                              shift and go to state 16
     Attr                           shift and go to state 17
@@ -404,13 +439,13 @@ state 19
 
 state 20
 
-    (20) Attr -> Table . TWODOTS ID Primary_Key_Modifier
+    (20) Attr -> Table . TWODOTS ID Modifier
     (21) Attr -> Table . TWODOTS Func LPAREN ID RPAREN
     (22) Attr -> Table . TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID
     (23) Attr -> Table . TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID
     (24) Attr -> Table . TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID
 
-    TWODOTS         shift and go to state 37
+    TWODOTS         shift and go to state 40
 
 
 state 21
@@ -424,13 +459,13 @@ state 22
 
     (6) Dimensional_Table -> FACT ID LBRACE List_Attr_Def . RBRACE
     (7) List_Attr_Def -> List_Attr_Def . Attr_Def
-    (8) Attr_Def -> . Attr_Expression Alias
+    (8) Attr_Def -> . Attr_Expression Type Alias
     (9) Attr_Expression -> . T X
     (13) T -> . F Y
     (17) F -> . Attr
     (18) F -> . NUMBER
     (19) F -> . LPAREN Attr_Expression RPAREN
-    (20) Attr -> . Table TWODOTS ID Primary_Key_Modifier
+    (20) Attr -> . Table TWODOTS ID Modifier
     (21) Attr -> . Table TWODOTS Func LPAREN ID RPAREN
     (22) Attr -> . Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID
     (23) Attr -> . Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID
@@ -438,7 +473,7 @@ state 22
     (25) Table -> . ID
     (26) Table -> . SELF
 
-    RBRACE          shift and go to state 38
+    RBRACE          shift and go to state 41
     NUMBER          shift and go to state 18
     LPAREN          shift and go to state 19
     ID              shift and go to state 11
@@ -473,23 +508,303 @@ state 24
 
 state 25
 
-    (8) Attr_Def -> Attr_Expression Alias .
+    (8) Attr_Def -> Attr_Expression Type . Alias
+    (29) Alias -> . AS ID
+    (30) Alias -> . empty
+    (39) empty -> .
 
-    RBRACE          reduce using rule 8 (Attr_Def -> Attr_Expression Alias .)
-    NUMBER          reduce using rule 8 (Attr_Def -> Attr_Expression Alias .)
-    LPAREN          reduce using rule 8 (Attr_Def -> Attr_Expression Alias .)
-    ID              reduce using rule 8 (Attr_Def -> Attr_Expression Alias .)
-    SELF            reduce using rule 8 (Attr_Def -> Attr_Expression Alias .)
+    AS              shift and go to state 43
+    RBRACE          reduce using rule 39 (empty -> .)
+    NUMBER          reduce using rule 39 (empty -> .)
+    LPAREN          reduce using rule 39 (empty -> .)
+    ID              reduce using rule 39 (empty -> .)
+    SELF            reduce using rule 39 (empty -> .)
 
+    Alias                          shift and go to state 42
+    empty                          shift and go to state 44
 
 state 26
 
-    (29) Alias -> AS . ID
+    (31) Type -> INT .
 
-    ID              shift and go to state 39
+    AS              reduce using rule 31 (Type -> INT .)
+    RBRACE          reduce using rule 31 (Type -> INT .)
+    NUMBER          reduce using rule 31 (Type -> INT .)
+    LPAREN          reduce using rule 31 (Type -> INT .)
+    ID              reduce using rule 31 (Type -> INT .)
+    SELF            reduce using rule 31 (Type -> INT .)
 
 
 state 27
+
+    (32) Type -> STR .
+
+    AS              reduce using rule 32 (Type -> STR .)
+    RBRACE          reduce using rule 32 (Type -> STR .)
+    NUMBER          reduce using rule 32 (Type -> STR .)
+    LPAREN          reduce using rule 32 (Type -> STR .)
+    ID              reduce using rule 32 (Type -> STR .)
+    SELF            reduce using rule 32 (Type -> STR .)
+
+
+state 28
+
+    (33) Type -> DATE .
+
+    AS              reduce using rule 33 (Type -> DATE .)
+    RBRACE          reduce using rule 33 (Type -> DATE .)
+    NUMBER          reduce using rule 33 (Type -> DATE .)
+    LPAREN          reduce using rule 33 (Type -> DATE .)
+    ID              reduce using rule 33 (Type -> DATE .)
+    SELF            reduce using rule 33 (Type -> DATE .)
+
+
+state 29
+
+    (34) Type -> DATETIME .
+
+    AS              reduce using rule 34 (Type -> DATETIME .)
+    RBRACE          reduce using rule 34 (Type -> DATETIME .)
+    NUMBER          reduce using rule 34 (Type -> DATETIME .)
+    LPAREN          reduce using rule 34 (Type -> DATETIME .)
+    ID              reduce using rule 34 (Type -> DATETIME .)
+    SELF            reduce using rule 34 (Type -> DATETIME .)
+
+
+state 30
+
+    (35) Type -> empty .
+
+    AS              reduce using rule 35 (Type -> empty .)
+    RBRACE          reduce using rule 35 (Type -> empty .)
+    NUMBER          reduce using rule 35 (Type -> empty .)
+    LPAREN          reduce using rule 35 (Type -> empty .)
+    ID              reduce using rule 35 (Type -> empty .)
+    SELF            reduce using rule 35 (Type -> empty .)
+
+
+state 31
+
+    (9) Attr_Expression -> T X .
+
+    INT             reduce using rule 9 (Attr_Expression -> T X .)
+    STR             reduce using rule 9 (Attr_Expression -> T X .)
+    DATE            reduce using rule 9 (Attr_Expression -> T X .)
+    DATETIME        reduce using rule 9 (Attr_Expression -> T X .)
+    AS              reduce using rule 9 (Attr_Expression -> T X .)
+    RBRACE          reduce using rule 9 (Attr_Expression -> T X .)
+    NUMBER          reduce using rule 9 (Attr_Expression -> T X .)
+    LPAREN          reduce using rule 9 (Attr_Expression -> T X .)
+    ID              reduce using rule 9 (Attr_Expression -> T X .)
+    SELF            reduce using rule 9 (Attr_Expression -> T X .)
+    RPAREN          reduce using rule 9 (Attr_Expression -> T X .)
+
+
+state 32
+
+    (10) X -> PLUS . T X
+    (13) T -> . F Y
+    (17) F -> . Attr
+    (18) F -> . NUMBER
+    (19) F -> . LPAREN Attr_Expression RPAREN
+    (20) Attr -> . Table TWODOTS ID Modifier
+    (21) Attr -> . Table TWODOTS Func LPAREN ID RPAREN
+    (22) Attr -> . Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID
+    (23) Attr -> . Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID
+    (24) Attr -> . Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID
+    (25) Table -> . ID
+    (26) Table -> . SELF
+
+    NUMBER          shift and go to state 18
+    LPAREN          shift and go to state 19
+    ID              shift and go to state 11
+    SELF            shift and go to state 21
+
+    T                              shift and go to state 45
+    F                              shift and go to state 16
+    Attr                           shift and go to state 17
+    Table                          shift and go to state 20
+
+state 33
+
+    (11) X -> MINUS . T X
+    (13) T -> . F Y
+    (17) F -> . Attr
+    (18) F -> . NUMBER
+    (19) F -> . LPAREN Attr_Expression RPAREN
+    (20) Attr -> . Table TWODOTS ID Modifier
+    (21) Attr -> . Table TWODOTS Func LPAREN ID RPAREN
+    (22) Attr -> . Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID
+    (23) Attr -> . Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID
+    (24) Attr -> . Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID
+    (25) Table -> . ID
+    (26) Table -> . SELF
+
+    NUMBER          shift and go to state 18
+    LPAREN          shift and go to state 19
+    ID              shift and go to state 11
+    SELF            shift and go to state 21
+
+    T                              shift and go to state 46
+    F                              shift and go to state 16
+    Attr                           shift and go to state 17
+    Table                          shift and go to state 20
+
+state 34
+
+    (12) X -> empty_list .
+
+    INT             reduce using rule 12 (X -> empty_list .)
+    STR             reduce using rule 12 (X -> empty_list .)
+    DATE            reduce using rule 12 (X -> empty_list .)
+    DATETIME        reduce using rule 12 (X -> empty_list .)
+    AS              reduce using rule 12 (X -> empty_list .)
+    RBRACE          reduce using rule 12 (X -> empty_list .)
+    NUMBER          reduce using rule 12 (X -> empty_list .)
+    LPAREN          reduce using rule 12 (X -> empty_list .)
+    ID              reduce using rule 12 (X -> empty_list .)
+    SELF            reduce using rule 12 (X -> empty_list .)
+    RPAREN          reduce using rule 12 (X -> empty_list .)
+
+
+state 35
+
+    (13) T -> F Y .
+
+    PLUS            reduce using rule 13 (T -> F Y .)
+    MINUS           reduce using rule 13 (T -> F Y .)
+    INT             reduce using rule 13 (T -> F Y .)
+    STR             reduce using rule 13 (T -> F Y .)
+    DATE            reduce using rule 13 (T -> F Y .)
+    DATETIME        reduce using rule 13 (T -> F Y .)
+    AS              reduce using rule 13 (T -> F Y .)
+    RBRACE          reduce using rule 13 (T -> F Y .)
+    NUMBER          reduce using rule 13 (T -> F Y .)
+    LPAREN          reduce using rule 13 (T -> F Y .)
+    ID              reduce using rule 13 (T -> F Y .)
+    SELF            reduce using rule 13 (T -> F Y .)
+    RPAREN          reduce using rule 13 (T -> F Y .)
+
+
+state 36
+
+    (14) Y -> TIMES . F Y
+    (17) F -> . Attr
+    (18) F -> . NUMBER
+    (19) F -> . LPAREN Attr_Expression RPAREN
+    (20) Attr -> . Table TWODOTS ID Modifier
+    (21) Attr -> . Table TWODOTS Func LPAREN ID RPAREN
+    (22) Attr -> . Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID
+    (23) Attr -> . Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID
+    (24) Attr -> . Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID
+    (25) Table -> . ID
+    (26) Table -> . SELF
+
+    NUMBER          shift and go to state 18
+    LPAREN          shift and go to state 19
+    ID              shift and go to state 11
+    SELF            shift and go to state 21
+
+    F                              shift and go to state 47
+    Attr                           shift and go to state 17
+    Table                          shift and go to state 20
+
+state 37
+
+    (15) Y -> DIVIDE . F Y
+    (17) F -> . Attr
+    (18) F -> . NUMBER
+    (19) F -> . LPAREN Attr_Expression RPAREN
+    (20) Attr -> . Table TWODOTS ID Modifier
+    (21) Attr -> . Table TWODOTS Func LPAREN ID RPAREN
+    (22) Attr -> . Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID
+    (23) Attr -> . Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID
+    (24) Attr -> . Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID
+    (25) Table -> . ID
+    (26) Table -> . SELF
+
+    NUMBER          shift and go to state 18
+    LPAREN          shift and go to state 19
+    ID              shift and go to state 11
+    SELF            shift and go to state 21
+
+    F                              shift and go to state 48
+    Attr                           shift and go to state 17
+    Table                          shift and go to state 20
+
+state 38
+
+    (16) Y -> empty_list .
+
+    PLUS            reduce using rule 16 (Y -> empty_list .)
+    MINUS           reduce using rule 16 (Y -> empty_list .)
+    INT             reduce using rule 16 (Y -> empty_list .)
+    STR             reduce using rule 16 (Y -> empty_list .)
+    DATE            reduce using rule 16 (Y -> empty_list .)
+    DATETIME        reduce using rule 16 (Y -> empty_list .)
+    AS              reduce using rule 16 (Y -> empty_list .)
+    RBRACE          reduce using rule 16 (Y -> empty_list .)
+    NUMBER          reduce using rule 16 (Y -> empty_list .)
+    LPAREN          reduce using rule 16 (Y -> empty_list .)
+    ID              reduce using rule 16 (Y -> empty_list .)
+    SELF            reduce using rule 16 (Y -> empty_list .)
+    RPAREN          reduce using rule 16 (Y -> empty_list .)
+
+
+state 39
+
+    (19) F -> LPAREN Attr_Expression . RPAREN
+
+    RPAREN          shift and go to state 49
+
+
+state 40
+
+    (20) Attr -> Table TWODOTS . ID Modifier
+    (21) Attr -> Table TWODOTS . Func LPAREN ID RPAREN
+    (22) Attr -> Table TWODOTS . SUM LPAREN ID RPAREN GROUP Table TWODOTS ID
+    (23) Attr -> Table TWODOTS . AVG LPAREN ID RPAREN GROUP Table TWODOTS ID
+    (24) Attr -> Table TWODOTS . COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID
+    (27) Func -> . WEEKDAY
+    (28) Func -> . MONTHSTR
+
+    ID              shift and go to state 50
+    SUM             shift and go to state 52
+    AVG             shift and go to state 53
+    COUNT           shift and go to state 54
+    WEEKDAY         shift and go to state 55
+    MONTHSTR        shift and go to state 56
+
+    Func                           shift and go to state 51
+
+state 41
+
+    (6) Dimensional_Table -> FACT ID LBRACE List_Attr_Def RBRACE .
+
+    DIM             reduce using rule 6 (Dimensional_Table -> FACT ID LBRACE List_Attr_Def RBRACE .)
+    FACT            reduce using rule 6 (Dimensional_Table -> FACT ID LBRACE List_Attr_Def RBRACE .)
+    $end            reduce using rule 6 (Dimensional_Table -> FACT ID LBRACE List_Attr_Def RBRACE .)
+
+
+state 42
+
+    (8) Attr_Def -> Attr_Expression Type Alias .
+
+    RBRACE          reduce using rule 8 (Attr_Def -> Attr_Expression Type Alias .)
+    NUMBER          reduce using rule 8 (Attr_Def -> Attr_Expression Type Alias .)
+    LPAREN          reduce using rule 8 (Attr_Def -> Attr_Expression Type Alias .)
+    ID              reduce using rule 8 (Attr_Def -> Attr_Expression Type Alias .)
+    SELF            reduce using rule 8 (Attr_Def -> Attr_Expression Type Alias .)
+
+
+state 43
+
+    (29) Alias -> AS . ID
+
+    ID              shift and go to state 57
+
+
+state 44
 
     (30) Alias -> empty .
 
@@ -500,194 +815,203 @@ state 27
     SELF            reduce using rule 30 (Alias -> empty .)
 
 
-state 28
+state 45
 
-    (9) Attr_Expression -> T X .
+    (10) X -> PLUS T . X
+    (10) X -> . PLUS T X
+    (11) X -> . MINUS T X
+    (12) X -> . empty_list
+    (40) empty_list -> .
 
-    AS              reduce using rule 9 (Attr_Expression -> T X .)
-    RBRACE          reduce using rule 9 (Attr_Expression -> T X .)
-    NUMBER          reduce using rule 9 (Attr_Expression -> T X .)
-    LPAREN          reduce using rule 9 (Attr_Expression -> T X .)
-    ID              reduce using rule 9 (Attr_Expression -> T X .)
-    SELF            reduce using rule 9 (Attr_Expression -> T X .)
-    RPAREN          reduce using rule 9 (Attr_Expression -> T X .)
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    INT             reduce using rule 40 (empty_list -> .)
+    STR             reduce using rule 40 (empty_list -> .)
+    DATE            reduce using rule 40 (empty_list -> .)
+    DATETIME        reduce using rule 40 (empty_list -> .)
+    AS              reduce using rule 40 (empty_list -> .)
+    RBRACE          reduce using rule 40 (empty_list -> .)
+    NUMBER          reduce using rule 40 (empty_list -> .)
+    LPAREN          reduce using rule 40 (empty_list -> .)
+    ID              reduce using rule 40 (empty_list -> .)
+    SELF            reduce using rule 40 (empty_list -> .)
+    RPAREN          reduce using rule 40 (empty_list -> .)
 
+    X                              shift and go to state 58
+    empty_list                     shift and go to state 34
 
-state 29
+state 46
 
-    (10) X -> PLUS . T X
-    (13) T -> . F Y
-    (17) F -> . Attr
-    (18) F -> . NUMBER
-    (19) F -> . LPAREN Attr_Expression RPAREN
-    (20) Attr -> . Table TWODOTS ID Primary_Key_Modifier
-    (21) Attr -> . Table TWODOTS Func LPAREN ID RPAREN
-    (22) Attr -> . Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID
-    (23) Attr -> . Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID
-    (24) Attr -> . Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID
-    (25) Table -> . ID
-    (26) Table -> . SELF
+    (11) X -> MINUS T . X
+    (10) X -> . PLUS T X
+    (11) X -> . MINUS T X
+    (12) X -> . empty_list
+    (40) empty_list -> .
 
-    NUMBER          shift and go to state 18
-    LPAREN          shift and go to state 19
-    ID              shift and go to state 11
-    SELF            shift and go to state 21
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    INT             reduce using rule 40 (empty_list -> .)
+    STR             reduce using rule 40 (empty_list -> .)
+    DATE            reduce using rule 40 (empty_list -> .)
+    DATETIME        reduce using rule 40 (empty_list -> .)
+    AS              reduce using rule 40 (empty_list -> .)
+    RBRACE          reduce using rule 40 (empty_list -> .)
+    NUMBER          reduce using rule 40 (empty_list -> .)
+    LPAREN          reduce using rule 40 (empty_list -> .)
+    ID              reduce using rule 40 (empty_list -> .)
+    SELF            reduce using rule 40 (empty_list -> .)
+    RPAREN          reduce using rule 40 (empty_list -> .)
 
-    T                              shift and go to state 40
-    F                              shift and go to state 16
-    Attr                           shift and go to state 17
-    Table                          shift and go to state 20
+    X                              shift and go to state 59
+    empty_list                     shift and go to state 34
 
-state 30
+state 47
 
-    (11) X -> MINUS . T X
-    (13) T -> . F Y
-    (17) F -> . Attr
-    (18) F -> . NUMBER
-    (19) F -> . LPAREN Attr_Expression RPAREN
-    (20) Attr -> . Table TWODOTS ID Primary_Key_Modifier
-    (21) Attr -> . Table TWODOTS Func LPAREN ID RPAREN
-    (22) Attr -> . Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID
-    (23) Attr -> . Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID
-    (24) Attr -> . Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID
-    (25) Table -> . ID
-    (26) Table -> . SELF
+    (14) Y -> TIMES F . Y
+    (14) Y -> . TIMES F Y
+    (15) Y -> . DIVIDE F Y
+    (16) Y -> . empty_list
+    (40) empty_list -> .
 
-    NUMBER          shift and go to state 18
-    LPAREN          shift and go to state 19
-    ID              shift and go to state 11
-    SELF            shift and go to state 21
+    TIMES           shift and go to state 36
+    DIVIDE          shift and go to state 37
+    PLUS            reduce using rule 40 (empty_list -> .)
+    MINUS           reduce using rule 40 (empty_list -> .)
+    INT             reduce using rule 40 (empty_list -> .)
+    STR             reduce using rule 40 (empty_list -> .)
+    DATE            reduce using rule 40 (empty_list -> .)
+    DATETIME        reduce using rule 40 (empty_list -> .)
+    AS              reduce using rule 40 (empty_list -> .)
+    RBRACE          reduce using rule 40 (empty_list -> .)
+    NUMBER          reduce using rule 40 (empty_list -> .)
+    LPAREN          reduce using rule 40 (empty_list -> .)
+    ID              reduce using rule 40 (empty_list -> .)
+    SELF            reduce using rule 40 (empty_list -> .)
+    RPAREN          reduce using rule 40 (empty_list -> .)
 
-    T                              shift and go to state 41
-    F                              shift and go to state 16
-    Attr                           shift and go to state 17
-    Table                          shift and go to state 20
+    Y                              shift and go to state 60
+    empty_list                     shift and go to state 38
 
-state 31
+state 48
 
-    (12) X -> empty_list .
+    (15) Y -> DIVIDE F . Y
+    (14) Y -> . TIMES F Y
+    (15) Y -> . DIVIDE F Y
+    (16) Y -> . empty_list
+    (40) empty_list -> .
 
-    AS              reduce using rule 12 (X -> empty_list .)
-    RBRACE          reduce using rule 12 (X -> empty_list .)
-    NUMBER          reduce using rule 12 (X -> empty_list .)
-    LPAREN          reduce using rule 12 (X -> empty_list .)
-    ID              reduce using rule 12 (X -> empty_list .)
-    SELF            reduce using rule 12 (X -> empty_list .)
-    RPAREN          reduce using rule 12 (X -> empty_list .)
+    TIMES           shift and go to state 36
+    DIVIDE          shift and go to state 37
+    PLUS            reduce using rule 40 (empty_list -> .)
+    MINUS           reduce using rule 40 (empty_list -> .)
+    INT             reduce using rule 40 (empty_list -> .)
+    STR             reduce using rule 40 (empty_list -> .)
+    DATE            reduce using rule 40 (empty_list -> .)
+    DATETIME        reduce using rule 40 (empty_list -> .)
+    AS              reduce using rule 40 (empty_list -> .)
+    RBRACE          reduce using rule 40 (empty_list -> .)
+    NUMBER          reduce using rule 40 (empty_list -> .)
+    LPAREN          reduce using rule 40 (empty_list -> .)
+    ID              reduce using rule 40 (empty_list -> .)
+    SELF            reduce using rule 40 (empty_list -> .)
+    RPAREN          reduce using rule 40 (empty_list -> .)
 
+    Y                              shift and go to state 61
+    empty_list                     shift and go to state 38
 
-state 32
+state 49
 
-    (13) T -> F Y .
+    (19) F -> LPAREN Attr_Expression RPAREN .
 
-    PLUS            reduce using rule 13 (T -> F Y .)
-    MINUS           reduce using rule 13 (T -> F Y .)
-    AS              reduce using rule 13 (T -> F Y .)
-    RBRACE          reduce using rule 13 (T -> F Y .)
-    NUMBER          reduce using rule 13 (T -> F Y .)
-    LPAREN          reduce using rule 13 (T -> F Y .)
-    ID              reduce using rule 13 (T -> F Y .)
-    SELF            reduce using rule 13 (T -> F Y .)
-    RPAREN          reduce using rule 13 (T -> F Y .)
-
-
-state 33
-
-    (14) Y -> TIMES . F Y
-    (17) F -> . Attr
-    (18) F -> . NUMBER
-    (19) F -> . LPAREN Attr_Expression RPAREN
-    (20) Attr -> . Table TWODOTS ID Primary_Key_Modifier
-    (21) Attr -> . Table TWODOTS Func LPAREN ID RPAREN
-    (22) Attr -> . Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID
-    (23) Attr -> . Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID
-    (24) Attr -> . Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID
-    (25) Table -> . ID
-    (26) Table -> . SELF
-
-    NUMBER          shift and go to state 18
-    LPAREN          shift and go to state 19
-    ID              shift and go to state 11
-    SELF            shift and go to state 21
-
-    F                              shift and go to state 42
-    Attr                           shift and go to state 17
-    Table                          shift and go to state 20
-
-state 34
-
-    (15) Y -> DIVIDE . F Y
-    (17) F -> . Attr
-    (18) F -> . NUMBER
-    (19) F -> . LPAREN Attr_Expression RPAREN
-    (20) Attr -> . Table TWODOTS ID Primary_Key_Modifier
-    (21) Attr -> . Table TWODOTS Func LPAREN ID RPAREN
-    (22) Attr -> . Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID
-    (23) Attr -> . Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID
-    (24) Attr -> . Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID
-    (25) Table -> . ID
-    (26) Table -> . SELF
-
-    NUMBER          shift and go to state 18
-    LPAREN          shift and go to state 19
-    ID              shift and go to state 11
-    SELF            shift and go to state 21
-
-    F                              shift and go to state 43
-    Attr                           shift and go to state 17
-    Table                          shift and go to state 20
-
-state 35
-
-    (16) Y -> empty_list .
-
-    PLUS            reduce using rule 16 (Y -> empty_list .)
-    MINUS           reduce using rule 16 (Y -> empty_list .)
-    AS              reduce using rule 16 (Y -> empty_list .)
-    RBRACE          reduce using rule 16 (Y -> empty_list .)
-    NUMBER          reduce using rule 16 (Y -> empty_list .)
-    LPAREN          reduce using rule 16 (Y -> empty_list .)
-    ID              reduce using rule 16 (Y -> empty_list .)
-    SELF            reduce using rule 16 (Y -> empty_list .)
-    RPAREN          reduce using rule 16 (Y -> empty_list .)
+    TIMES           reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
+    DIVIDE          reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
+    PLUS            reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
+    MINUS           reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
+    INT             reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
+    STR             reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
+    DATE            reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
+    DATETIME        reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
+    AS              reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
+    RBRACE          reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
+    NUMBER          reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
+    LPAREN          reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
+    ID              reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
+    SELF            reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
+    RPAREN          reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
 
 
-state 36
+state 50
 
-    (19) F -> LPAREN Attr_Expression . RPAREN
+    (20) Attr -> Table TWODOTS ID . Modifier
+    (36) Modifier -> . PK
+    (37) Modifier -> . FK
+    (38) Modifier -> . empty
+    (39) empty -> .
 
-    RPAREN          shift and go to state 44
+    PK              shift and go to state 63
+    FK              shift and go to state 64
+    TIMES           reduce using rule 39 (empty -> .)
+    DIVIDE          reduce using rule 39 (empty -> .)
+    PLUS            reduce using rule 39 (empty -> .)
+    MINUS           reduce using rule 39 (empty -> .)
+    INT             reduce using rule 39 (empty -> .)
+    STR             reduce using rule 39 (empty -> .)
+    DATE            reduce using rule 39 (empty -> .)
+    DATETIME        reduce using rule 39 (empty -> .)
+    AS              reduce using rule 39 (empty -> .)
+    RBRACE          reduce using rule 39 (empty -> .)
+    NUMBER          reduce using rule 39 (empty -> .)
+    LPAREN          reduce using rule 39 (empty -> .)
+    ID              reduce using rule 39 (empty -> .)
+    SELF            reduce using rule 39 (empty -> .)
+    RPAREN          reduce using rule 39 (empty -> .)
+
+    Modifier                       shift and go to state 62
+    empty                          shift and go to state 65
+
+state 51
+
+    (21) Attr -> Table TWODOTS Func . LPAREN ID RPAREN
+
+    LPAREN          shift and go to state 66
 
 
-state 37
+state 52
 
-    (20) Attr -> Table TWODOTS . ID Primary_Key_Modifier
-    (21) Attr -> Table TWODOTS . Func LPAREN ID RPAREN
-    (22) Attr -> Table TWODOTS . SUM LPAREN ID RPAREN GROUP Table TWODOTS ID
-    (23) Attr -> Table TWODOTS . AVG LPAREN ID RPAREN GROUP Table TWODOTS ID
-    (24) Attr -> Table TWODOTS . COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID
-    (27) Func -> . WEEKDAY
-    (28) Func -> . MONTHSTR
+    (22) Attr -> Table TWODOTS SUM . LPAREN ID RPAREN GROUP Table TWODOTS ID
 
-    ID              shift and go to state 45
-    SUM             shift and go to state 47
-    AVG             shift and go to state 48
-    COUNT           shift and go to state 49
-    WEEKDAY         shift and go to state 50
-    MONTHSTR        shift and go to state 51
-
-    Func                           shift and go to state 46
-
-state 38
-
-    (6) Dimensional_Table -> FACT ID LBRACE List_Attr_Def RBRACE .
-
-    DIM             reduce using rule 6 (Dimensional_Table -> FACT ID LBRACE List_Attr_Def RBRACE .)
-    FACT            reduce using rule 6 (Dimensional_Table -> FACT ID LBRACE List_Attr_Def RBRACE .)
-    $end            reduce using rule 6 (Dimensional_Table -> FACT ID LBRACE List_Attr_Def RBRACE .)
+    LPAREN          shift and go to state 67
 
 
-state 39
+state 53
+
+    (23) Attr -> Table TWODOTS AVG . LPAREN ID RPAREN GROUP Table TWODOTS ID
+
+    LPAREN          shift and go to state 68
+
+
+state 54
+
+    (24) Attr -> Table TWODOTS COUNT . LPAREN ID RPAREN GROUP Table TWODOTS ID
+
+    LPAREN          shift and go to state 69
+
+
+state 55
+
+    (27) Func -> WEEKDAY .
+
+    LPAREN          reduce using rule 27 (Func -> WEEKDAY .)
+
+
+state 56
+
+    (28) Func -> MONTHSTR .
+
+    LPAREN          reduce using rule 28 (Func -> MONTHSTR .)
+
+
+state 57
 
     (29) Alias -> AS ID .
 
@@ -698,180 +1022,14 @@ state 39
     SELF            reduce using rule 29 (Alias -> AS ID .)
 
 
-state 40
-
-    (10) X -> PLUS T . X
-    (10) X -> . PLUS T X
-    (11) X -> . MINUS T X
-    (12) X -> . empty_list
-    (34) empty_list -> .
-
-    PLUS            shift and go to state 29
-    MINUS           shift and go to state 30
-    AS              reduce using rule 34 (empty_list -> .)
-    RBRACE          reduce using rule 34 (empty_list -> .)
-    NUMBER          reduce using rule 34 (empty_list -> .)
-    LPAREN          reduce using rule 34 (empty_list -> .)
-    ID              reduce using rule 34 (empty_list -> .)
-    SELF            reduce using rule 34 (empty_list -> .)
-    RPAREN          reduce using rule 34 (empty_list -> .)
-
-    X                              shift and go to state 52
-    empty_list                     shift and go to state 31
-
-state 41
-
-    (11) X -> MINUS T . X
-    (10) X -> . PLUS T X
-    (11) X -> . MINUS T X
-    (12) X -> . empty_list
-    (34) empty_list -> .
-
-    PLUS            shift and go to state 29
-    MINUS           shift and go to state 30
-    AS              reduce using rule 34 (empty_list -> .)
-    RBRACE          reduce using rule 34 (empty_list -> .)
-    NUMBER          reduce using rule 34 (empty_list -> .)
-    LPAREN          reduce using rule 34 (empty_list -> .)
-    ID              reduce using rule 34 (empty_list -> .)
-    SELF            reduce using rule 34 (empty_list -> .)
-    RPAREN          reduce using rule 34 (empty_list -> .)
-
-    X                              shift and go to state 53
-    empty_list                     shift and go to state 31
-
-state 42
-
-    (14) Y -> TIMES F . Y
-    (14) Y -> . TIMES F Y
-    (15) Y -> . DIVIDE F Y
-    (16) Y -> . empty_list
-    (34) empty_list -> .
-
-    TIMES           shift and go to state 33
-    DIVIDE          shift and go to state 34
-    PLUS            reduce using rule 34 (empty_list -> .)
-    MINUS           reduce using rule 34 (empty_list -> .)
-    AS              reduce using rule 34 (empty_list -> .)
-    RBRACE          reduce using rule 34 (empty_list -> .)
-    NUMBER          reduce using rule 34 (empty_list -> .)
-    LPAREN          reduce using rule 34 (empty_list -> .)
-    ID              reduce using rule 34 (empty_list -> .)
-    SELF            reduce using rule 34 (empty_list -> .)
-    RPAREN          reduce using rule 34 (empty_list -> .)
-
-    Y                              shift and go to state 54
-    empty_list                     shift and go to state 35
-
-state 43
-
-    (15) Y -> DIVIDE F . Y
-    (14) Y -> . TIMES F Y
-    (15) Y -> . DIVIDE F Y
-    (16) Y -> . empty_list
-    (34) empty_list -> .
-
-    TIMES           shift and go to state 33
-    DIVIDE          shift and go to state 34
-    PLUS            reduce using rule 34 (empty_list -> .)
-    MINUS           reduce using rule 34 (empty_list -> .)
-    AS              reduce using rule 34 (empty_list -> .)
-    RBRACE          reduce using rule 34 (empty_list -> .)
-    NUMBER          reduce using rule 34 (empty_list -> .)
-    LPAREN          reduce using rule 34 (empty_list -> .)
-    ID              reduce using rule 34 (empty_list -> .)
-    SELF            reduce using rule 34 (empty_list -> .)
-    RPAREN          reduce using rule 34 (empty_list -> .)
-
-    Y                              shift and go to state 55
-    empty_list                     shift and go to state 35
-
-state 44
-
-    (19) F -> LPAREN Attr_Expression RPAREN .
-
-    TIMES           reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
-    DIVIDE          reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
-    PLUS            reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
-    MINUS           reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
-    AS              reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
-    RBRACE          reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
-    NUMBER          reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
-    LPAREN          reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
-    ID              reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
-    SELF            reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
-    RPAREN          reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
-
-
-state 45
-
-    (20) Attr -> Table TWODOTS ID . Primary_Key_Modifier
-    (31) Primary_Key_Modifier -> . PK
-    (32) Primary_Key_Modifier -> . empty
-    (33) empty -> .
-
-    PK              shift and go to state 57
-    TIMES           reduce using rule 33 (empty -> .)
-    DIVIDE          reduce using rule 33 (empty -> .)
-    PLUS            reduce using rule 33 (empty -> .)
-    MINUS           reduce using rule 33 (empty -> .)
-    AS              reduce using rule 33 (empty -> .)
-    RBRACE          reduce using rule 33 (empty -> .)
-    NUMBER          reduce using rule 33 (empty -> .)
-    LPAREN          reduce using rule 33 (empty -> .)
-    ID              reduce using rule 33 (empty -> .)
-    SELF            reduce using rule 33 (empty -> .)
-    RPAREN          reduce using rule 33 (empty -> .)
-
-    Primary_Key_Modifier           shift and go to state 56
-    empty                          shift and go to state 58
-
-state 46
-
-    (21) Attr -> Table TWODOTS Func . LPAREN ID RPAREN
-
-    LPAREN          shift and go to state 59
-
-
-state 47
-
-    (22) Attr -> Table TWODOTS SUM . LPAREN ID RPAREN GROUP Table TWODOTS ID
-
-    LPAREN          shift and go to state 60
-
-
-state 48
-
-    (23) Attr -> Table TWODOTS AVG . LPAREN ID RPAREN GROUP Table TWODOTS ID
-
-    LPAREN          shift and go to state 61
-
-
-state 49
-
-    (24) Attr -> Table TWODOTS COUNT . LPAREN ID RPAREN GROUP Table TWODOTS ID
-
-    LPAREN          shift and go to state 62
-
-
-state 50
-
-    (27) Func -> WEEKDAY .
-
-    LPAREN          reduce using rule 27 (Func -> WEEKDAY .)
-
-
-state 51
-
-    (28) Func -> MONTHSTR .
-
-    LPAREN          reduce using rule 28 (Func -> MONTHSTR .)
-
-
-state 52
+state 58
 
     (10) X -> PLUS T X .
 
+    INT             reduce using rule 10 (X -> PLUS T X .)
+    STR             reduce using rule 10 (X -> PLUS T X .)
+    DATE            reduce using rule 10 (X -> PLUS T X .)
+    DATETIME        reduce using rule 10 (X -> PLUS T X .)
     AS              reduce using rule 10 (X -> PLUS T X .)
     RBRACE          reduce using rule 10 (X -> PLUS T X .)
     NUMBER          reduce using rule 10 (X -> PLUS T X .)
@@ -881,10 +1039,14 @@ state 52
     RPAREN          reduce using rule 10 (X -> PLUS T X .)
 
 
-state 53
+state 59
 
     (11) X -> MINUS T X .
 
+    INT             reduce using rule 11 (X -> MINUS T X .)
+    STR             reduce using rule 11 (X -> MINUS T X .)
+    DATE            reduce using rule 11 (X -> MINUS T X .)
+    DATETIME        reduce using rule 11 (X -> MINUS T X .)
     AS              reduce using rule 11 (X -> MINUS T X .)
     RBRACE          reduce using rule 11 (X -> MINUS T X .)
     NUMBER          reduce using rule 11 (X -> MINUS T X .)
@@ -894,12 +1056,16 @@ state 53
     RPAREN          reduce using rule 11 (X -> MINUS T X .)
 
 
-state 54
+state 60
 
     (14) Y -> TIMES F Y .
 
     PLUS            reduce using rule 14 (Y -> TIMES F Y .)
     MINUS           reduce using rule 14 (Y -> TIMES F Y .)
+    INT             reduce using rule 14 (Y -> TIMES F Y .)
+    STR             reduce using rule 14 (Y -> TIMES F Y .)
+    DATE            reduce using rule 14 (Y -> TIMES F Y .)
+    DATETIME        reduce using rule 14 (Y -> TIMES F Y .)
     AS              reduce using rule 14 (Y -> TIMES F Y .)
     RBRACE          reduce using rule 14 (Y -> TIMES F Y .)
     NUMBER          reduce using rule 14 (Y -> TIMES F Y .)
@@ -909,12 +1075,16 @@ state 54
     RPAREN          reduce using rule 14 (Y -> TIMES F Y .)
 
 
-state 55
+state 61
 
     (15) Y -> DIVIDE F Y .
 
     PLUS            reduce using rule 15 (Y -> DIVIDE F Y .)
     MINUS           reduce using rule 15 (Y -> DIVIDE F Y .)
+    INT             reduce using rule 15 (Y -> DIVIDE F Y .)
+    STR             reduce using rule 15 (Y -> DIVIDE F Y .)
+    DATE            reduce using rule 15 (Y -> DIVIDE F Y .)
+    DATETIME        reduce using rule 15 (Y -> DIVIDE F Y .)
     AS              reduce using rule 15 (Y -> DIVIDE F Y .)
     RBRACE          reduce using rule 15 (Y -> DIVIDE F Y .)
     NUMBER          reduce using rule 15 (Y -> DIVIDE F Y .)
@@ -924,114 +1094,147 @@ state 55
     RPAREN          reduce using rule 15 (Y -> DIVIDE F Y .)
 
 
-state 56
-
-    (20) Attr -> Table TWODOTS ID Primary_Key_Modifier .
-
-    TIMES           reduce using rule 20 (Attr -> Table TWODOTS ID Primary_Key_Modifier .)
-    DIVIDE          reduce using rule 20 (Attr -> Table TWODOTS ID Primary_Key_Modifier .)
-    PLUS            reduce using rule 20 (Attr -> Table TWODOTS ID Primary_Key_Modifier .)
-    MINUS           reduce using rule 20 (Attr -> Table TWODOTS ID Primary_Key_Modifier .)
-    AS              reduce using rule 20 (Attr -> Table TWODOTS ID Primary_Key_Modifier .)
-    RBRACE          reduce using rule 20 (Attr -> Table TWODOTS ID Primary_Key_Modifier .)
-    NUMBER          reduce using rule 20 (Attr -> Table TWODOTS ID Primary_Key_Modifier .)
-    LPAREN          reduce using rule 20 (Attr -> Table TWODOTS ID Primary_Key_Modifier .)
-    ID              reduce using rule 20 (Attr -> Table TWODOTS ID Primary_Key_Modifier .)
-    SELF            reduce using rule 20 (Attr -> Table TWODOTS ID Primary_Key_Modifier .)
-    RPAREN          reduce using rule 20 (Attr -> Table TWODOTS ID Primary_Key_Modifier .)
-
-
-state 57
-
-    (31) Primary_Key_Modifier -> PK .
-
-    TIMES           reduce using rule 31 (Primary_Key_Modifier -> PK .)
-    DIVIDE          reduce using rule 31 (Primary_Key_Modifier -> PK .)
-    PLUS            reduce using rule 31 (Primary_Key_Modifier -> PK .)
-    MINUS           reduce using rule 31 (Primary_Key_Modifier -> PK .)
-    AS              reduce using rule 31 (Primary_Key_Modifier -> PK .)
-    RBRACE          reduce using rule 31 (Primary_Key_Modifier -> PK .)
-    NUMBER          reduce using rule 31 (Primary_Key_Modifier -> PK .)
-    LPAREN          reduce using rule 31 (Primary_Key_Modifier -> PK .)
-    ID              reduce using rule 31 (Primary_Key_Modifier -> PK .)
-    SELF            reduce using rule 31 (Primary_Key_Modifier -> PK .)
-    RPAREN          reduce using rule 31 (Primary_Key_Modifier -> PK .)
-
-
-state 58
-
-    (32) Primary_Key_Modifier -> empty .
-
-    TIMES           reduce using rule 32 (Primary_Key_Modifier -> empty .)
-    DIVIDE          reduce using rule 32 (Primary_Key_Modifier -> empty .)
-    PLUS            reduce using rule 32 (Primary_Key_Modifier -> empty .)
-    MINUS           reduce using rule 32 (Primary_Key_Modifier -> empty .)
-    AS              reduce using rule 32 (Primary_Key_Modifier -> empty .)
-    RBRACE          reduce using rule 32 (Primary_Key_Modifier -> empty .)
-    NUMBER          reduce using rule 32 (Primary_Key_Modifier -> empty .)
-    LPAREN          reduce using rule 32 (Primary_Key_Modifier -> empty .)
-    ID              reduce using rule 32 (Primary_Key_Modifier -> empty .)
-    SELF            reduce using rule 32 (Primary_Key_Modifier -> empty .)
-    RPAREN          reduce using rule 32 (Primary_Key_Modifier -> empty .)
-
-
-state 59
-
-    (21) Attr -> Table TWODOTS Func LPAREN . ID RPAREN
-
-    ID              shift and go to state 63
-
-
-state 60
-
-    (22) Attr -> Table TWODOTS SUM LPAREN . ID RPAREN GROUP Table TWODOTS ID
-
-    ID              shift and go to state 64
-
-
-state 61
-
-    (23) Attr -> Table TWODOTS AVG LPAREN . ID RPAREN GROUP Table TWODOTS ID
-
-    ID              shift and go to state 65
-
-
 state 62
 
-    (24) Attr -> Table TWODOTS COUNT LPAREN . ID RPAREN GROUP Table TWODOTS ID
+    (20) Attr -> Table TWODOTS ID Modifier .
 
-    ID              shift and go to state 66
+    TIMES           reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
+    DIVIDE          reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
+    PLUS            reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
+    MINUS           reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
+    INT             reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
+    STR             reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
+    DATE            reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
+    DATETIME        reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
+    AS              reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
+    RBRACE          reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
+    NUMBER          reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
+    LPAREN          reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
+    ID              reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
+    SELF            reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
+    RPAREN          reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
 
 
 state 63
 
-    (21) Attr -> Table TWODOTS Func LPAREN ID . RPAREN
+    (36) Modifier -> PK .
 
-    RPAREN          shift and go to state 67
+    TIMES           reduce using rule 36 (Modifier -> PK .)
+    DIVIDE          reduce using rule 36 (Modifier -> PK .)
+    PLUS            reduce using rule 36 (Modifier -> PK .)
+    MINUS           reduce using rule 36 (Modifier -> PK .)
+    INT             reduce using rule 36 (Modifier -> PK .)
+    STR             reduce using rule 36 (Modifier -> PK .)
+    DATE            reduce using rule 36 (Modifier -> PK .)
+    DATETIME        reduce using rule 36 (Modifier -> PK .)
+    AS              reduce using rule 36 (Modifier -> PK .)
+    RBRACE          reduce using rule 36 (Modifier -> PK .)
+    NUMBER          reduce using rule 36 (Modifier -> PK .)
+    LPAREN          reduce using rule 36 (Modifier -> PK .)
+    ID              reduce using rule 36 (Modifier -> PK .)
+    SELF            reduce using rule 36 (Modifier -> PK .)
+    RPAREN          reduce using rule 36 (Modifier -> PK .)
 
 
 state 64
 
-    (22) Attr -> Table TWODOTS SUM LPAREN ID . RPAREN GROUP Table TWODOTS ID
+    (37) Modifier -> FK .
 
-    RPAREN          shift and go to state 68
+    TIMES           reduce using rule 37 (Modifier -> FK .)
+    DIVIDE          reduce using rule 37 (Modifier -> FK .)
+    PLUS            reduce using rule 37 (Modifier -> FK .)
+    MINUS           reduce using rule 37 (Modifier -> FK .)
+    INT             reduce using rule 37 (Modifier -> FK .)
+    STR             reduce using rule 37 (Modifier -> FK .)
+    DATE            reduce using rule 37 (Modifier -> FK .)
+    DATETIME        reduce using rule 37 (Modifier -> FK .)
+    AS              reduce using rule 37 (Modifier -> FK .)
+    RBRACE          reduce using rule 37 (Modifier -> FK .)
+    NUMBER          reduce using rule 37 (Modifier -> FK .)
+    LPAREN          reduce using rule 37 (Modifier -> FK .)
+    ID              reduce using rule 37 (Modifier -> FK .)
+    SELF            reduce using rule 37 (Modifier -> FK .)
+    RPAREN          reduce using rule 37 (Modifier -> FK .)
 
 
 state 65
 
-    (23) Attr -> Table TWODOTS AVG LPAREN ID . RPAREN GROUP Table TWODOTS ID
+    (38) Modifier -> empty .
 
-    RPAREN          shift and go to state 69
+    TIMES           reduce using rule 38 (Modifier -> empty .)
+    DIVIDE          reduce using rule 38 (Modifier -> empty .)
+    PLUS            reduce using rule 38 (Modifier -> empty .)
+    MINUS           reduce using rule 38 (Modifier -> empty .)
+    INT             reduce using rule 38 (Modifier -> empty .)
+    STR             reduce using rule 38 (Modifier -> empty .)
+    DATE            reduce using rule 38 (Modifier -> empty .)
+    DATETIME        reduce using rule 38 (Modifier -> empty .)
+    AS              reduce using rule 38 (Modifier -> empty .)
+    RBRACE          reduce using rule 38 (Modifier -> empty .)
+    NUMBER          reduce using rule 38 (Modifier -> empty .)
+    LPAREN          reduce using rule 38 (Modifier -> empty .)
+    ID              reduce using rule 38 (Modifier -> empty .)
+    SELF            reduce using rule 38 (Modifier -> empty .)
+    RPAREN          reduce using rule 38 (Modifier -> empty .)
 
 
 state 66
 
-    (24) Attr -> Table TWODOTS COUNT LPAREN ID . RPAREN GROUP Table TWODOTS ID
+    (21) Attr -> Table TWODOTS Func LPAREN . ID RPAREN
 
-    RPAREN          shift and go to state 70
+    ID              shift and go to state 70
 
 
 state 67
+
+    (22) Attr -> Table TWODOTS SUM LPAREN . ID RPAREN GROUP Table TWODOTS ID
+
+    ID              shift and go to state 71
+
+
+state 68
+
+    (23) Attr -> Table TWODOTS AVG LPAREN . ID RPAREN GROUP Table TWODOTS ID
+
+    ID              shift and go to state 72
+
+
+state 69
+
+    (24) Attr -> Table TWODOTS COUNT LPAREN . ID RPAREN GROUP Table TWODOTS ID
+
+    ID              shift and go to state 73
+
+
+state 70
+
+    (21) Attr -> Table TWODOTS Func LPAREN ID . RPAREN
+
+    RPAREN          shift and go to state 74
+
+
+state 71
+
+    (22) Attr -> Table TWODOTS SUM LPAREN ID . RPAREN GROUP Table TWODOTS ID
+
+    RPAREN          shift and go to state 75
+
+
+state 72
+
+    (23) Attr -> Table TWODOTS AVG LPAREN ID . RPAREN GROUP Table TWODOTS ID
+
+    RPAREN          shift and go to state 76
+
+
+state 73
+
+    (24) Attr -> Table TWODOTS COUNT LPAREN ID . RPAREN GROUP Table TWODOTS ID
+
+    RPAREN          shift and go to state 77
+
+
+state 74
 
     (21) Attr -> Table TWODOTS Func LPAREN ID RPAREN .
 
@@ -1039,6 +1242,10 @@ state 67
     DIVIDE          reduce using rule 21 (Attr -> Table TWODOTS Func LPAREN ID RPAREN .)
     PLUS            reduce using rule 21 (Attr -> Table TWODOTS Func LPAREN ID RPAREN .)
     MINUS           reduce using rule 21 (Attr -> Table TWODOTS Func LPAREN ID RPAREN .)
+    INT             reduce using rule 21 (Attr -> Table TWODOTS Func LPAREN ID RPAREN .)
+    STR             reduce using rule 21 (Attr -> Table TWODOTS Func LPAREN ID RPAREN .)
+    DATE            reduce using rule 21 (Attr -> Table TWODOTS Func LPAREN ID RPAREN .)
+    DATETIME        reduce using rule 21 (Attr -> Table TWODOTS Func LPAREN ID RPAREN .)
     AS              reduce using rule 21 (Attr -> Table TWODOTS Func LPAREN ID RPAREN .)
     RBRACE          reduce using rule 21 (Attr -> Table TWODOTS Func LPAREN ID RPAREN .)
     NUMBER          reduce using rule 21 (Attr -> Table TWODOTS Func LPAREN ID RPAREN .)
@@ -1048,28 +1255,28 @@ state 67
     RPAREN          reduce using rule 21 (Attr -> Table TWODOTS Func LPAREN ID RPAREN .)
 
 
-state 68
+state 75
 
     (22) Attr -> Table TWODOTS SUM LPAREN ID RPAREN . GROUP Table TWODOTS ID
 
-    GROUP           shift and go to state 71
+    GROUP           shift and go to state 78
 
 
-state 69
+state 76
 
     (23) Attr -> Table TWODOTS AVG LPAREN ID RPAREN . GROUP Table TWODOTS ID
 
-    GROUP           shift and go to state 72
+    GROUP           shift and go to state 79
 
 
-state 70
+state 77
 
     (24) Attr -> Table TWODOTS COUNT LPAREN ID RPAREN . GROUP Table TWODOTS ID
 
-    GROUP           shift and go to state 73
+    GROUP           shift and go to state 80
 
 
-state 71
+state 78
 
     (22) Attr -> Table TWODOTS SUM LPAREN ID RPAREN GROUP . Table TWODOTS ID
     (25) Table -> . ID
@@ -1078,9 +1285,9 @@ state 71
     ID              shift and go to state 11
     SELF            shift and go to state 21
 
-    Table                          shift and go to state 74
+    Table                          shift and go to state 81
 
-state 72
+state 79
 
     (23) Attr -> Table TWODOTS AVG LPAREN ID RPAREN GROUP . Table TWODOTS ID
     (25) Table -> . ID
@@ -1089,9 +1296,9 @@ state 72
     ID              shift and go to state 11
     SELF            shift and go to state 21
 
-    Table                          shift and go to state 75
+    Table                          shift and go to state 82
 
-state 73
+state 80
 
     (24) Attr -> Table TWODOTS COUNT LPAREN ID RPAREN GROUP . Table TWODOTS ID
     (25) Table -> . ID
@@ -1100,51 +1307,51 @@ state 73
     ID              shift and go to state 11
     SELF            shift and go to state 21
 
-    Table                          shift and go to state 76
+    Table                          shift and go to state 83
 
-state 74
+state 81
 
     (22) Attr -> Table TWODOTS SUM LPAREN ID RPAREN GROUP Table . TWODOTS ID
 
-    TWODOTS         shift and go to state 77
+    TWODOTS         shift and go to state 84
 
 
-state 75
+state 82
 
     (23) Attr -> Table TWODOTS AVG LPAREN ID RPAREN GROUP Table . TWODOTS ID
 
-    TWODOTS         shift and go to state 78
+    TWODOTS         shift and go to state 85
 
 
-state 76
+state 83
 
     (24) Attr -> Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table . TWODOTS ID
 
-    TWODOTS         shift and go to state 79
+    TWODOTS         shift and go to state 86
 
 
-state 77
+state 84
 
     (22) Attr -> Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS . ID
 
-    ID              shift and go to state 80
+    ID              shift and go to state 87
 
 
-state 78
+state 85
 
     (23) Attr -> Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS . ID
 
-    ID              shift and go to state 81
+    ID              shift and go to state 88
 
 
-state 79
+state 86
 
     (24) Attr -> Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS . ID
 
-    ID              shift and go to state 82
+    ID              shift and go to state 89
 
 
-state 80
+state 87
 
     (22) Attr -> Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID .
 
@@ -1152,6 +1359,10 @@ state 80
     DIVIDE          reduce using rule 22 (Attr -> Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID .)
     PLUS            reduce using rule 22 (Attr -> Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID .)
     MINUS           reduce using rule 22 (Attr -> Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID .)
+    INT             reduce using rule 22 (Attr -> Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID .)
+    STR             reduce using rule 22 (Attr -> Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID .)
+    DATE            reduce using rule 22 (Attr -> Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID .)
+    DATETIME        reduce using rule 22 (Attr -> Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID .)
     AS              reduce using rule 22 (Attr -> Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID .)
     RBRACE          reduce using rule 22 (Attr -> Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID .)
     NUMBER          reduce using rule 22 (Attr -> Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID .)
@@ -1161,7 +1372,7 @@ state 80
     RPAREN          reduce using rule 22 (Attr -> Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID .)
 
 
-state 81
+state 88
 
     (23) Attr -> Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID .
 
@@ -1169,6 +1380,10 @@ state 81
     DIVIDE          reduce using rule 23 (Attr -> Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID .)
     PLUS            reduce using rule 23 (Attr -> Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID .)
     MINUS           reduce using rule 23 (Attr -> Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID .)
+    INT             reduce using rule 23 (Attr -> Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID .)
+    STR             reduce using rule 23 (Attr -> Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID .)
+    DATE            reduce using rule 23 (Attr -> Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID .)
+    DATETIME        reduce using rule 23 (Attr -> Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID .)
     AS              reduce using rule 23 (Attr -> Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID .)
     RBRACE          reduce using rule 23 (Attr -> Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID .)
     NUMBER          reduce using rule 23 (Attr -> Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID .)
@@ -1178,7 +1393,7 @@ state 81
     RPAREN          reduce using rule 23 (Attr -> Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID .)
 
 
-state 82
+state 89
 
     (24) Attr -> Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID .
 
@@ -1186,6 +1401,10 @@ state 82
     DIVIDE          reduce using rule 24 (Attr -> Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID .)
     PLUS            reduce using rule 24 (Attr -> Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID .)
     MINUS           reduce using rule 24 (Attr -> Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID .)
+    INT             reduce using rule 24 (Attr -> Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID .)
+    STR             reduce using rule 24 (Attr -> Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID .)
+    DATE            reduce using rule 24 (Attr -> Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID .)
+    DATETIME        reduce using rule 24 (Attr -> Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID .)
     AS              reduce using rule 24 (Attr -> Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID .)
     RBRACE          reduce using rule 24 (Attr -> Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID .)
     NUMBER          reduce using rule 24 (Attr -> Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID .)

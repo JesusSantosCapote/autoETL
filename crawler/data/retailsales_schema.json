@@ -1,172 +1,256 @@
 {
-    "region": {
+    "provincia": {
         "attributes": [
             [
-                "regionkey",
+                "idprovincia",
                 "integer",
                 "PRIMARY KEY"
+            ],
+            [
+                "nombre",
+                "character varying"
             ]
         ],
         "relations": []
     },
-    "nation": {
+    "municipio": {
         "attributes": [
             [
-                "nationkey",
+                "idmunicipio",
                 "integer",
                 "PRIMARY KEY"
             ],
             [
-                "regionkey",
+                "idprovincia",
                 "integer",
                 "FOREIGN KEY"
+            ],
+            [
+                "nombre",
+                "character varying"
             ]
         ],
         "relations": [
             [
-                "regionkey",
-                "region",
-                "regionkey"
+                "idprovincia",
+                "provincia",
+                "idprovincia"
             ]
         ]
     },
-    "customer": {
+    "marca": {
         "attributes": [
             [
-                "custkey",
+                "idmarca",
                 "integer",
                 "PRIMARY KEY"
             ],
             [
-                "nationkey",
-                "integer",
-                "FOREIGN KEY"
-            ]
-        ],
-        "relations": [
-            [
-                "nationkey",
-                "nation",
-                "nationkey"
-            ]
-        ]
-    },
-    "supplier": {
-        "attributes": [
-            [
-                "supkey",
-                "integer",
-                "PRIMARY KEY"
-            ],
-            [
-                "nationkey",
-                "integer",
-                "FOREIGN KEY"
-            ]
-        ],
-        "relations": [
-            [
-                "nationkey",
-                "nation",
-                "nationkey"
-            ]
-        ]
-    },
-    "buy_order": {
-        "attributes": [
-            [
-                "orderkey",
-                "integer",
-                "PRIMARY KEY"
-            ],
-            [
-                "custkey",
-                "integer",
-                "FOREIGN KEY"
-            ]
-        ],
-        "relations": [
-            [
-                "custkey",
-                "customer",
-                "custkey"
-            ]
-        ]
-    },
-    "part": {
-        "attributes": [
-            [
-                "partkey",
-                "integer",
-                "PRIMARY KEY"
+                "nombre",
+                "character varying"
             ]
         ],
         "relations": []
     },
-    "partsup": {
+    "producto": {
         "attributes": [
             [
-                "partkey",
+                "iddepartamento",
                 "integer",
-                "PK FK"
+                "FOREIGN KEY"
             ],
             [
-                "supkey",
-                "integer",
-                "PK FK"
-            ]
-        ],
-        "relations": [
-            [
-                "partkey",
-                "part",
-                "partkey"
-            ],
-            [
-                "supkey",
-                "supplier",
-                "supkey"
-            ]
-        ]
-    },
-    "line": {
-        "attributes": [
-            [
-                "linenumber",
+                "idproducto",
                 "integer",
                 "PRIMARY KEY"
             ],
             [
-                "partkey",
+                "precio",
+                "integer"
+            ],
+            [
+                "costo",
+                "integer"
+            ],
+            [
+                "idmarca",
                 "integer",
                 "FOREIGN KEY"
             ],
             [
-                "supkey",
+                "idcategoria",
                 "integer",
                 "FOREIGN KEY"
             ],
             [
-                "orderkey",
+                "idtipopaquete",
                 "integer",
                 "FOREIGN KEY"
+            ],
+            [
+                "nombre",
+                "character varying"
             ]
         ],
         "relations": [
             [
-                "partkey",
-                "part",
-                "partkey"
+                "idmarca",
+                "marca",
+                "idmarca"
             ],
             [
-                "supkey",
-                "supplier",
-                "supkey"
+                "idcategoria",
+                "categoria",
+                "idcategoria"
             ],
             [
-                "orderkey",
-                "buy_order",
-                "orderkey"
+                "idtipopaquete",
+                "tipopaquete",
+                "idtipopaquete"
+            ],
+            [
+                "iddepartamento",
+                "departamento",
+                "iddepartamento"
+            ]
+        ]
+    },
+    "categoria": {
+        "attributes": [
+            [
+                "idcategoria",
+                "integer",
+                "PRIMARY KEY"
+            ],
+            [
+                "nombre",
+                "character varying"
+            ]
+        ],
+        "relations": []
+    },
+    "tipopaquete": {
+        "attributes": [
+            [
+                "idtipopaquete",
+                "integer",
+                "PRIMARY KEY"
+            ],
+            [
+                "nombre",
+                "character varying"
+            ]
+        ],
+        "relations": []
+    },
+    "departamento": {
+        "attributes": [
+            [
+                "iddepartamento",
+                "integer",
+                "PRIMARY KEY"
+            ],
+            [
+                "nombre",
+                "character varying"
+            ],
+            [
+                "descripcion",
+                "character varying"
+            ]
+        ],
+        "relations": []
+    },
+    "reparto": {
+        "attributes": [
+            [
+                "idreparto",
+                "integer",
+                "PRIMARY KEY"
+            ],
+            [
+                "idmunicipio",
+                "integer",
+                "FOREIGN KEY"
+            ],
+            [
+                "nombre",
+                "character varying"
+            ]
+        ],
+        "relations": [
+            [
+                "idmunicipio",
+                "municipio",
+                "idmunicipio"
+            ]
+        ]
+    },
+    "tienda": {
+        "attributes": [
+            [
+                "idtienda",
+                "integer",
+                "PRIMARY KEY"
+            ],
+            [
+                "idreparto",
+                "integer",
+                "FOREIGN KEY"
+            ],
+            [
+                "nombre",
+                "character varying"
+            ]
+        ],
+        "relations": [
+            [
+                "idreparto",
+                "reparto",
+                "idreparto"
+            ]
+        ]
+    },
+    "venta": {
+        "attributes": [
+            [
+                "idventa",
+                "integer",
+                "PRIMARY KEY"
+            ],
+            [
+                "fecha",
+                "date"
+            ],
+            [
+                "idproducto",
+                "integer",
+                "FOREIGN KEY"
+            ],
+            [
+                "idtienda",
+                "integer",
+                "FOREIGN KEY"
+            ],
+            [
+                "cantidad_vendida",
+                "integer"
+            ],
+            [
+                "pago",
+                "integer"
+            ]
+        ],
+        "relations": [
+            [
+                "idproducto",
+                "producto",
+                "idproducto"
+            ],
+            [
+                "idtienda",
+                "tienda",
+                "idtienda"
             ]
         ]
     }
