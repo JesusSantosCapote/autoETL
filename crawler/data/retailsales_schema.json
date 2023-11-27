@@ -3,12 +3,12 @@
         "attributes": [
             [
                 "idprovincia",
-                "integer",
+                "int",
                 "PRIMARY KEY"
             ],
             [
                 "nombre",
-                "character varying"
+                "str"
             ]
         ],
         "relations": []
@@ -17,17 +17,17 @@
         "attributes": [
             [
                 "idmunicipio",
-                "integer",
+                "int",
                 "PRIMARY KEY"
             ],
             [
                 "idprovincia",
-                "integer",
+                "int",
                 "FOREIGN KEY"
             ],
             [
                 "nombre",
-                "character varying"
+                "str"
             ]
         ],
         "relations": [
@@ -42,12 +42,12 @@
         "attributes": [
             [
                 "idmarca",
-                "integer",
+                "int",
                 "PRIMARY KEY"
             ],
             [
                 "nombre",
-                "character varying"
+                "str"
             ]
         ],
         "relations": []
@@ -56,40 +56,40 @@
         "attributes": [
             [
                 "iddepartamento",
-                "integer",
+                "int",
                 "FOREIGN KEY"
             ],
             [
                 "idproducto",
-                "integer",
+                "int",
                 "PRIMARY KEY"
             ],
             [
                 "precio",
-                "integer"
+                "int"
             ],
             [
                 "costo",
-                "integer"
+                "int"
             ],
             [
                 "idmarca",
-                "integer",
+                "int",
                 "FOREIGN KEY"
             ],
             [
                 "idcategoria",
-                "integer",
+                "int",
                 "FOREIGN KEY"
             ],
             [
                 "idtipopaquete",
-                "integer",
+                "int",
                 "FOREIGN KEY"
             ],
             [
                 "nombre",
-                "character varying"
+                "str"
             ]
         ],
         "relations": [
@@ -119,12 +119,12 @@
         "attributes": [
             [
                 "idcategoria",
-                "integer",
+                "int",
                 "PRIMARY KEY"
             ],
             [
                 "nombre",
-                "character varying"
+                "str"
             ]
         ],
         "relations": []
@@ -133,12 +133,12 @@
         "attributes": [
             [
                 "idtipopaquete",
-                "integer",
+                "int",
                 "PRIMARY KEY"
             ],
             [
                 "nombre",
-                "character varying"
+                "str"
             ]
         ],
         "relations": []
@@ -147,16 +147,16 @@
         "attributes": [
             [
                 "iddepartamento",
-                "integer",
+                "int",
                 "PRIMARY KEY"
             ],
             [
                 "nombre",
-                "character varying"
+                "str"
             ],
             [
                 "descripcion",
-                "character varying"
+                "str"
             ]
         ],
         "relations": []
@@ -165,17 +165,17 @@
         "attributes": [
             [
                 "idreparto",
-                "integer",
+                "int",
                 "PRIMARY KEY"
             ],
             [
                 "idmunicipio",
-                "integer",
+                "int",
                 "FOREIGN KEY"
             ],
             [
                 "nombre",
-                "character varying"
+                "str"
             ]
         ],
         "relations": [
@@ -190,17 +190,17 @@
         "attributes": [
             [
                 "idtienda",
-                "integer",
+                "int",
                 "PRIMARY KEY"
             ],
             [
                 "idreparto",
-                "integer",
+                "int",
                 "FOREIGN KEY"
             ],
             [
                 "nombre",
-                "character varying"
+                "str"
             ]
         ],
         "relations": [
@@ -215,7 +215,7 @@
         "attributes": [
             [
                 "idventa",
-                "integer",
+                "int",
                 "PRIMARY KEY"
             ],
             [
@@ -224,21 +224,21 @@
             ],
             [
                 "idproducto",
-                "integer",
+                "int",
                 "FOREIGN KEY"
             ],
             [
                 "idtienda",
-                "integer",
+                "int",
                 "FOREIGN KEY"
             ],
             [
                 "cantidad_vendida",
-                "integer"
+                "int"
             ],
             [
                 "pago",
-                "integer"
+                "int"
             ]
         ],
         "relations": [

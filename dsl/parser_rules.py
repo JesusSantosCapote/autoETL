@@ -103,7 +103,7 @@ def p_Attr(p):
     if len(p) == 5:
         if p[4] == 'PK':
             p[0] = Attribute(p[1], p[3], primary_key=p[4])
-        elif p[4] == 'FK':
+        elif isinstance(p[4], tuple):
             p[0] = Attribute(p[1], p[3], foreign_key=p[4])
         else:
             p[0] = Attribute(p[1], p[3])
@@ -145,9 +145,12 @@ def p_Type(p):
 
 def p_Modifier(p):
     '''Modifier : PK
-                | FK
+                | FK TO ID DOT ID
                 | empty'''
-    p[0] = p[1]
+    if len(p) == 2:
+        p[0] = p[1]
+    if len(p) == 6:
+        p[0] = (p[3], p[5])
 
 
 def p_empty(p):

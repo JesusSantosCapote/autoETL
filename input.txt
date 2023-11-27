@@ -12,7 +12,7 @@ marca:nombre as marca
 categoria:nombre as categoria
 tipopaquete:nombre as paquete
 departamento:nombre as departamento
-departamento:descripción as descripcion
+departamento:descripcion as descripcion
 producto:nombre as producto
 producto:precio
 producto:costo
@@ -26,9 +26,9 @@ self:month_str(fecha) str as Mes
 
 fact venta {
 venta:idventa PK
-Dim.Producto: idproducto FK
-Dim.Tienda: idtienda FK
-Dim.Fecha: fecha FK
+producto:idproducto FK to producto.idproducto 
+tienda:idtienda FK to tienda.idtienda
+venta:fecha FK to fecha.fecha
 venta:sum(cantidad_vendida) groupby venta:idproducto as CantidadVendidaTotal
 venta:sum(pago) groupby venta:idproducto as ImporteTotal
 producto:Costo * self:CantidadVendidaTotal int as CosteTotal

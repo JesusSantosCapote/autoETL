@@ -9,6 +9,7 @@ import os
 class PostgreSqlCrawler(Crawler):
     def __init__(self, db_params) -> None:
         super().__init__(db_params)
+        self.postgres_types_to_dsl = {'integer':'int', 'character varying':'str', 'date':'date'}
         
     
     def explore_db(self):
@@ -46,13 +47,13 @@ class PostgreSqlCrawler(Crawler):
             cursor.execute(sql.SQL("SELECT column_name, data_type FROM information_schema.columns WHERE table_name = %s"),
                        [table_name[0]])
             columns = cursor.fetchall()
-
+            self.postgres_types_to_dsl
             for column in columns:
                 if column[0] in primary_keys: 
-                    table_info['attributes'].append([column[0], column[1], 'PRIMARY KEY'])
+                    table_info['attributes'].append([column[0], self.postgres_types_to_dsl[column[1]], 'PRIMARY KEY'])
                     self._metadata_str = self._metadata_str + f"  Column: {column[0]} - Type: {column[1]} - PK: TRUE\n"
                 else:
-                    table_info['attributes'].append([column[0], column[1]])
+                    table_info['attributes'].append([column[0], self.postgres_types_to_dsl[column[1]]])
                     self._metadata_str = self._metadata_str + f"  Column: {column[0]} - Type: {column[1]}\n"
 
             # Get the foreign keys of the table

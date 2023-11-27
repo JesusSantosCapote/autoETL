@@ -71,32 +71,6 @@ class VisitorSymbolTable(Visitor):
         return super().visit_attribute(attribute)
 
 
-class VisitorTypeCheck(Visitor):
-    def __init__(self) -> None:
-        super().__init__()
-        self.good_type = True
-
-    def visit_dimensional_model(self, dimensional_model:DimensionalModel):
-        for table in dimensional_model.dimensional_table_list:
-            table.accept(self)
-
-    def visit_dimensional_table(self, dimensional_table:DimensionalTable):
-        for attr_expr in dimensional_table.list_attr:
-            if len(attr_expr.elements) > 1:
-                if not attr_expr.exp_type:
-                    logger.error(f'Missing type declaration for composite attribute definition in table: {dimensional_table.name}')
-                    self.good_type = False
-    
-    def visit_agg_attr(self, agg_attr):
-        return super().visit_agg_attr(agg_attr)
-    def visit_attr_expression(self, attr_expression):
-        return super().visit_attr_expression(attr_expression)
-    def visit_attr_function(self, attr_func):
-        return super().visit_attr_function(attr_func)
-    def visit_attribute(self, attribute):
-        return super().visit_attribute(attribute)
-
-
 class VisitorSemanticCheck(Visitor):
     def __init__(self, symbol_table) -> None:
         self.good_semantic = True
@@ -135,22 +109,13 @@ class VisitorSemanticCheck(Visitor):
                 
                 if isinstance(attr, (AggAttribute, Attribute, AttributeFunction)):
                     number_of_attr += 1
-                    # if attr.table_name.startswith('Dim.'):
-                    #     table = attr.table_name.split('.')[1]
-                    #     if not table in self.symbol_table.keys():
-                    #         logger.error(f"Dimensional Table {table} used but not defined")
-                    #         self.good_semantic = False
-                    #     else:
-                    #         if not attr.name in self.symbol_table[table]:
-                    #             logger.error(f"Attribute with {attr.name} as name or alias, refered in table {dimensional_table.name} is not defined in Dimensional Table {table}")
-                    #             self.good_semantic = False
 
-            if agg_attr_count > 1:
-                if attr_expr.alias:
-                    logger.error(f"Attribute {attr_expr.alias} in table {dimensional_table.name} have more than one aggregated attribute")
-                else:
-                    logger.error(f"Attribute number {index} in in table {dimensional_table.name} have more than one aggregated attribute")
-                self.good_semantic = False
+            # if agg_attr_count > 1:
+            #     if attr_expr.alias:
+            #         logger.error(f"Attribute {attr_expr.alias} in table {dimensional_table.name} have more than one aggregated attribute")
+            #     else:
+            #         logger.error(f"Attribute number {index} in in table {dimensional_table.name} have more than one aggregated attribute")
+            #     self.good_semantic = False
 
             agg_attr_count = 0
 
@@ -195,7 +160,7 @@ class VisitorGetSelects(Visitor):
         for attr_expr in dimensional_table.list_attr:
             for elem in attr_expr.elements:
                 if isinstance(elem, (Attribute, AttributeFunction, AggAttribute)):
-                    if elem.table_name != 'self' and not elem.table_name.startswith('Dim.') :
+                    if elem.table_name != 'self':
                             attr_to_select.append((elem.table_name, elem.name))
 
         self.selects_for_dimensions.append(attr_to_select)
@@ -219,69 +184,90 @@ class VisitorGetTypes(Visitor):
 
     def visit_dimensional_model(self, dimensional_model:DimensionalModel):
         for dimension_table in dimensional_model.dimensional_table_list:
-            self.dimensions_attrs[dimension_table] = {}
+            self.dimensions_attrs[dimension_table.name] = {}
             dimension_table.accept(self)
 
     def visit_dimensional_table(self, dimensional_table:DimensionalTable):
-        for attr_expr, index in zip(dimensional_table.list_attr, range(len(dimensional_table.list_attr))):
+        for attr_expr, index in zip(dimensional_table.list_attr, range(1, len(dimensional_table.list_attr)+1)):
             if len(attr_expr.elements) > 1:
                 if not attr_expr.exp_type:
                     logger.error(f'Missing type declaration for composite attribute definition number {index} in table: {dimensional_table.name}')
                     self.good_type = False
-
                 else:
                     self.dimensions_attrs[dimensional_table.name][attr_expr.alias] = attr_expr.exp_type
 
             else:
                 if attr_expr.alias:
-                    if attr_expr.exp_type:
-                        self.dimensions_attrs[dimensional_table.name][attr_expr.alias] = attr_expr.exp_type
+                    name_to_save = attr_expr.alias
+                else:
+                    name_to_save = attr_expr.elements[0].name
                     
-                    else:
-                        attr = attr_expr.elements[0]
-                        if attr.table_name == 'self':
-                            if isinstance(attr, AttributeFunction):
-                                if attr.func in ['week_day', 'month_str']:
-                                    self.dimensions_attrs[dimensional_table.name][attr_expr.alias] = 'str'
-                            #This is because i dont allow declarations of new attr for the moment
-                            else:
-                                logger.error(f'Definitions of new attributes are not allowed: attribute number {index} in dimensional table {dimensional_table.name}')
-                                self.good_type = False
-                        
-                        elif attr.table_name.startswith('Dim.'):
-                            if isinstance(attr, Attribute):
-                                if attr.foreign_key:
-                                    dimension = attr.table_name.split('.')[1]
-                                    try:
-                                        attr_type = self.dimensions_attrs[dimension][attr.name]
-                                        self.dimensions_attrs[dimensional_table.name][attr_expr.alias] = attr_type
-                                    except KeyError:
-                                        logger.error(f'Attribute {attr.name} not declared in dimensional table {dimension}')
-                                        self.good_type = False
-                                    
-                                else:
-                                    logger.error(f'For referencing another table the attribute must be a foreign key: attribute number {index} in dimensional table {dimensional_table.name}')
-                                    self.good_type = False
-
-                            else:
-                                logger.error(f'Invalid combination of table and attribute: attribute number {index} in dimensional table {dimensional_table.name}')
-
-                        else:
-                            for attr_name, attr_type, _ in self.join_graph.nodes[attr.table_name]['attrs']:
-                                if attr.name == attr_name:
-                                    self.dimensions_attrs[dimensional_table.name][attr_expr.alias] = attr_type
-                                    break
+                if attr_expr.exp_type:
+                    self.dimensions_attrs[dimensional_table.name][name_to_save] = attr_expr.exp_type
                     
-                else: #TODO si no tiene alias hay que hacer lo mismo de arriba, modificar la estructura del if
+                else:
                     attr = attr_expr.elements[0]
+                    if attr.table_name == 'self':
+                        if isinstance(attr, AttributeFunction):
+                            if attr.func in ['week_day', 'month_str']:
+                                self.dimensions_attrs[dimensional_table.name][name_to_save] = 'str'
+                                return
+                        #This is because i dont allow declarations of new attr for the moment
+                        else:
+                            logger.error(f'Definitions of new attributes are not allowed: attribute number {index} in dimensional table {dimensional_table.name}')
+                            self.good_type = False
+                            return
+                    
+                    referenced_type = None
+                    if isinstance(attr, Attribute):
+                        if attr.foreign_key:
+                            dimension = attr.foreign_key[0]
+                            try:
+                                if dimension not in self.dimensions_attrs.keys():
+                                    logger.error(f'Dimensional table {dimension} not defined: attribute number {index} in dimensional table {dimensional_table.name}')
+                                    self.good_type = False
+                                    return
+                                else: 
+                                    referenced_type = self.dimensions_attrs[dimension][attr.foreign_key[1]]
+                            except KeyError:
+                                logger.error(f'Attribute {attr.foreign_key[1]} not declared in dimensional table {dimension}')
+                                self.good_type = False
+                                return
+                                
+                    if attr.table_name not in self.join_graph.nodes.keys():
+                        logger.error(f'Source table {attr.table_name} not exist in the source')
+                        self.good_type = False
+                        return
+                    
+                    find_attr = False
                     for attr_name, attr_type, _ in self.join_graph.nodes[attr.table_name]['attrs']:
-                            if attr.name == attr_name:
-                                self.dimensions_attrs[dimensional_table.name][attr.name] = attr_type
-                                break
+                        if attr.name == attr_name:
+                            if referenced_type:
+                                if referenced_type != attr_type:
+                                    logger.error(f'Referenced attribute type and source attribute type are different: attribute number {index} in dimensional table {dimensional_table.name}')
+                                    self.good_type = False
+                                    return
+                                
+                            self.dimensions_attrs[dimensional_table.name][name_to_save] = attr_type
+                            find_attr = True
+                            break
 
+                    if not find_attr:
+                        logger.error(f'Atribute {attr.name} not defined in source table {attr.table_name}')
+                        self.good_type = False
+
+    def visit_agg_attr(self, agg_attr):
+        return super().visit_agg_attr(agg_attr)
+    def visit_attr_expression(self, attr_expression):
+        return super().visit_attr_expression(attr_expression)
+    def visit_attr_function(self, attr_func):
+        return super().visit_attr_function(attr_func)
+    def visit_attribute(self, attribute):
+        return super().visit_attribute(attribute)
+    
 
 class VisitorPostgreSQL(Visitor):
-    def __init__(self, join_list, join_tree) -> None:
+    def __init__(self, join_list, join_tree, attr_types_dict) -> None:
         super().__init__()
         self.query_list = []
         self.join_tree = join_tree
@@ -289,6 +275,7 @@ class VisitorPostgreSQL(Visitor):
         self.dsl_agg_to_postgres = {'sum': 'SUM', 'avg': 'AVG', 'count': 'COUNT'}
         self.join_list = join_list
         self.join_index = 0
+        self.attr_types_dict = attr_types_dict
 
     def visit_dimensional_model(self, dimensional_model:DimensionalModel):
         for table in dimensional_model.dimensional_table_list:
@@ -301,21 +288,16 @@ class VisitorPostgreSQL(Visitor):
         groupby_part = ''
 
         for attr_expr in dimensional_table.list_attr:
-            #Name
+            #Name and Type
             if attr_expr.alias:
                 query_create = query_create + attr_expr.alias
+                postgresql_type = self.dsl_types_to_postgres[self.attr_types_dict[dimensional_table.name][attr_expr.alias]]
+                query_create = query_create + postgresql_type
             else:
                 query_create = query_create + attr_expr.elements[0].name
-            #Type
-            if attr_expr.exp_type:
-                query_create = query_create + self.dsl_types_to_postgres[attr_expr.exp_type]
-            else:
-                source_table = attr_expr.elements[0].table_name
-                source_attr = attr_expr.elements[0].name
-                for attr_name, attr_type, _ in self.join_tree.nodes[source_table]['attrs']:
-                    if attr_name == source_attr:
-                        query_create = query_create + attr_type
-                        break
+                postgresql_type = self.dsl_types_to_postgres[self.attr_types_dict[dimensional_table.name][attr_expr.elements[0].name]]
+                query_create = query_create + postgresql_type
+            
             #PK Constraint
             if len(attr_expr.elements) == 1:
                 if isinstance(attr_expr.elements[0], Attribute):
