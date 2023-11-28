@@ -282,19 +282,19 @@ class VisitorPostgreSQL(Visitor):
             table.accept(self)
 
     def visit_dimensional_table(self, dimensional_table:DimensionalTable):
-        query_create = 'CREATE TABLE [IF NOT EXIST] %s ('
+        query_create = f'CREATE TABLE [IF NOT EXIST] {dimensional_table.name} (\n'
         select_part = 'SELECT '
         from_part = 'FROM '
-        groupby_part = ''
+        groupby_attr = []
 
         for attr_expr in dimensional_table.list_attr:
             #Name and Type
             if attr_expr.alias:
-                query_create = query_create + attr_expr.alias
+                query_create = query_create + attr_expr.alias + ' '
                 postgresql_type = self.dsl_types_to_postgres[self.attr_types_dict[dimensional_table.name][attr_expr.alias]]
                 query_create = query_create + postgresql_type
             else:
-                query_create = query_create + attr_expr.elements[0].name
+                query_create = query_create + attr_expr.elements[0].name + ' '
                 postgresql_type = self.dsl_types_to_postgres[self.attr_types_dict[dimensional_table.name][attr_expr.elements[0].name]]
                 query_create = query_create + postgresql_type
             
@@ -302,7 +302,7 @@ class VisitorPostgreSQL(Visitor):
             if len(attr_expr.elements) == 1:
                 if isinstance(attr_expr.elements[0], Attribute):
                     if attr_expr.elements[0].primary_key:
-                        query_create = query_create + 'PRIMARY KEY'
+                        query_create = query_create + ' PRIMARY KEY'
 
             query_create = query_create + ', \n'    
 
@@ -311,20 +311,23 @@ class VisitorPostgreSQL(Visitor):
             if len(attr_expr.elements) == 1:
                 if isinstance(attr_expr.elements[0], Attribute):
                     if attr_expr.elements[0].foreign_key:
-                        references = attr_expr.elements[0].table_name.split('.')[1]
+                        references = attr_expr.elements[0].foreign_key[0]
                         name = attr_expr.elements[0].name
                         if attr_expr.alias:
                             name = attr_expr.alias
-                        query_create = query_create + f'FOREIGN KEY ({name})' + f'REFERENCES {references} ({attr_expr.elements[0].name}), \n'
+                        query_create = query_create + f'FOREIGN KEY ({name})' + f' REFERENCES {references} ({attr_expr.elements[0].foreign_key[1]}), \n'
 
-        query_create = query_create[0:-2] #Deleting the last ,
-        query_create = query_create + ');'
+        query_create = query_create[0:-3] #Deleting the last ,
+        query_create = query_create + '\n);'
 
         #SELECT statement
         for attr_expr, index in zip(dimensional_table.list_attr, range(len(dimensional_table.list_attr))):
             for elem in attr_expr.elements:
                 if isinstance(elem, Attribute):
-                    select_part = select_part + f'{elem.table_name}.{elem.name}'
+                    if elem.table_name != 'self':
+                        select_part = select_part + f'{elem.table_name}.{elem.name}'
+                    else:
+                        select_part = select_part + f'{elem.name}'
                 elif isinstance(elem, AttributeFunction):
                     if elem.func == 'week_day':
                         if elem.table_name != 'self':
@@ -339,31 +342,52 @@ class VisitorPostgreSQL(Visitor):
                             select_part = select_part + f"to_char({elem.name}, 'Month')"
                 
                 elif isinstance(elem, AggAttribute): #TODO check if here i must to check if self is a valid table_name for this kind of attr
-                    select_part = select_part + f'{self.dsl_agg_to_postgres[elem.agg_function]}({elem.table_name}.{elem.name})'
-                    groupby_part = groupby_part + f'GROUP BY {elem.table_grouping_attr}.{elem.grouping_attr}'
+                    if elem.table_name != 'self':
+                        select_part = select_part + f'{self.dsl_agg_to_postgres[elem.agg_function]}({elem.table_name}.{elem.name})'
+                    else:
+                        select_part = select_part + f'{self.dsl_agg_to_postgres[elem.agg_function]}({elem.name})'
+                    
+                    if elem.table_grouping_attr != 'self':
+                        if f'{elem.table_grouping_attr}.{elem.grouping_attr}' not in groupby_attr:
+                            groupby_attr.append(f'{elem.table_grouping_attr}.{elem.grouping_attr}')
+                    else:
+                        if f'{elem.grouping_attr}' not in groupby_attr:
+                            groupby_attr.append(f'{elem.grouping_attr}')
 
                 else:
                     select_part = select_part + elem
+
+            if attr_expr.alias:
+                select_part = select_part + ' AS ' + f'{attr_expr.alias}'
             
             if index < len(dimensional_table.list_attr) - 1:
-                select_part = select_part + ','
+                select_part = select_part + ', '
 
         #FROM statement
         join = self.join_list[self.join_index]
-        from_part = from_part
+        self.join_index += 1
         for i in range(0, len(join), 2):
             if i == 0:
-                select_part = select_part + join[i]
+                from_part = from_part + join[i]
             else:
                 conditions = ''
                 for cond, index in zip(join[i-1], range(len(join[i-1]))):
-                    conditions = conditions + f'{join[i-2]}.{cond[0]} = {join[i]}.{cond[1]}'
+                    conditions = conditions + f'{cond[0]} = {cond[1]}'
                     if index != len(join[i-1]) - 1:
-                        conditions = conditions + 'AND'
-                select_part = select_part + f'JOIN f{join[i]} ON' + conditions
+                        conditions = conditions + 'AND '
+                from_part = from_part + f'\nJOIN {join[i]} ON ' + conditions
 
-        select_part = select_part + from_part + groupby_part + ';'
+        groupby_part = ''
+        if len(groupby_attr) >= 1:
+            groupby_part = groupby_part + 'GROUP BY '
+            for attr, index in zip(groupby_attr, range(len(groupby_attr))):
+                groupby_part = groupby_part + attr
+                if index != len(groupby_attr) - 1:
+                    groupby_part = groupby_part + ',' 
+
+        select_part = select_part + '\n' + from_part + '\n' + groupby_part + ';'
         self.query_list.append((query_create, select_part)) 
+
 
     def visit_attr_expression(self, attr_expression):
         return super().visit_attr_expression(attr_expression)

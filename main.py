@@ -42,7 +42,10 @@ for attrs in attr_to_select_for_dim:
     joins = compute_joins(join_trees, attrs)
     all_joins.append(joins[0]) #TODO here the user must select the join not select the 0 for defect
 
-code_gen = VisitorPostgreSQL(all_joins, join_graph)
+code_gen = VisitorPostgreSQL(all_joins, join_graph, type_check.dimensions_attrs)
 code_gen.visit_dimensional_model(a)
 
-print(code_gen.query_list)
+for code in code_gen.query_list:
+    print(code[0])
+    print('\n')
+    print(code[1])

@@ -57,8 +57,13 @@ def _get_join(tree:DiGraph, lca, list_attr_tables):
         join.append(node)
 
         for child in answer_subtree.neighbors(node):
-            condition = answer_subtree[node][child]['conditions']
-            join.append(condition)
+            conditions = answer_subtree[node][child]['conditions']
+            conditions_with_table = []
+            for attr1, attr2 in conditions:
+                u = node + '.' + attr1
+                v = child + '.' + attr2
+                conditions_with_table.append((u, v))
+            join.append(conditions_with_table)
             join_visit(child)
 
     join_visit(lca)
