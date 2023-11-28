@@ -6,6 +6,7 @@ from dsl.visitors import VisitorSymbolTable, VisitorSemanticCheck, VisitorGetSel
 from data_catalog.handler import DataCatalogHandler
 from crawler.postgresSql_crawler import PostgreSqlCrawler
 from Retail_Sales.config import CONNECTION_INFO
+import psycopg2
 
 path = os.path.join(os.getcwd(), 'input.txt')
 
@@ -45,7 +46,15 @@ for attrs in attr_to_select_for_dim:
 code_gen = VisitorPostgreSQL(all_joins, join_graph, type_check.dimensions_attrs)
 code_gen.visit_dimensional_model(a)
 
+
+target_params = {'dbname': 'target', 'user': 'postgres', 'password': 'postgres', 'host':'172.20.0.5' , 'port':'5433'}
+connection = psycopg2.connect(**target_params)
+cursor = connection.cursor()
 for code in code_gen.query_list:
-    print(code[0])
+    cursor.execute(code[0])
+    cursor.fetchall()
+
+    cursor.execute(code[1])
+    a = cursor.fetchall()
+    print(a)
     print('\n')
-    print(code[1])

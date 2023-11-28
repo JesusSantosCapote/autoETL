@@ -13,19 +13,49 @@ services:
       mynet:
         ipv4_address: 172.20.0.2
 
+  target:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5433"
+    networks:
+      mynet:
+        ipv4_address: 172.20.0.5
+
+
+  data_catalog:
+    image: neo4j
+    restart: always
+    environment:
+      - NEO4J_AUTH=neo4j/datacatalog
+    ports:
+      - "7687:7687"
+      - "7474:7474"
+    networks:
+      mynet:
+        ipv4_address: 172.20.0.4
+
   app:
-    build: .
+    image: autoetl
     volumes: 
       - ".:/home/app"
     depends_on:
       - db
+      - data_catalog
+      - target
     ports:
       - "8000:8000"
     networks:
       mynet:
         ipv4_address: 172.20.0.3
     command: 
-      - "/bin/bash"
+      - 'cd home/app/Retail_Sales'
+      - 'python retailSalesDB.py'
+      - 'python populateDB.py'
+      - 'cd ..'
+      - 'python main.py'
 
 networks:
   mynet:
