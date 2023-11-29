@@ -1,4 +1,5 @@
 import abc
+import os
 from logger import logger
 from dsl.ast_nodes import Dimension, Fact, DimensionalModel, DimensionalTable, AttributeFunction, AggAttribute, Attribute, AttributeExpression
 
@@ -282,7 +283,7 @@ class VisitorPostgreSQL(Visitor):
             table.accept(self)
 
     def visit_dimensional_table(self, dimensional_table:DimensionalTable):
-        query_create = f'CREATE TABLE [IF NOT EXIST] {dimensional_table.name} (\n'
+        query_create = f'CREATE TABLE IF NOT EXISTS {dimensional_table.name} (\n'
         select_part = 'SELECT '
         from_part = 'FROM '
         groupby_attr = []
@@ -326,8 +327,10 @@ class VisitorPostgreSQL(Visitor):
                 if isinstance(elem, Attribute):
                     if elem.table_name != 'self':
                         select_part = select_part + f'{elem.table_name}.{elem.name}'
+                        if f'{elem.table_name}.{elem.name}' not in groupby_attr:
+                            groupby_attr.append(f'{elem.table_name}.{elem.name}')
                     else:
-                        select_part = select_part + f'{elem.name}'
+                        logger.error('Table name self is only valid in attributes to which a function is applied')
                 elif isinstance(elem, AttributeFunction):
                     if elem.func == 'week_day':
                         if elem.table_name != 'self':
@@ -397,4 +400,14 @@ class VisitorPostgreSQL(Visitor):
         return super().visit_attr_function(attr_func)
     def visit_attribute(self, attribute):
         return super().visit_attribute(attribute)
-        
+    
+    def export_querys(self):
+        path = os.path.join(os.getcwd(), 'dsl', 'data', f"querys.txt")
+        with open(path, mode='w') as file:
+            for q in self.query_list:
+                try:
+                    file.write(q[0])
+                    file.write('\n')
+                    file.write(q[1])
+                except Exception as e:
+                    logger.error(e)

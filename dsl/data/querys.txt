@@ -1,0 +1,54 @@
+CREATE TABLE IF NOT EXISTS tienda (
+idtienda INT PRIMARY KEY, 
+nombre TEXT, 
+reparto TEXT, 
+municipio TEXT, 
+provincia TEXT
+);
+SELECT tienda.idtienda, tienda.nombre, reparto.nombre AS reparto, municipio.nombre AS municipio, provincia.nombre AS provincia
+FROM tienda
+JOIN reparto ON tienda.idreparto = reparto.idreparto
+JOIN municipio ON reparto.idmunicipio = municipio.idmunicipio
+JOIN provincia ON municipio.idprovincia = provincia.idprovincia
+;CREATE TABLE IF NOT EXISTS producto (
+idproducto INT PRIMARY KEY, 
+marca TEXT, 
+categoria TEXT, 
+paquete TEXT, 
+departamento TEXT, 
+descripcion TEXT, 
+producto TEXT, 
+precio INT, 
+costo INT
+);
+SELECT producto.idproducto, marca.nombre AS marca, categoria.nombre AS categoria, tipopaquete.nombre AS paquete, departamento.nombre AS departamento, departamento.descripcion AS descripcion, producto.nombre AS producto, producto.precio, producto.costo
+FROM producto
+JOIN departamento ON producto.iddepartamento = departamento.iddepartamento
+JOIN tipopaquete ON producto.idtipopaquete = tipopaquete.idtipopaquete
+JOIN categoria ON producto.idcategoria = categoria.idcategoria
+JOIN marca ON producto.idmarca = marca.idmarca
+;CREATE TABLE IF NOT EXISTS fecha (
+fecha DATE PRIMARY KEY, 
+Dia TEXT, 
+Mes TEXT
+);
+SELECT venta.fecha, to_char(fecha, 'Day') AS Dia, to_char(fecha, 'Month') AS Mes
+FROM venta
+;CREATE TABLE IF NOT EXISTS venta (
+idventa INT PRIMARY KEY, 
+idproducto INT, 
+idtienda INT, 
+fecha DATE, 
+cantidad_vendida_total INT, 
+importe_total INT, 
+coste_total INT, 
+ganancia INT, 
+FOREIGN KEY (idproducto) REFERENCES producto (idproducto), 
+FOREIGN KEY (idtienda) REFERENCES tienda (idtienda), 
+FOREIGN KEY (fecha) REFERENCES fecha (fecha)
+);
+SELECT venta.idventa, producto.idproducto, tienda.idtienda, venta.fecha, SUM(venta.cantidad_vendida) AS cantidad_vendida_total, SUM(venta.pago) AS importe_total, producto.Costo*SUM(venta.cantidad_vendida) AS coste_total, SUM(venta.pago)-producto.Costo*SUM(venta.cantidad_vendida) AS ganancia
+FROM venta
+JOIN tienda ON venta.idtienda = tienda.idtienda
+JOIN producto ON venta.idproducto = producto.idproducto
+GROUP BY venta.idproducto;

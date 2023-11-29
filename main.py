@@ -28,7 +28,7 @@ db_params = {'dbname': CONNECTION_INFO['dbname'], 'user': CONNECTION_INFO['user'
 crawler = PostgreSqlCrawler(db_params)
 crawler.explore_db()
 
-datacatalog = DataCatalogHandler(crawler.get_db_dict(), 'neo4j', 'datacatalog', 'bolt://172.20.0.4:7687')
+datacatalog = DataCatalogHandler(crawler.get_db_dict(), 'neo4j', 'datacatalog', 'bolt://neo4j_data_catalog:7687')
 datacatalog.create_data_catalog()
 join_graph = datacatalog.get_join_graph()
 
@@ -45,15 +45,22 @@ for attrs in attr_to_select_for_dim:
 
 code_gen = VisitorPostgreSQL(all_joins, join_graph, type_check.dimensions_attrs)
 code_gen.visit_dimensional_model(a)
+code_gen.export_querys()
 
 
-target_params = {'dbname': 'target', 'user': 'postgres', 'password': 'postgres', 'host':'172.20.0.5' , 'port':'5433'}
+target_params = {'dbname': 'target', 'user': 'postgres', 'password': 'postgres', 'host':'target' , 'port':'5432'}
 connection = psycopg2.connect(**target_params)
 cursor = connection.cursor()
 for code in code_gen.query_list:
     cursor.execute(code[0])
-    cursor.fetchall()
 
+connection.close()
+cursor.close()
+
+source_params = {'dbname': CONNECTION_INFO['dbname'], 'user': CONNECTION_INFO['user'], 'password': CONNECTION_INFO['password'], 'host':CONNECTION_INFO['host'] , 'port': CONNECTION_INFO['port']}
+connection = psycopg2.connect(**source_params)
+cursor = connection.cursor()
+for code in code_gen.query_list:
     cursor.execute(code[1])
     a = cursor.fetchall()
     print(a)
