@@ -39,8 +39,9 @@ services:
 
   app:
     image: autoetl
+    build: ./
     volumes: 
-      - ".:/home/app"
+      - ./:/home/app/
     depends_on:
       - db
       - data_catalog
@@ -50,12 +51,6 @@ services:
     networks:
       mynet:
         ipv4_address: 172.20.0.3
-    command: 
-      - 'cd home/app/Retail_Sales'
-      - 'python retailSalesDB.py'
-      - 'python populateDB.py'
-      - 'cd ..'
-      - 'python main.py'
 
 networks:
   mynet:
