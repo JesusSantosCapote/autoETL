@@ -8,6 +8,8 @@ reserved = {
     'sum' : 'SUM',
     'avg' : 'AVG',
     'count': 'COUNT',
+    'max': 'MAX',
+    'min': 'MIN',
     'groupby' : 'GROUP',
     'self' : 'SELF',
     'as' : 'AS',
@@ -19,6 +21,7 @@ reserved = {
     'str': 'STR',
     'date': 'DATE',
     'datetime': 'DATETIME',
+    'serial': 'SERIAL',
     'to': 'TO'
 }
 

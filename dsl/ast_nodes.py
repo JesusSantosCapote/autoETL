@@ -30,12 +30,10 @@ class AttributeFunction(Visitable):
 
 
 class AggAttribute(Visitable):
-    def __init__(self, table_name, attr, agg_func, grouping_attr, table_grouping_attr) -> None:
+    def __init__(self, table_name, attr, agg_func) -> None:
         self.table_name = table_name
         self.name = attr
         self.agg_function = agg_func
-        self.grouping_attr = grouping_attr
-        self.table_grouping_attr = table_grouping_attr
 
     def accept(self, visitor):
         visitor.visit_agg_attr(self)

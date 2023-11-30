@@ -1,5 +1,6 @@
 import abc
 import os
+import json
 from logger import logger
 from dsl.ast_nodes import Dimension, Fact, DimensionalModel, DimensionalTable, AttributeFunction, AggAttribute, Attribute, AttributeExpression
 
@@ -272,11 +273,12 @@ class VisitorPostgreSQL(Visitor):
         super().__init__()
         self.query_list = []
         self.join_tree = join_tree
-        self.dsl_types_to_postgres = {'int': 'INT', 'str': 'TEXT', 'date': 'DATE', 'datetime': 'TIMESTAMP'}
+        self.dsl_types_to_postgres = {'int': 'INT', 'str': 'TEXT', 'date': 'DATE', 'datetime': 'TIMESTAMP', 'serial':'serial'}
         self.dsl_agg_to_postgres = {'sum': 'SUM', 'avg': 'AVG', 'count': 'COUNT'}
         self.join_list = join_list
         self.join_index = 0
         self.attr_types_dict = attr_types_dict
+        self.query_dict = {}
 
     def visit_dimensional_model(self, dimensional_model:DimensionalModel):
         for table in dimensional_model.dimensional_table_list:
@@ -284,6 +286,7 @@ class VisitorPostgreSQL(Visitor):
 
     def visit_dimensional_table(self, dimensional_table:DimensionalTable):
         query_create = f'CREATE TABLE IF NOT EXISTS {dimensional_table.name} (\n'
+        query_insert = f'INSERT INTO {dimensional_table.name}( '
         select_part = 'SELECT '
         from_part = 'FROM '
         groupby_attr = []
@@ -292,10 +295,12 @@ class VisitorPostgreSQL(Visitor):
             #Name and Type
             if attr_expr.alias:
                 query_create = query_create + attr_expr.alias + ' '
+                query_insert = query_insert + attr_expr.alias
                 postgresql_type = self.dsl_types_to_postgres[self.attr_types_dict[dimensional_table.name][attr_expr.alias]]
                 query_create = query_create + postgresql_type
             else:
                 query_create = query_create + attr_expr.elements[0].name + ' '
+                query_insert = query_insert + attr_expr.elements[0].name
                 postgresql_type = self.dsl_types_to_postgres[self.attr_types_dict[dimensional_table.name][attr_expr.elements[0].name]]
                 query_create = query_create + postgresql_type
             
@@ -305,7 +310,11 @@ class VisitorPostgreSQL(Visitor):
                     if attr_expr.elements[0].primary_key:
                         query_create = query_create + ' PRIMARY KEY'
 
-            query_create = query_create + ', \n'    
+            query_create = query_create + ', \n'
+            query_insert = query_insert + ', '
+
+        query_insert = query_insert[0: -2]
+        query_insert = query_insert + ')\n'    
 
         #FK Constraints
         for attr_expr in dimensional_table.list_attr:
@@ -323,6 +332,7 @@ class VisitorPostgreSQL(Visitor):
 
         #SELECT statement
         for attr_expr, index in zip(dimensional_table.list_attr, range(len(dimensional_table.list_attr))):
+            have_to_put_comma = True
             for elem in attr_expr.elements:
                 if isinstance(elem, Attribute):
                     if elem.table_name != 'self':
@@ -330,7 +340,9 @@ class VisitorPostgreSQL(Visitor):
                         if f'{elem.table_name}.{elem.name}' not in groupby_attr:
                             groupby_attr.append(f'{elem.table_name}.{elem.name}')
                     else:
-                        logger.error('Table name self is only valid in attributes to which a function is applied')
+                        if not elem.primary_key:
+                            logger.error('Only serial Primary keys can be declared with table self')
+                        have_to_put_comma = False
                 elif isinstance(elem, AttributeFunction):
                     if elem.func == 'week_day':
                         if elem.table_name != 'self':
@@ -350,12 +362,12 @@ class VisitorPostgreSQL(Visitor):
                     else:
                         select_part = select_part + f'{self.dsl_agg_to_postgres[elem.agg_function]}({elem.name})'
                     
-                    if elem.table_grouping_attr != 'self':
-                        if f'{elem.table_grouping_attr}.{elem.grouping_attr}' not in groupby_attr:
-                            groupby_attr.append(f'{elem.table_grouping_attr}.{elem.grouping_attr}')
-                    else:
-                        if f'{elem.grouping_attr}' not in groupby_attr:
-                            groupby_attr.append(f'{elem.grouping_attr}')
+                    # if elem.table_grouping_attr != 'self':
+                    #     if f'{elem.table_grouping_attr}.{elem.grouping_attr}' not in groupby_attr:
+                    #         groupby_attr.append(f'{elem.table_grouping_attr}.{elem.grouping_attr}')
+                    # else:
+                    #     if f'{elem.grouping_attr}' not in groupby_attr:
+                    #         groupby_attr.append(f'{elem.grouping_attr}')
 
                 else:
                     select_part = select_part + elem
@@ -364,7 +376,8 @@ class VisitorPostgreSQL(Visitor):
                 select_part = select_part + ' AS ' + f'{attr_expr.alias}'
             
             if index < len(dimensional_table.list_attr) - 1:
-                select_part = select_part + ', '
+                if have_to_put_comma:
+                    select_part = select_part + ', '
 
         #FROM statement
         join = self.join_list[self.join_index]
@@ -389,7 +402,8 @@ class VisitorPostgreSQL(Visitor):
                     groupby_part = groupby_part + ',' 
 
         select_part = select_part + '\n' + from_part + '\n' + groupby_part + ';'
-        self.query_list.append((query_create, select_part)) 
+        self.query_list.append((query_create, select_part, query_insert))
+        self.query_dict[dimensional_table.name] = [query_create, query_insert, select_part] 
 
 
     def visit_attr_expression(self, attr_expression):
@@ -402,12 +416,6 @@ class VisitorPostgreSQL(Visitor):
         return super().visit_attribute(attribute)
     
     def export_querys(self):
-        path = os.path.join(os.getcwd(), 'dsl', 'data', f"querys.txt")
-        with open(path, mode='w') as file:
-            for q in self.query_list:
-                try:
-                    file.write(q[0])
-                    file.write('\n')
-                    file.write(q[1])
-                except Exception as e:
-                    logger.error(e)
+        path = os.path.join(os.getcwd(), 'dsl', 'data', f"querys.json") #TODO El nombre debe llevar el nombre de la base de datos fuente para poder cargarlo por base de datos
+        with open(path, 'w') as json_file:
+            json.dump(self.query_dict, json_file, indent=4)

@@ -25,12 +25,12 @@ self:month_str(fecha) str as Mes
 }
 
 fact venta {
-venta:idventa PK
-producto:idproducto FK to producto.idproducto 
-tienda:idtienda FK to tienda.idtienda
+self:idventa PK serial
+venta:idproducto FK to producto.idproducto 
+venta:idtienda FK to tienda.idtienda
 venta:fecha FK to fecha.fecha
-venta:sum(cantidad_vendida) groupby venta:idproducto as cantidad_vendida_total
-venta:sum(pago) groupby venta:idproducto as importe_total
-producto:Costo * venta:sum(cantidad_vendida) groupby venta:idproducto int as coste_total
-venta:sum(pago) groupby venta:idproducto - producto:Costo * venta:sum(cantidad_vendida) groupby venta:idproducto int as ganancia 
+venta:sum(cantidad_vendida) as cantidad_vendida_total
+venta:sum(pago) as importe_total
+producto:Costo * venta:sum(cantidad_vendida) int as coste_total
+venta:sum(pago) - producto:Costo * venta:sum(cantidad_vendida) int as ganancia 
 }

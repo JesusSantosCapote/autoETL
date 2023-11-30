@@ -96,9 +96,11 @@ def p_F(p):
 def p_Attr(p):
     '''Attr : Table TWODOTS ID Modifier
             | Table TWODOTS Func LPAREN ID RPAREN
-            | Table TWODOTS SUM LPAREN ID RPAREN GROUP Table TWODOTS ID
-            | Table TWODOTS AVG LPAREN ID RPAREN GROUP Table TWODOTS ID
-            | Table TWODOTS COUNT LPAREN ID RPAREN GROUP Table TWODOTS ID'''
+            | Table TWODOTS SUM LPAREN ID RPAREN 
+            | Table TWODOTS AVG LPAREN ID RPAREN 
+            | Table TWODOTS COUNT LPAREN ID RPAREN
+            | Table TWODOTS MAX LPAREN ID RPAREN
+            | Table TWODOTS MIN LPAREN ID RPAREN'''
             
     if len(p) == 5:
         if p[4] == 'PK':
@@ -109,10 +111,11 @@ def p_Attr(p):
             p[0] = Attribute(p[1], p[3])
 
     if len(p) == 7:
-        p[0] = AttributeFunction(p[1], p[5], p[3])
+        if p[3] in ['sum', 'avg', 'count', 'max', 'min']:
+            p[0] = AggAttribute(p[1], p[5], p[3])
+        else:    
+            p[0] = AttributeFunction(p[1], p[5], p[3])
 
-    if len(p) == 11:
-        p[0] = AggAttribute(p[1], p[5], p[3], p[10], p[8])
 
 
 def p_Table(p):
@@ -139,6 +142,7 @@ def p_Type(p):
             | STR
             | DATE
             | DATETIME
+            | SERIAL
             | empty'''
     p[0] = p[1]
 
