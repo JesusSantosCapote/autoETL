@@ -106,21 +106,33 @@ class PostgreSqlCrawler(Crawler):
         cursor.close()
         connection.close()
 
-        path = os.path.join(os.getcwd(), 'crawler', 'data', f"{self._db_params['dbname']}_schema.json")
-
-        with open(path, 'w') as json_file:
-            json.dump(self._db_dict, json_file, indent=4)
-
 
     def get_db_dict(self):
         return self._db_dict
     
 
     def export_metadata_to_file(self):
-        path = os.path.join(os.getcwd(), 'crawler', 'data', f"{self._db_params['dbname']}_metadata.txt")
-        with open(path, mode='w') as file:
+        schemas_path = os.path.join(os.getcwd(), 'data', 'schemas')
+        database_name = self._db_params['dbname']
+        try:
+            os.mkdir(os.path.join(schemas_path, database_name))
+            path_to_save = os.path.join(schemas_path, database_name)
+        except FileExistsError:
+            path_to_save = os.path.join(schemas_path, database_name)
+        
+        metadata_path = os.path.join(path_to_save, f"{self._db_params['dbname']}_metadata.txt")
+        json_path = os.path.join(path_to_save, f"{self._db_params['dbname']}_schema.json")
+
+        with open(metadata_path, mode='w') as file:
             try:
                 file.write(self._metadata_str)
                 logger.info('Metadata exported correctly')
             except:
                 logger.error('Unable to write metadata to the file')
+
+        with open(json_path, 'w') as json_file:
+            try:
+                json.dump(self._db_dict, json_file, indent=4)
+                logger.info('Json Metadata exported correctly')
+            except:
+                logger.error('Unable to write json metadata')

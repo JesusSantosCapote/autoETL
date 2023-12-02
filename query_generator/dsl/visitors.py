@@ -2,7 +2,7 @@ import abc
 import os
 import json
 from logger import logger
-from dsl.ast_nodes import Dimension, Fact, DimensionalModel, DimensionalTable, AttributeFunction, AggAttribute, Attribute, AttributeExpression
+from query_generator.dsl.ast_nodes import Dimension, Fact, DimensionalModel, DimensionalTable, AttributeFunction, AggAttribute, Attribute, AttributeExpression
 
 class Visitor(metaclass = abc.ABCMeta):
     @abc.abstractmethod
@@ -269,7 +269,7 @@ class VisitorGetTypes(Visitor):
     
 
 class VisitorPostgreSQL(Visitor):
-    def __init__(self, join_list, join_tree, attr_types_dict) -> None:
+    def __init__(self, join_list, join_tree, attr_types_dict, export_name) -> None:
         super().__init__()
         self.query_list = []
         self.join_tree = join_tree
@@ -279,6 +279,7 @@ class VisitorPostgreSQL(Visitor):
         self.join_index = 0
         self.attr_types_dict = attr_types_dict
         self.query_dict = {}
+        self.export_name = export_name
 
     def visit_dimensional_model(self, dimensional_model:DimensionalModel):
         for table in dimensional_model.dimensional_table_list:
@@ -416,6 +417,6 @@ class VisitorPostgreSQL(Visitor):
         return super().visit_attribute(attribute)
     
     def export_querys(self):
-        path = os.path.join(os.getcwd(), 'dsl', 'data', f"querys.json") #TODO El nombre debe llevar el nombre de la base de datos fuente para poder cargarlo por base de datos
+        path = os.path.join(os.getcwd(), 'data', 'querys', f'{self.export_name}.json')
         with open(path, 'w') as json_file:
             json.dump(self.query_dict, json_file, indent=4)

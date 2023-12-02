@@ -2,7 +2,7 @@ from query_generator.all_spanning_trees import networkX_all_spanning_trees
 from networkx import DiGraph
 from networkx.algorithms.components import strongly_connected_components
 from collections import deque
-from query_generator.join_computation import compute_joins
+from utils.save_graphs import save_graph_list
 
 def _set_height(graph:DiGraph, root):
     visited = {node:False for node in graph.nodes}
@@ -74,4 +74,4 @@ def maximal_join_trees_generator(join_graph:DiGraph):
                 _set_height(join_tree, root)
                 result.append(join_tree)
 
-    return result
+    save_graph_list(result, join_graph.graph['name'])

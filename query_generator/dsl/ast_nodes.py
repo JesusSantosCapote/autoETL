@@ -1,4 +1,4 @@
-from dsl.visitable import Visitable
+from query_generator.dsl.visitable import Visitable
 
 class DimensionalModel(Visitable):
     def __init__(self, dimensional_table_list) -> None:

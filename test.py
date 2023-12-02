@@ -1,7 +1,9 @@
 from crawler.postgresSql_crawler import PostgreSqlCrawler
 from Retail_Sales.config import CONNECTION_INFO
 from data_catalog.handler import DataCatalogHandler
-from networkx import DiGraph
+from networkx import DiGraph, path_graph
+import pickle
+import os
 
 db_params = {
     'dbname': CONNECTION_INFO['dbname'],
@@ -65,15 +67,11 @@ edges = [
 ]
 
 tpc_h.add_edges_from(edges)
+graph1 = path_graph((1,2,3))
+e = [tpc_h, graph1]
 
-c = PostgreSqlCrawler(db_params)
+a = pickle.dumps(e)
 
-c.explore_db()
+b = pickle.loads(a)
 
-c.export_metadata_to_file()
-
-dc = DataCatalogHandler(c.get_db_dict(), 'neo4j', 'datacatalog', 'bolt://172.20.0.4:7687')
-
-dc.create_data_catalog()
-
-dc.get_join_graph()
+print(type(b))

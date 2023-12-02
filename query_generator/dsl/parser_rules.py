@@ -1,6 +1,6 @@
 from ply import yacc
-from dsl.ast_nodes import *
-from dsl.lexer import tokens
+from query_generator.dsl.ast_nodes import *
+from query_generator.dsl.lexer import tokens
 from logger import logger
 
 

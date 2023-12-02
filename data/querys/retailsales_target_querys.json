@@ -1,0 +1,22 @@
+{
+    "tienda": [
+        "CREATE TABLE IF NOT EXISTS tienda (\nidtienda INT PRIMARY KEY, \nnombre TEXT, \nreparto TEXT, \nmunicipio TEXT, \nprovincia TEXT\n);",
+        "INSERT INTO tienda( idtienda, nombre, reparto, municipio, provincia)\n",
+        "SELECT tienda.idtienda, tienda.nombre, reparto.nombre AS reparto, municipio.nombre AS municipio, provincia.nombre AS provincia\nFROM tienda\nJOIN reparto ON tienda.idreparto = reparto.idreparto\nJOIN municipio ON reparto.idmunicipio = municipio.idmunicipio\nJOIN provincia ON municipio.idprovincia = provincia.idprovincia\nGROUP BY tienda.idtienda,tienda.nombre,reparto.nombre,municipio.nombre,provincia.nombre;"
+    ],
+    "producto": [
+        "CREATE TABLE IF NOT EXISTS producto (\nidproducto INT PRIMARY KEY, \nmarca TEXT, \ncategoria TEXT, \npaquete TEXT, \ndepartamento TEXT, \ndescripcion TEXT, \nproducto TEXT, \nprecio INT, \ncosto INT\n);",
+        "INSERT INTO producto( idproducto, marca, categoria, paquete, departamento, descripcion, producto, precio, costo)\n",
+        "SELECT producto.idproducto, marca.nombre AS marca, categoria.nombre AS categoria, tipopaquete.nombre AS paquete, departamento.nombre AS departamento, departamento.descripcion AS descripcion, producto.nombre AS producto, producto.precio, producto.costo\nFROM producto\nJOIN departamento ON producto.iddepartamento = departamento.iddepartamento\nJOIN tipopaquete ON producto.idtipopaquete = tipopaquete.idtipopaquete\nJOIN categoria ON producto.idcategoria = categoria.idcategoria\nJOIN marca ON producto.idmarca = marca.idmarca\nGROUP BY producto.idproducto,marca.nombre,categoria.nombre,tipopaquete.nombre,departamento.nombre,departamento.descripcion,producto.nombre,producto.precio,producto.costo;"
+    ],
+    "fecha": [
+        "CREATE TABLE IF NOT EXISTS fecha (\nfecha DATE PRIMARY KEY, \nDia TEXT, \nMes TEXT\n);",
+        "INSERT INTO fecha( fecha, Dia, Mes)\n",
+        "SELECT venta.fecha, to_char(fecha, 'Day') AS Dia, to_char(fecha, 'Month') AS Mes\nFROM venta\nGROUP BY venta.fecha;"
+    ],
+    "venta": [
+        "CREATE TABLE IF NOT EXISTS venta (\nidventa serial PRIMARY KEY, \nidproducto INT, \nidtienda INT, \nfecha DATE, \ncantidad_vendida_total INT, \nimporte_total INT, \ncoste_total INT, \nganancia INT, \nFOREIGN KEY (idproducto) REFERENCES producto (idproducto), \nFOREIGN KEY (idtienda) REFERENCES tienda (idtienda), \nFOREIGN KEY (fecha) REFERENCES fecha (fecha)\n);",
+        "INSERT INTO venta( idventa, idproducto, idtienda, fecha, cantidad_vendida_total, importe_total, coste_total, ganancia)\n",
+        "SELECT venta.idproducto, venta.idtienda, venta.fecha, SUM(venta.cantidad_vendida) AS cantidad_vendida_total, SUM(venta.pago) AS importe_total, producto.Costo*SUM(venta.cantidad_vendida) AS coste_total, SUM(venta.pago)-producto.Costo*SUM(venta.cantidad_vendida) AS ganancia\nFROM venta\nJOIN producto ON venta.idproducto = producto.idproducto\nGROUP BY venta.idproducto,venta.idtienda,venta.fecha,producto.Costo;"
+    ]
+}

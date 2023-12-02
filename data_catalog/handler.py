@@ -2,13 +2,15 @@ import neo4j
 from neo4j import GraphDatabase
 from logger import logger
 from networkx import DiGraph
+from utils.save_graphs import save_graph
 
 class DataCatalogHandler():
-    def __init__(self, db_dict, user, password, uri) -> None:
+    def __init__(self, db_dict, db_name, user, password, uri) -> None:
         self.db_dict = db_dict
         self._user = user
         self._password = password
         self._uri = uri
+        self.db_name = db_name
 
     def create_data_catalog(self):
         driver = GraphDatabase.driver(self._uri, auth=(self._user, self._password))
@@ -52,7 +54,7 @@ class DataCatalogHandler():
         driver.close()
 
 
-    def get_join_graph(self):
+    def export_join_graph(self):
         driver = GraphDatabase.driver(self._uri, auth=(self._user, self._password))
         try:
             driver.verify_connectivity()
@@ -111,4 +113,7 @@ class DataCatalogHandler():
                                     conditions = [(edge[2], edge[3])], 
                                     weight = 1)
 
-        return join_graph
+        join_graph.graph['name'] = self.db_name
+        
+        save_graph(join_graph, self.db_name)
+        

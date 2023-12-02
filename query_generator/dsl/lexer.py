@@ -1,5 +1,5 @@
 from ply.lex import lex
-from global_config import LOG_FILE_PATH
+from config import LOG_FILE_PATH
 from logger import logger
 
 reserved = {
