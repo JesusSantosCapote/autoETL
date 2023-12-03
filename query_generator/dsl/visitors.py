@@ -271,7 +271,7 @@ class VisitorGetTypes(Visitor):
 class VisitorPostgreSQL(Visitor):
     def __init__(self, join_list, join_tree, attr_types_dict, export_name) -> None:
         super().__init__()
-        self.query_list = []
+        self.prettyp_querys = []
         self.join_tree = join_tree
         self.dsl_types_to_postgres = {'int': 'INT', 'str': 'TEXT', 'date': 'DATE', 'datetime': 'TIMESTAMP', 'serial':'serial'}
         self.dsl_agg_to_postgres = {'sum': 'SUM', 'avg': 'AVG', 'count': 'COUNT'}
@@ -287,7 +287,6 @@ class VisitorPostgreSQL(Visitor):
 
     def visit_dimensional_table(self, dimensional_table:DimensionalTable):
         query_create = f'CREATE TABLE IF NOT EXISTS {dimensional_table.name} (\n'
-        query_insert = f'INSERT INTO {dimensional_table.name}( '
         select_part = 'SELECT '
         from_part = 'FROM '
         groupby_attr = []
@@ -296,12 +295,10 @@ class VisitorPostgreSQL(Visitor):
             #Name and Type
             if attr_expr.alias:
                 query_create = query_create + attr_expr.alias + ' '
-                query_insert = query_insert + attr_expr.alias
                 postgresql_type = self.dsl_types_to_postgres[self.attr_types_dict[dimensional_table.name][attr_expr.alias]]
                 query_create = query_create + postgresql_type
             else:
                 query_create = query_create + attr_expr.elements[0].name + ' '
-                query_insert = query_insert + attr_expr.elements[0].name
                 postgresql_type = self.dsl_types_to_postgres[self.attr_types_dict[dimensional_table.name][attr_expr.elements[0].name]]
                 query_create = query_create + postgresql_type
             
@@ -312,10 +309,6 @@ class VisitorPostgreSQL(Visitor):
                         query_create = query_create + ' PRIMARY KEY'
 
             query_create = query_create + ', \n'
-            query_insert = query_insert + ', '
-
-        query_insert = query_insert[0: -2]
-        query_insert = query_insert + ')\n'    
 
         #FK Constraints
         for attr_expr in dimensional_table.list_attr:
@@ -403,8 +396,8 @@ class VisitorPostgreSQL(Visitor):
                     groupby_part = groupby_part + ',' 
 
         select_part = select_part + '\n' + from_part + '\n' + groupby_part + ';'
-        self.query_list.append((query_create, select_part, query_insert))
-        self.query_dict[dimensional_table.name] = [query_create, query_insert, select_part] 
+        self.prettyp_querys.append((query_create, select_part))
+        self.query_dict[dimensional_table.name] = [query_create, select_part] 
 
 
     def visit_attr_expression(self, attr_expression):
@@ -417,6 +410,19 @@ class VisitorPostgreSQL(Visitor):
         return super().visit_attribute(attribute)
     
     def export_querys(self):
-        path = os.path.join(os.getcwd(), 'data', 'querys', f'{self.export_name}.json')
-        with open(path, 'w') as json_file:
-            json.dump(self.query_dict, json_file, indent=4)
+        path_querys = os.path.join(os.getcwd(), 'data', 'querys')
+
+        dirs = os.listdir(path_querys)
+        if self.export_name not in dirs:
+            os.mkdir(os.path.join(path_querys, self.export_name))
+
+        path_to_save = os.path.join(path_querys, self.export_name)
+
+        for table, querys in self.query_dict.items():
+            create_path = os.path.join(path_to_save, f'{table}_create.sql')
+            with open(create_path, 'w') as file:
+                file.write(querys[0])
+
+            select_path = os.path.join(path_to_save, f'{table}_select.sql')
+            with open(select_path, 'w') as file:
+                file.write(querys[1])

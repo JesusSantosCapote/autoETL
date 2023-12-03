@@ -55,8 +55,8 @@ code_gen.export_querys()
 target_params = {'dbname': 'target', 'user': 'postgres', 'password': 'postgres', 'host':'target' , 'port':'5432'}
 connection = psycopg2.connect(**target_params)
 cursor = connection.cursor()
-for code in code_gen.query_list:
-    cursor.execute(code[0])
+for key in code_gen.query_dict.keys():
+    cursor.execute(code_gen.query_dict[key][0])
 
 connection.close()
 cursor.close()
@@ -64,8 +64,8 @@ cursor.close()
 source_params = {'dbname': CONNECTION_INFO['dbname'], 'user': CONNECTION_INFO['user'], 'password': CONNECTION_INFO['password'], 'host':CONNECTION_INFO['host'] , 'port': CONNECTION_INFO['port']}
 connection = psycopg2.connect(**source_params)
 cursor = connection.cursor()
-for code in code_gen.query_list:
-    cursor.execute(code[1])
+for key in code_gen.query_dict.keys():
+    cursor.execute(code_gen.query_dict[key][1])
     a = cursor.fetchall()
     print(a)
     print('\n')
