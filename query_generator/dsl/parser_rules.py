@@ -143,6 +143,8 @@ def p_Type(p):
             | DATE
             | DATETIME
             | SERIAL
+            | FLOAT
+            | NUMERIC
             | empty'''
     p[0] = p[1]
 

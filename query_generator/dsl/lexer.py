@@ -22,6 +22,8 @@ reserved = {
     'date': 'DATE',
     'datetime': 'DATETIME',
     'serial': 'SERIAL',
+    'numeric': 'NUMERIC',
+    'float' : 'FLOAT',
     'to': 'TO'
 }
 

@@ -26,7 +26,7 @@ region_pks = range(1, 5)
 for r in region_pks:
     name = f'region{r}'
 
-    cursor.execute(f"""INSERT INTO region VALUES ({r}, {name});""")
+    cursor.execute(f"""INSERT INTO region VALUES ({r}, '{name}');""")
 
 
 nation_pks = range(1, 15)
@@ -34,7 +34,7 @@ for n in nation_pks:
     name = f'nation{n}'
     region_key = rand.choice(region_pks)
 
-    cursor.execute(f"""INSERT INTO nation VALUES ({n}, {name}, {region_key});""")
+    cursor.execute(f"""INSERT INTO nation VALUES ({n}, '{name}', {region_key});""")
     
 
 supp_pks = range(1, 30)
@@ -44,7 +44,7 @@ for s in supp_pks:
     nation_key = rand.choice(nation_pks)
     phone = fake.unique.phone_number()
 
-    cursor.execute(f"""INSERT INTO supplier VALUES ({s}, {name}, {address}, {nation_key}, {phone});""")
+    cursor.execute(f"""INSERT INTO supplier VALUES ({s}, '{name}', '{address}', {nation_key}, '{phone}');""")
     
 
 customer_pks = range(1, 35)
@@ -53,9 +53,8 @@ for c in customer_pks:
     address = fake.unique.address()
     nation_key = rand.choice(nation_pks)
     phone = fake.unique.phone_number()
-    comment = fake.unique.lorem()
 
-    cursor.execute(f"""INSERT INTO customer VALUES ({c}, {name}, {address}, {nation_key}, {phone}, {comment});""")
+    cursor.execute(f"""INSERT INTO customer VALUES ({c}, '{name}', '{address}', {nation_key}, '{phone}');""")
     
 
 part_pks = range(1, 60)
@@ -65,7 +64,7 @@ for p in part_pks:
     size = rand.randint(1, 25)
     price = rand.randint(1, 40) + rand.random()
 
-    cursor.execute(f"""INSERT INTO part VALUES ({p}, {name}, {brand}, {size}, {price});""")
+    cursor.execute(f"""INSERT INTO part VALUES ({p}, '{name}', '{brand}', {size}, {price});""")
     
 
 ps_pks = []
@@ -88,7 +87,7 @@ for o in orders_pks:
     status = rand.choice(['P', 'F'])
     order_date = fake.date_between(start_date='-1y')
 
-    cursor.execute(f"""INSERT INTO orders VALUES ({o}, {cust}, {status}, {order_date});""")
+    cursor.execute(f"""INSERT INTO orders VALUES ({o}, {cust}, '{status}', '{order_date}');""")
     
 
 lineitem_pks = range(101)
@@ -104,9 +103,10 @@ for l in lineitem_pks:
                            FROM part JOIN partsupp ON part.p_partkey = partsupp.ps_partkey
                            WHERE partsupp.ps_partkey = {part_supp[0]} AND partsupp.ps_suppkey = {part_supp[1]};""")
         result = cursor.fetchall()
-        price = rand.randint(1, 300) + rand.random() + (result[0][0] * result[0][1] * qty)
+        price = round(rand.randint(1, 300) + rand.random() + float(result[0][0] * result[0][1] * qty), 4)
 
-        cursor.execute(f""""INSERT INTO lineitem VALUES ({order_key}, {part_supp[0]}, {part_supp[1]}, {l}, {qty}, {price});""")
-        
+        cursor.execute(f"INSERT INTO lineitem VALUES ({order_key}, {part_supp[0]}, {part_supp[1]}, {l}, {qty}, {price});")
+
+print("DATABASE POPULATED SUCCEFULLY")
 connection.close()
 cursor.close()

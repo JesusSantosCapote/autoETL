@@ -273,7 +273,7 @@ class VisitorPostgreSQL(Visitor):
         super().__init__()
         self.prettyp_querys = []
         self.join_tree = join_tree
-        self.dsl_types_to_postgres = {'int': 'INT', 'str': 'TEXT', 'date': 'DATE', 'datetime': 'TIMESTAMP', 'serial':'serial'}
+        self.dsl_types_to_postgres = {'int': 'INT', 'str': 'TEXT', 'date': 'DATE', 'datetime': 'TIMESTAMP', 'serial':'serial', 'numeric':'NUMERIC', 'float':'FLOAT'}
         self.dsl_agg_to_postgres = {'sum': 'SUM', 'avg': 'AVG', 'count': 'COUNT'}
         self.join_list = join_list
         self.join_index = 0
@@ -288,6 +288,7 @@ class VisitorPostgreSQL(Visitor):
     def visit_dimensional_table(self, dimensional_table:DimensionalTable):
         query_create = f'CREATE TABLE IF NOT EXISTS {dimensional_table.name} (\n'
         select_part = 'SELECT '
+        primary_key_part = 'PRIMARY KEY ('
         from_part = 'FROM '
         groupby_attr = []
 
@@ -302,13 +303,22 @@ class VisitorPostgreSQL(Visitor):
                 postgresql_type = self.dsl_types_to_postgres[self.attr_types_dict[dimensional_table.name][attr_expr.elements[0].name]]
                 query_create = query_create + postgresql_type
             
-            #PK Constraint
+            query_create = query_create + ', \n'
+            
+        #PK Constraints
+        for attr_expr in dimensional_table.list_attr:
             if len(attr_expr.elements) == 1:
                 if isinstance(attr_expr.elements[0], Attribute):
                     if attr_expr.elements[0].primary_key:
-                        query_create = query_create + ' PRIMARY KEY'
+                        name = attr_expr.elements[0].name
+                        if attr_expr.alias:
+                            name = attr_expr.alias
+                        primary_key_part = primary_key_part + name + ', '
+        
+        primary_key_part = primary_key_part[0:-2]
+        primary_key_part = primary_key_part + '), \n'
 
-            query_create = query_create + ', \n'
+        query_create = query_create + primary_key_part
 
         #FK Constraints
         for attr_expr in dimensional_table.list_attr:
@@ -384,7 +394,7 @@ class VisitorPostgreSQL(Visitor):
                 for cond, index in zip(join[i-1], range(len(join[i-1]))):
                     conditions = conditions + f'{cond[0]} = {cond[1]}'
                     if index != len(join[i-1]) - 1:
-                        conditions = conditions + 'AND '
+                        conditions = conditions + ' AND '
                 from_part = from_part + f'\nJOIN {join[i]} ON ' + conditions
 
         groupby_part = ''

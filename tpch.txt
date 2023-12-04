@@ -12,27 +12,20 @@ dimension part {
     part: p_name as name
     part: p_brand as brand
     part: p_size
-    part: p_container as container
 }
 
-dimension order {
-    order: o_orderkey PK
-    order: o_orderstatus as status
-    customer: c_name
-    nation: n_name
-    region: r_name
-}
-
-dimension date {
-    order: o_orderdate PK as date
-    self:week_day(date) str as day
-    self:month_str(date) str as month
+dimension order_date {
+    orders: o_orderdate PK
+    self:week_day(o_date) str as day
+    self:month_str(o_date) str as month
 }
 
 fact lineitem {
-    self: linenumber PK
+    self: linenumber PK serial
     lineitem: l_partkey FK to part.p_partkey as partkey
     lineitem: l_suppkey FK to supplier.s_suppkey as supplierkey
-    lineitem: l_orderkey FK to order.o_orderkey as orderkey
-    lineitem: l_extendedprice as payment
+    orders: o_orderdate FK to order_date.o_orderdate as order_date
+    lineitem: sum(l_extendedprice) as totalpayment
+    lineitem: sum(l_quantity) as totalquantity
+    lineitem: sum(l_extendedprice) - (lineitem: sum(l_quantity) * partsupp:ps_supplycost) - (lineitem: sum(l_quantity) * part:p_retailprice) numeric as earnings
 }
