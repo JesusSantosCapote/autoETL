@@ -5,7 +5,7 @@ from query_generator.maximal_join_trees import maximal_join_trees_generator
 from query_generator.dsl.visitors import VisitorSymbolTable, VisitorSemanticCheck, VisitorGetSelects, VisitorPostgreSQL, VisitorGetTypes
 from data_catalog.handler import DataCatalogHandler
 from crawler.postgresSql_crawler import PostgreSqlCrawler
-from Retail_Sales.config import CONNECTION_INFO
+from config import CONNECTION_INFO_SOURCE
 import psycopg2
 from utils.load_graphs import load_graph, load_graph_list
 
@@ -25,7 +25,7 @@ selects = VisitorGetSelects()
 selects.visit_dimensional_model(a)
 attr_to_select_for_dim = selects.selects_for_dimensions
 
-db_params = {'dbname': CONNECTION_INFO['dbname'], 'user': CONNECTION_INFO['user'], 'password': CONNECTION_INFO['password'], 'host':CONNECTION_INFO['host'] , 'port': CONNECTION_INFO['port']}
+db_params = {'dbname': CONNECTION_INFO_SOURCE['dbname'], 'user': CONNECTION_INFO_SOURCE['user'], 'password': CONNECTION_INFO_SOURCE['password'], 'host':CONNECTION_INFO_SOURCE['host'] , 'port': CONNECTION_INFO_SOURCE['port']}
 crawler = PostgreSqlCrawler(db_params)
 crawler.explore_db()
 crawler.export_metadata_to_file()
@@ -61,7 +61,7 @@ for key in code_gen.query_dict.keys():
 connection.close()
 cursor.close()
 
-source_params = {'dbname': CONNECTION_INFO['dbname'], 'user': CONNECTION_INFO['user'], 'password': CONNECTION_INFO['password'], 'host':CONNECTION_INFO['host'] , 'port': CONNECTION_INFO['port']}
+source_params = {'dbname': CONNECTION_INFO_SOURCE['dbname'], 'user': CONNECTION_INFO_SOURCE['user'], 'password': CONNECTION_INFO_SOURCE['password'], 'host':CONNECTION_INFO_SOURCE['host'] , 'port': CONNECTION_INFO_SOURCE['port']}
 connection = psycopg2.connect(**source_params)
 cursor = connection.cursor()
 for key in code_gen.query_dict.keys():

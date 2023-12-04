@@ -1,0 +1,38 @@
+dimension supplier {
+    supplier: s_suppkey PK
+    supplier: s_name as name
+    supplier: s_phone as phone
+    supplier: s_address as address
+    nation: n_name as nation
+    region: r_name as region
+}
+
+dimension part {
+    part: p_partkey PK
+    part: p_name as name
+    part: p_brand as brand
+    part: p_size
+    part: p_container as container
+}
+
+dimension order {
+    order: o_orderkey PK
+    order: o_orderstatus as status
+    customer: c_name
+    nation: n_name
+    region: r_name
+}
+
+dimension date {
+    order: o_orderdate PK as date
+    self:week_day(date) str as day
+    self:month_str(date) str as month
+}
+
+fact lineitem {
+    self: linenumber PK
+    lineitem: l_partkey FK to part.p_partkey as partkey
+    lineitem: l_suppkey FK to supplier.s_suppkey as supplierkey
+    lineitem: l_orderkey FK to order.o_orderkey as orderkey
+    lineitem: l_extendedprice as payment
+}

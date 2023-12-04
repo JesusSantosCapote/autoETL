@@ -2,14 +2,15 @@ import faker
 import sqlalchemy
 from faker import Faker
 from faker.providers import address
-from config import SEED, CONNECTION_INFO
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, select, exists
-from retailSalesDB import *
+from experiments.retail_sales.create import *
 import random
 import json
 import os
 from datetime import date
+
+SEED = 4321
 
 fake = Faker()
 fake.add_provider(address)
@@ -18,13 +19,13 @@ Faker.seed(SEED)
 rand = random.Random()
 rand.seed(SEED)
 
-dialect = CONNECTION_INFO['dialect']
-driver = CONNECTION_INFO['driver']
-user = CONNECTION_INFO['user']
-password = CONNECTION_INFO['password']
-host = CONNECTION_INFO['host']
-port = CONNECTION_INFO['port']
-database = CONNECTION_INFO['dbname']
+dialect = 'postgresql',
+driver =  'psycopg2',
+user = 'postgres',
+password = 'postgres',
+host = '172.20.0.2',
+port = '5432',
+dbname = 'retailsales'
 
 engine = create_engine(f'{dialect}+{driver}://{user}:{password}@{host}:{port}/{database}', echo=True, future=True)
 conn = engine.connect()
