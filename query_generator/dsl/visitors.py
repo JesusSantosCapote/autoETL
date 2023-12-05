@@ -321,6 +321,7 @@ class VisitorPostgreSQL(Visitor):
         query_create = query_create + primary_key_part
 
         #FK Constraints
+        unique_part = 'UNIQUE('
         for attr_expr in dimensional_table.list_attr:
             if len(attr_expr.elements) == 1:
                 if isinstance(attr_expr.elements[0], Attribute):
@@ -330,7 +331,13 @@ class VisitorPostgreSQL(Visitor):
                         if attr_expr.alias:
                             name = attr_expr.alias
                         query_create = query_create + f'FOREIGN KEY ({name})' + f' REFERENCES {references} ({attr_expr.elements[0].foreign_key[1]}), \n'
+                        unique_part = unique_part + f'{name}, '
 
+        if isinstance(dimensional_table, Fact):
+            unique_part = unique_part[0:-2]
+            unique_part = unique_part + '), \n'
+            query_create = query_create + unique_part
+            
         query_create = query_create[0:-3] #Deleting the last ,
         query_create = query_create + '\n);'
 

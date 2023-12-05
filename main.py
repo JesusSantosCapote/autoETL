@@ -8,7 +8,7 @@ from crawler.postgresSql_crawler import PostgreSqlCrawler
 import psycopg2
 from utils.load_graphs import load_graph, load_graph_list
 
-path = os.path.join(os.getcwd(), 'tpch.txt')
+path = os.path.join(os.getcwd(), 'retailsales.txt')
 
 code =''
 
@@ -24,7 +24,7 @@ selects = VisitorGetSelects()
 selects.visit_dimensional_model(a)
 attr_to_select_for_dim = selects.selects_for_dimensions
 
-db_params = {'dbname': 'tpch', 'user': 'postgres', 'password': 'postgres', 'host':'some-postgres' , 'port':'5432'}
+db_params = {'dbname': 'retailsales', 'user': 'postgres', 'password': 'postgres', 'host':'some-postgres' , 'port':'5432'}
 crawler = PostgreSqlCrawler(db_params)
 crawler.explore_db()
 crawler.export_metadata_to_file()

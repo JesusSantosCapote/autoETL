@@ -69,7 +69,7 @@ with open(os.path.join(query_path, 'order_date_select.sql')) as file:
     rows = cursor_source.fetchall()
     for o_date, day, month in rows:
         cursor_target.execute(f"""INSERT INTO order_date 
-                              VALUES ({o_date}, '{day}', '{month}')
+                              VALUES ('{o_date}', '{day}', '{month}')
                               ON CONFLICT (o_date) 
                               DO UPDATE SET day = EXCLUDED.day, month = EXCLUDED.month;""")
 
@@ -77,9 +77,12 @@ with open(os.path.join(query_path, 'lineitem_select.sql')) as file:
     cursor_source.execute(file.read())
     rows = cursor_source.fetchall()
     for partkey, supplierkey, order_date, totalpayment, totalquantity, earnings in rows:
-        cursor_target.execute(f"""INSERT INTO lineitem 
+        cursor_target.execute(f"""INSERT INTO lineitem (partkey, supplierkey, order_date, totalpayment, 
+                              totalquantity, earnings)
                               VALUES ({partkey}, '{supplierkey}', '{order_date}', '{totalpayment}', 
                               '{totalquantity}', '{earnings}')
                               ON CONFLICT (partkey, supplierkey, order_date) 
                               DO UPDATE SET totalpayment = EXCLUDED.totalpayment, totalquantity = EXCLUDED.totalquantity, 
                               earnings = EXCLUDED.earnings;""")
+        
+print('PIPELINE EXECUTED SUCCEFULLY')
