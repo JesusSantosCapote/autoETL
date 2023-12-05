@@ -20,8 +20,8 @@ producto:costo
 
 dimension fecha {
 venta:fecha PK
-self:week_day(fecha) str as Dia
-self:month_str(fecha) str as Mes
+venta:week_day(fecha) str as Dia
+venta:month_str(fecha) str as Mes
 }
 
 fact venta {

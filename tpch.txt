@@ -1,5 +1,5 @@
 dimension supplier {
-    supplier: s_suppkey PK
+    supplier: s_suppkey PK as suppkey
     supplier: s_name as name
     supplier: s_phone as phone
     supplier: s_address as address
@@ -15,16 +15,16 @@ dimension part {
 }
 
 dimension order_date {
-    orders: o_orderdate PK
-    self:week_day(o_date) str as day
-    self:month_str(o_date) str as month
+    orders: o_orderdate PK as o_date
+    orders:week_day(o_orderdate) str as day
+    orders:month_str(o_orderdate) str as month
 }
 
 fact lineitem {
-    self: linenumber PK serial
+    self: linenumber PK serial as lnumber
     lineitem: l_partkey FK to part.p_partkey as partkey
-    lineitem: l_suppkey FK to supplier.s_suppkey as supplierkey
-    orders: o_orderdate FK to order_date.o_orderdate as order_date
+    lineitem: l_suppkey FK to supplier.suppkey as supplierkey
+    orders: o_orderdate FK to order_date.o_date as order_date
     lineitem: sum(l_extendedprice) as totalpayment
     lineitem: sum(l_quantity) as totalquantity
     lineitem: sum(l_extendedprice) - (lineitem: sum(l_quantity) * partsupp:ps_supplycost) - (lineitem: sum(l_quantity) * part:p_retailprice) numeric as earnings

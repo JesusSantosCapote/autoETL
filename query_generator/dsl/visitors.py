@@ -352,13 +352,14 @@ class VisitorPostgreSQL(Visitor):
                         if elem.table_name != 'self':
                             select_part = select_part + f"to_char({elem.table_name}.{elem.name}, 'Day')"
                         else:
-                            select_part = select_part + f"to_char({elem.name}, 'Day')"
+                            logger.error('Only serial Primary keys can be declared with table self')
 
                     if elem.func == 'month_str':
                         if elem.table_name != 'self':
                             select_part = select_part + f"to_char({elem.table_name}.{elem.name}, 'Month')"
                         else:
-                            select_part = select_part + f"to_char({elem.name}, 'Month')"
+                            logger.error('Only serial Primary keys can be declared with table self')
+
                 
                 elif isinstance(elem, AggAttribute): #TODO check if here i must to check if self is a valid table_name for this kind of attr
                     if elem.table_name != 'self':
@@ -377,7 +378,11 @@ class VisitorPostgreSQL(Visitor):
                     select_part = select_part + elem
 
             if attr_expr.alias:
-                select_part = select_part + ' AS ' + f'{attr_expr.alias}'
+                if len(attr_expr.elements) > 1:
+                    select_part = select_part + ' AS ' + f'{attr_expr.alias}'
+                else:
+                    if attr_expr.elements[0].table_name != 'self':
+                        select_part = select_part + ' AS ' + f'{attr_expr.alias}'
             
             if index < len(dimensional_table.list_attr) - 1:
                 if have_to_put_comma:
