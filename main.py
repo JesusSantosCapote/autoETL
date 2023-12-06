@@ -8,7 +8,7 @@ from crawler.postgresSql_crawler import PostgreSqlCrawler
 import psycopg2
 from utils.load_graphs import load_graph, load_graph_list
 
-path = os.path.join(os.getcwd(), 'retailsales.txt')
+path = os.path.join(os.getcwd(), 'tpch.txt')
 
 code =''
 
@@ -24,7 +24,7 @@ selects = VisitorGetSelects()
 selects.visit_dimensional_model(a)
 attr_to_select_for_dim = selects.selects_for_dimensions
 
-db_params = {'dbname': 'retailsales', 'user': 'postgres', 'password': 'postgres', 'host':'some-postgres' , 'port':'5432'}
+db_params = {'dbname': 'tpch', 'user': 'postgres', 'password': 'postgres', 'host':'some-postgres' , 'port':'5432'}
 crawler = PostgreSqlCrawler(db_params)
 crawler.explore_db()
 crawler.export_metadata_to_file()
@@ -46,7 +46,7 @@ for attrs in attr_to_select_for_dim:
     joins = compute_joins(join_trees, attrs)
     all_joins.append(joins[0]) #TODO here the user must select the join not select the 0 for defect
 
-code_gen = VisitorPostgreSQL(all_joins, join_graph, type_check.dimensions_attrs, f"{db_params['dbname']}_target_querys")
+code_gen = VisitorPostgreSQL(all_joins, join_graph, type_check.dimensions_attrs, f"{db_params['dbname']}_tpch_dw_querys")
 code_gen.visit_dimensional_model(a)
 code_gen.export_querys()
 
