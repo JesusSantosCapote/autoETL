@@ -39,23 +39,19 @@ services:
 
   app:
     image: autoetl
+    build: ./
     volumes: 
-      - ".:/home/app"
+      - ./:/home/app/
     depends_on:
       - db
       - data_catalog
       - target
     ports:
-      - "8000:8000"
+      - "8501:8501"
+
     networks:
       mynet:
         ipv4_address: 172.20.0.3
-    command: 
-      - 'cd home/app/Retail_Sales'
-      - 'python retailSalesDB.py'
-      - 'python populateDB.py'
-      - 'cd ..'
-      - 'python main.py'
 
 networks:
   mynet:

@@ -1,8 +1,9 @@
 import streamlit as st
 import os
 from utils.load_graphs import load_graph, load_graph_list
-import networkx
+import networkx as nx
 from matplotlib import pyplot as plt
+
 
 st.markdown("# Join Graphs")
 st.sidebar.markdown("# Join Graphs")
@@ -14,5 +15,8 @@ selected_db = st.session_state.conn_info['dbname']
 
 join_graph = load_graph(selected_db)
 
-networkx.draw(join_graph)
-plt.draw()
+fig = plt.figure(frameon=True)
+pos = nx.planar_layout(join_graph)
+nx.draw(join_graph ,pos, with_labels=True, node_color=range(len(join_graph.nodes)), node_size=800, cmap=plt.cm.Oranges)
+st.write(fig)
+

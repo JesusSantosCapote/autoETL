@@ -14,7 +14,7 @@ Faker.seed(SEED)
 
 rand = random.Random()
 rand.seed(SEED)
-db = {'dbname':'tpch', 'user': 'postgres', 'password': 'postgres', 'host':'some-postgres' , 'port':'5432'}
+db = {'dbname':'tpch', 'user': 'postgres', 'password': 'postgres', 'host':'db' , 'port':'5432'}
 connection = psycopg2.connect(**db)
 cursor = connection.cursor()
 connection.autocommit = True

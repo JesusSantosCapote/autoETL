@@ -1,6 +1,6 @@
 import psycopg2
 
-connection = psycopg2.connect(user='postgres', password='postgres', host='some-postgres', port='5432')
+connection = psycopg2.connect(user='postgres', password='postgres', host='db', port='5432')
 cursor = connection.cursor()
 connection.autocommit = True
 

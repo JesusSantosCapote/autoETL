@@ -69,10 +69,10 @@ if st.button("Connect"):
         crawler.export_metadata_to_file()
 
         #Data Catalog things
-        with open(os.path.join(schemas_path, f"{conn_info['dbname']}"), 'r') as file:
+        with open(os.path.join(schemas_path, f"{conn_info['dbname']}", f"{conn_info['dbname']}_schema.json"), 'r') as file:
             db_schema_dict = json.load(file)
 
-        handler = DataCatalogHandler(db_schema_dict, conn_info['dbname'], 'neo4j', 'datacatalog', 'bolt://neo4j_data_catalog:7687')
+        handler = DataCatalogHandler(db_schema_dict, conn_info['dbname'], 'neo4j', 'datacatalog', 'bolt://data_catalog:7687')
         handler.create_data_catalog()
         handler.export_join_graph()
 
