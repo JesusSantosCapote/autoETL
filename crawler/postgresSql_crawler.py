@@ -7,8 +7,8 @@ import os
 
 
 class PostgreSqlCrawler(Crawler):
-    def __init__(self, db_params) -> None:
-        super().__init__(db_params)
+    def __init__(self, dbname, user, password, host, port) -> None:
+        super().__init__(dbname, user, password, host, port)
         self.postgres_types_to_dsl = {'integer':'int', 'character varying':'str', 'character':'str', 'double precision':'float', 'text': 'str', 'date':'date', 'decimal':'float', 'numeric':'numeric', 'float':'float'}
         
     

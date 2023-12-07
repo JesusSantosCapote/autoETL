@@ -11,6 +11,7 @@ class DataCatalogHandler():
         self._password = password
         self._uri = uri
         self.db_name = db_name
+        self.join_graph = None
 
     def create_data_catalog(self):
         driver = GraphDatabase.driver(self._uri, auth=(self._user, self._password))
@@ -114,6 +115,8 @@ class DataCatalogHandler():
                                     weight = 1)
 
         join_graph.graph['name'] = self.db_name
+
+        self.join_graph = join_graph
         
         save_graph(join_graph, self.db_name)
         
