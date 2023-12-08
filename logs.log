@@ -1,0 +1,18 @@
+2023-12-08 03:39:51,200~INFO~Connection with database: tpch succefully~module:postgresSql_crawler
+
+2023-12-08 03:39:51,278~INFO~Metadata exported correctly~module:postgresSql_crawler
+
+2023-12-08 03:39:51,281~INFO~Json Metadata exported correctly~module:postgresSql_crawler
+
+2023-12-08 03:39:51,473~INFO~Connection with Data Catalog succefully~module:handler
+
+2023-12-08 03:39:53,425~INFO~Connection with Data Catalog succefully~module:handler
+
+2023-12-08 03:40:11,814~ERROR~Syntax error  in input at line: 1~module:parser_rules
+
+2023-12-08 03:40:11,815~ERROR~Syntax error  in input at line: 10~module:parser_rules
+
+2023-12-08 03:40:11,816~ERROR~Syntax error  in input at line: 17~module:parser_rules
+
+2023-12-08 03:40:11,816~ERROR~Syntax error  in input at line: 23~module:parser_rules
+

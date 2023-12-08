@@ -10,7 +10,17 @@ from utils.load_graphs import load_graph, load_graph_list
 
 path = os.path.join(os.getcwd(), 'tpch.txt')
 
-code =''
+code ="""dimension supplier { supplier: s_suppkey PK as suppkey supplier: s_name as name supplier: s_phone as phone supplier: s_address as address nation: n_name as nation region: r_name as region }
+
+dimension part { part: p_partkey PK part: p_name as name part: p_brand as brand part: p_size }
+
+dimension order_date { orders: o_orderdate PK as o_date orders
+(o_orderdate) str as day orders
+(o_orderdate) str as month }
+
+fact lineitem { self: linenumber PK serial as lnumber lineitem: l_partkey FK to part.p_partkey as partkey lineitem: l_suppkey FK to supplier.suppkey as supplierkey orders: o_orderdate FK to order_date.o_date as order_date lineitem: sum(l_extendedprice) as totalpayment lineitem: sum(l_quantity) as totalquantity lineitem: sum(l_extendedprice) - (lineitem: sum(l_quantity) * partsupp
+) - (lineitem: sum(l_quantity) * part
+) numeric as earnings }"""
 
 with open(path) as file:
     code = file.read()

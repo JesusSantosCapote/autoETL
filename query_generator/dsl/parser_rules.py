@@ -1,7 +1,7 @@
 from ply import yacc
 from query_generator.dsl.ast_nodes import *
 from query_generator.dsl.lexer import tokens
-from logger import logger
+from logger import dsl_logger
 
 
 def p_Dimensional_Model(p):
@@ -170,7 +170,7 @@ def p_empty_list(p):
 
 
 def p_error(p):
-    logger.error(f'Syntax error {p.value} in input at line: {p.lineno}')
+    dsl_logger.error(f'Syntax error {p.value} in input at line: {p.lineno}')
 
 
 parser = yacc.yacc(debug=True)

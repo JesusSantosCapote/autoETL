@@ -1,7 +1,7 @@
 import abc
 import os
 import json
-from logger import logger
+from logger import dsl_logger
 from query_generator.dsl.ast_nodes import Dimension, Fact, DimensionalModel, DimensionalTable, AttributeFunction, AggAttribute, Attribute, AttributeExpression
 
 class Visitor(metaclass = abc.ABCMeta):
@@ -40,7 +40,7 @@ class VisitorSymbolTable(Visitor):
         for attr_def, index in zip(dimensional_table.list_attr, range(1, len(dimensional_table.list_attr) + 1)):
             if attr_def.alias:
                 if attr_def.alias in self.symbol_table[dimensional_table.name]:
-                    logger.error(f'The alias {attr_def.alias} is used twice in table {dimensional_table.name}')
+                    dsl_logger.error(f'The alias {attr_def.alias} is used twice in table {dimensional_table.name}')
                     self.good_naming = False
                 else:
                     self.symbol_table[dimensional_table.name].append(attr_def.alias)
@@ -48,7 +48,7 @@ class VisitorSymbolTable(Visitor):
                 if len(attr_def.elements) == 1:
                     try: #attr_def.elements[0] may be a number and dont have name. SemanticCheck is responsable for notify this 
                         if attr_def.elements[0].name in self.symbol_table[dimensional_table.name]:
-                            logger.error(f'The name {attr_def.elements[0].name} is used twice in table {dimensional_table.name}. Use an alias for fix this error.')
+                            dsl_logger.error(f'The name {attr_def.elements[0].name} is used twice in table {dimensional_table.name}. Use an alias for fix this error.')
                             self.good_naming = False
                         else:
                             self.symbol_table[dimensional_table.name].append(attr_def.elements[0].name)
@@ -56,7 +56,7 @@ class VisitorSymbolTable(Visitor):
                         self.symbol_table[dimensional_table.name].append('error')
                         self.good_naming = False
                 else:
-                    logger.error(f'Attribute number {index} in dimensional table {dimensional_table.name} is composite and dont have an alias.')
+                    dsl_logger.error(f'Attribute number {index} in dimensional table {dimensional_table.name} is composite and dont have an alias.')
                     self.symbol_table[dimensional_table.name].append(None)
                     self.good_naming = False
 
@@ -89,7 +89,7 @@ class VisitorSemanticCheck(Visitor):
                 dimension = True
         
         if not dimension and fact:
-            logger.error("A Dimensional Model must have at least one Dimension and one Fact table")
+            dsl_logger.error("A Dimensional Model must have at least one Dimension and one Fact table")
             self.good_semantic = False
 
         for table in dimensional_model.dimensional_table_list:
@@ -122,17 +122,17 @@ class VisitorSemanticCheck(Visitor):
             agg_attr_count = 0
 
             if number_of_attr == 0:
-                logger.error(f"Attribute definition number {index} in table {dimensional_table.name} must have at least one valid attribute")
+                dsl_logger.error(f"Attribute definition number {index} in table {dimensional_table.name} must have at least one valid attribute")
                 self.good_semantic = False
             
             number_of_attr = 0
 
         if PK_count > 1:
-            logger.error(f"Dimensional Table: {dimensional_table.name} must have only one primary key")
+            dsl_logger.error(f"Dimensional Table: {dimensional_table.name} must have only one primary key")
             self.good_semantic = False
 
         if PK_count == 0:
-            logger.error(f"Dimensional Table: {dimensional_table.name} must have a primary key")
+            dsl_logger.error(f"Dimensional Table: {dimensional_table.name} must have a primary key")
             self.good_semantic = False
 
     def visit_agg_attr(self, agg_attr):
@@ -193,7 +193,7 @@ class VisitorGetTypes(Visitor):
         for attr_expr, index in zip(dimensional_table.list_attr, range(1, len(dimensional_table.list_attr)+1)):
             if len(attr_expr.elements) > 1:
                 if not attr_expr.exp_type:
-                    logger.error(f'Missing type declaration for composite attribute definition number {index} in table: {dimensional_table.name}')
+                    dsl_logger.error(f'Missing type declaration for composite attribute definition number {index} in table: {dimensional_table.name}')
                     self.good_type = False
                 else:
                     self.dimensions_attrs[dimensional_table.name][attr_expr.alias] = attr_expr.exp_type
@@ -216,7 +216,7 @@ class VisitorGetTypes(Visitor):
                                 return
                         #This is because i dont allow declarations of new attr for the moment
                         else:
-                            logger.error(f'Definitions of new attributes are not allowed: attribute number {index} in dimensional table {dimensional_table.name}')
+                            dsl_logger.error(f'Definitions of new attributes are not allowed: attribute number {index} in dimensional table {dimensional_table.name}')
                             self.good_type = False
                             return
                     
@@ -226,18 +226,18 @@ class VisitorGetTypes(Visitor):
                             dimension = attr.foreign_key[0]
                             try:
                                 if dimension not in self.dimensions_attrs.keys():
-                                    logger.error(f'Dimensional table {dimension} not defined: attribute number {index} in dimensional table {dimensional_table.name}')
+                                    dsl_logger.error(f'Dimensional table {dimension} not defined: attribute number {index} in dimensional table {dimensional_table.name}')
                                     self.good_type = False
                                     return
                                 else: 
                                     referenced_type = self.dimensions_attrs[dimension][attr.foreign_key[1]]
                             except KeyError:
-                                logger.error(f'Attribute {attr.foreign_key[1]} not declared in dimensional table {dimension}')
+                                dsl_logger.error(f'Attribute {attr.foreign_key[1]} not declared in dimensional table {dimension}')
                                 self.good_type = False
                                 return
                                 
                     if attr.table_name not in self.join_graph.nodes.keys():
-                        logger.error(f'Source table {attr.table_name} not exist in the source')
+                        dsl_logger.error(f'Source table {attr.table_name} not exist in the source')
                         self.good_type = False
                         return
                     
@@ -246,7 +246,7 @@ class VisitorGetTypes(Visitor):
                         if attr.name == attr_name:
                             if referenced_type:
                                 if referenced_type != attr_type:
-                                    logger.error(f'Referenced attribute type and source attribute type are different: attribute number {index} in dimensional table {dimensional_table.name}')
+                                    dsl_logger.error(f'Referenced attribute type and source attribute type are different: attribute number {index} in dimensional table {dimensional_table.name}')
                                     self.good_type = False
                                     return
                                 
@@ -255,7 +255,7 @@ class VisitorGetTypes(Visitor):
                             break
 
                     if not find_attr:
-                        logger.error(f'Atribute {attr.name} not defined in source table {attr.table_name}')
+                        dsl_logger.error(f'Atribute {attr.name} not defined in source table {attr.table_name}')
                         self.good_type = False
 
     def visit_agg_attr(self, agg_attr):
@@ -352,20 +352,20 @@ class VisitorPostgreSQL(Visitor):
                             groupby_attr.append(f'{elem.table_name}.{elem.name}')
                     else:
                         if not elem.primary_key:
-                            logger.error('Only serial Primary keys can be declared with table self')
+                            dsl_logger.error('Only serial Primary keys can be declared with table self')
                         have_to_put_comma = False
                 elif isinstance(elem, AttributeFunction):
                     if elem.func == 'week_day':
                         if elem.table_name != 'self':
                             select_part = select_part + f"to_char({elem.table_name}.{elem.name}, 'Day')"
                         else:
-                            logger.error('Only serial Primary keys can be declared with table self')
+                            dsl_logger.error('Only serial Primary keys can be declared with table self')
 
                     if elem.func == 'month_str':
                         if elem.table_name != 'self':
                             select_part = select_part + f"to_char({elem.table_name}.{elem.name}, 'Month')"
                         else:
-                            logger.error('Only serial Primary keys can be declared with table self')
+                            dsl_logger.error('Only serial Primary keys can be declared with table self')
 
                 
                 elif isinstance(elem, AggAttribute): #TODO check if here i must to check if self is a valid table_name for this kind of attr

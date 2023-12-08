@@ -53,6 +53,7 @@ crawlers_for_sgbd = {
 }
 
 if st.button("Connect"):
+    st.session_state.conn_info = conn_info
     make_computation = False
     if conn_info['dbname'] not in os.listdir(schemas_path):
         make_computation = True
@@ -78,4 +79,4 @@ if st.button("Connect"):
 
         maximal_join_trees_generator(handler.join_graph)
 
-st.session_state.conn_info = conn_info
+
