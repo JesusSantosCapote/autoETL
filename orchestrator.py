@@ -46,7 +46,7 @@ class Orchestrator():
         for table in self.dimensional_model.dimensional_table_list:
             dimensions_names.append(table)
 
-        return zip(dimensions_names, self.all_joins)
+        return list(zip(dimensions_names, self.all_joins))
     
 
     def generate_querys(self, selected_joins, dwname):

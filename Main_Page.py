@@ -4,14 +4,13 @@ import os
 from crawler.postgresSql_crawler import PostgreSqlCrawler
 from data_catalog.handler import DataCatalogHandler
 from query_generator.maximal_join_trees import maximal_join_trees_generator
-import psycopg2
 
 conn_path = os.path.join(os.getcwd(), 'data', 'connections')
 
 crawlers_for_sgbd = {'PostgreSQL': PostgreSqlCrawler}
-
+st.title('AutoETL')
 st.markdown("# Connections")
-st.sidebar.markdown("# Connections")
+st.sidebar.markdown("# Connections").title('AutoETL')
 
 with st.form("my_form"):
     st.write("New Connections")

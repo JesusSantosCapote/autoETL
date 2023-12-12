@@ -37,6 +37,20 @@ services:
       mynet:
         ipv4_address: 172.20.0.4
 
+  pg_admin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=user@domain.com
+      - PGADMIN_DEFAULT_PASSWORD=postgres
+    depends_on:
+      - db
+      - target
+    ports:
+      - "8000:8000"
+    networks:
+      mynet:
+        ipv4_address: 172.20.0.6
   app:
     image: autoetl
     build: ./
