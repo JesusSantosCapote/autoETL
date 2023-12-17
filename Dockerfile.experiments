@@ -1,0 +1,3 @@
+FROM autoetl
+
+WORKDIR /home/app/experiments

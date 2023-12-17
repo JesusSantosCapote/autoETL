@@ -301,7 +301,7 @@ class VisitorPostgreSQL(Visitor):
             else:
                 query_create = query_create + attr_expr.elements[0].name + ' '
                 postgresql_type = self.dsl_types_to_postgres[self.attr_types_dict[dimensional_table.name][attr_expr.elements[0].name]]
-                query_create = query_create + postgresql_type
+                query_create = query_create + postgresql_type #TODO: Mira a ver aqui que si el atributo es agregado no tiene xq tener el mismo tipo que en la fuente, arregla en el documento tambien
             
             query_create = query_create + ', \n'
             

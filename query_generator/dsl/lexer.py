@@ -61,7 +61,7 @@ def t_ID(t):
 
 def t_NUMBER(t):
     r'\d+'
-    t.value = int(t.value)
+    t.value = int(t.value) #TODO: Aqui tambien pueden ir floats
     return t
 
 def t_newline(t):

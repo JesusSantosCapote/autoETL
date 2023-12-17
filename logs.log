@@ -46,3 +46,23 @@
 
 2023-12-12 02:18:33,372~INFO~Connection with Data Catalog succefully~module:handler
 
+2023-12-12 18:36:39,511~INFO~Connection with database: tpch succefully~module:postgresSql_crawler
+
+2023-12-12 18:36:39,552~INFO~Metadata exported correctly~module:postgresSql_crawler
+
+2023-12-12 18:36:39,554~INFO~Json Metadata exported correctly~module:postgresSql_crawler
+
+2023-12-12 18:36:39,642~INFO~Connection with Data Catalog succefully~module:handler
+
+2023-12-12 18:36:41,383~INFO~Connection with Data Catalog succefully~module:handler
+
+2023-12-12 18:36:49,146~INFO~Connection with database: tpch succefully~module:postgresSql_crawler
+
+2023-12-12 18:36:49,185~INFO~Metadata exported correctly~module:postgresSql_crawler
+
+2023-12-12 18:36:49,186~INFO~Json Metadata exported correctly~module:postgresSql_crawler
+
+2023-12-12 18:36:49,196~INFO~Connection with Data Catalog succefully~module:handler
+
+2023-12-12 18:36:49,350~INFO~Connection with Data Catalog succefully~module:handler
+

@@ -101,4 +101,3 @@ if script_to_run:
                             st.subheader(query_file_name)
                             st.code(file.read(), 'sql', True)
 
-

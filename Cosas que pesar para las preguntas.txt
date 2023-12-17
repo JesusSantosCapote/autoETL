@@ -1,0 +1,4 @@
+Que pasa si quiero reutilizar dimensiones en otros esquemas estrella 
+Que pasa con las relaciones unarias
+Que pasa si quiero integrar datos de mas de una fuente
+Mira a ver esa talla del group by con todos los atributos en la documentacion de postgres
