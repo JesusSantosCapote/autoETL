@@ -49,8 +49,8 @@ class Orchestrator():
         return list(zip(dimensions_names, self.all_joins))
     
 
-    def generate_querys(self, selected_joins, dwname):
-        code_gen = VisitorPostgreSQL(selected_joins, self.join_graph, self.attr_types, f"{self.dbname}_{dwname}_querys")
+    def generate_querys(self, selected_joins, dwname, script_name):
+        code_gen = VisitorPostgreSQL(selected_joins, self.join_graph, self.attr_types, f"{self.dbname}-{dwname}-{script_name}-querys")
         code_gen.visit_dimensional_model(self.dimensional_model)
         code_gen.export_querys()
 

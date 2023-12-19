@@ -19,7 +19,7 @@ services:
     environment:
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5433:5433"
+      - "5433:5432"
     networks:
       mynet:
         ipv4_address: 172.20.0.5

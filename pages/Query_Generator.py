@@ -91,9 +91,9 @@ if script_to_run:
                     for dim_joins_tuple, selected in zip(all_joins, select_boxes):
                         selected_joins.append(dim_joins_tuple[1][selected])
 
-                    orch.generate_querys(selected_joins, dw)
+                    orch.generate_querys(selected_joins, dw, script_to_run)
 
-                    query_path = os.path.join(os.getcwd(), 'data', 'querys', f"{st.session_state.conn_info['dbname']}_{dw}_querys")
+                    query_path = os.path.join(os.getcwd(), 'data', 'querys', f"{st.session_state.conn_info['dbname']}-{dw}-{script_to_run}-querys")
                     querys_files = os.listdir(query_path)
 
                     for query_file_name in querys_files:

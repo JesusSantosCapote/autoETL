@@ -18,7 +18,7 @@ else:
 connection.close()
 cursor.close()
 
-connection_source = psycopg2.connect(dbname='tpch', user='postgres', password='postgres', host='some-postgres', port='5432')
+connection_source = psycopg2.connect(dbname='tpch', user='postgres', password='postgres', host='db', port='5432')
 cursor_source = connection_source.cursor()
 connection_source.autocommit = True
 
@@ -26,7 +26,7 @@ connection_target = psycopg2.connect(dbname='tpch_dw', user='postgres', password
 cursor_target = connection_target.cursor()
 connection_target.autocommit = True
 
-query_path = os.getcwd()
+query_path = os.path.join(os.getcwd(), 'experiments', 'tpch')
 
 #CREATES
 with open(os.path.join(query_path, 'supplier_create.sql')) as file:

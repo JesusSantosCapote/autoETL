@@ -1,19 +1,26 @@
 import streamlit as st
 import os
 
-st.markdown("# Pipelines")
+st.markdown("# Experiments (Beta Only)")
 
-st.sidebar.markdown("# Upload pipeline file")
+experiments_path = os.path.join(os.getcwd(), 'experiments')
+available_exp = os.listdir(experiments_path)
 
-pipeline = st.sidebar.file_uploader("")
+exp = st.selectbox('Pick Experiment', available_exp)
 
-if pipeline:
-    bytes_data = pipeline.getvalue()
-    name = pipeline.name
+pipeline_file = os.path.join(experiments_path, exp, 'pipeline.py')
 
-    # To convert to a string based IO:
-    script = str(bytes_data, 'utf-8')
+execute = st.button('Execute Pipeline', type='primary')
 
-    with open(os.path.join(os.getcwd(), 'data', 'pipelines', name), 'w') as file:
-        file.write(script)
+with open(pipeline_file, 'r') as file:
+    code = file.read()
 
+st.markdown('### Pipeline Code')
+
+st.code(code, language='python')
+
+if execute:
+    try:
+        os.system(f'python {pipeline_file}')
+    except Exception as e:
+        st.error(e, icon="🚨")

@@ -287,10 +287,11 @@ class VisitorPostgreSQL(Visitor):
 
     def visit_dimensional_table(self, dimensional_table:DimensionalTable):
         query_create = f'CREATE TABLE IF NOT EXISTS {dimensional_table.name} (\n'
-        select_part = 'SELECT '
+        select_part = 'SELECT DISTINCT '
         primary_key_part = 'PRIMARY KEY ('
         from_part = 'FROM '
         groupby_attr = []
+        has_agg_attr = False
 
         for attr_expr in dimensional_table.list_attr:
             #Name and Type
@@ -369,6 +370,7 @@ class VisitorPostgreSQL(Visitor):
 
                 
                 elif isinstance(elem, AggAttribute): #TODO check if here i must to check if self is a valid table_name for this kind of attr
+                    has_agg_attr = True
                     if elem.table_name != 'self':
                         select_part = select_part + f'{self.dsl_agg_to_postgres[elem.agg_function]}({elem.table_name}.{elem.name})'
                     else:
@@ -417,7 +419,11 @@ class VisitorPostgreSQL(Visitor):
                 if index != len(groupby_attr) - 1:
                     groupby_part = groupby_part + ',' 
 
-        select_part = select_part + '\n' + from_part + '\n' + groupby_part + ';'
+        select_part = select_part + '\n' + from_part
+        if has_agg_attr:
+            select_part = select_part + '\n' + groupby_part
+        select_part = select_part + ';'
+        
         self.prettyp_querys.append((query_create, select_part))
         self.query_dict[dimensional_table.name] = [query_create, select_part] 
 

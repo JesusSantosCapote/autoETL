@@ -5,7 +5,7 @@ import networkx as nx
 from matplotlib import pyplot as plt
 
 
-st.markdown("# Join Graphs")
+st.markdown("# Database Metadata")
 st.sidebar.markdown("# Metadata")
 
 join_graphs_path = os.path.join(os.getcwd(), 'data', 'join_graphs')
@@ -17,19 +17,19 @@ if 'conn_info' not in st.session_state.keys():
 else:
     selected_db = st.session_state.conn_info['dbname']
 
+    metadata_path = os.path.join(os.getcwd(), 'data', 'schemas', f'{selected_db}')
+    with open(os.path.join(metadata_path, f'{selected_db}_metadata.txt'), 'r') as file:
+        st.code(file.read())
+
     join_graph = load_graph(selected_db)
 
     fig = plt.figure()
     pos = nx.planar_layout(join_graph)
     nx.draw(join_graph ,pos, with_labels=True, node_color=range(len(join_graph.nodes)), node_size=800, cmap=plt.cm.Oranges)
-
+    st.markdown('# Join Graph')
     st.pyplot(fig)
 
-    st.markdown("# Database Metadata")
-
-    metadata_path = os.path.join(os.getcwd(), 'data', 'schemas', f'{selected_db}')
-    with open(os.path.join(metadata_path, f'{selected_db}_metadata.txt'), 'r') as file:
-        st.code(file.read())
+    
 
     t = st.toggle("Show Join Trees")
 
