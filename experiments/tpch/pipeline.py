@@ -85,4 +85,7 @@ with open(os.path.join(query_path, 'lineitem_select.sql')) as file:
                               DO UPDATE SET totalpayment = EXCLUDED.totalpayment, totalquantity = EXCLUDED.totalquantity, 
                               earnings = EXCLUDED.earnings;""")
         
+with open(os.path.join(query_path, 'level_metadata.sql')) as file:
+    cursor_target.execute(file.read())
+        
 print('PIPELINE EXECUTED SUCCEFULLY')

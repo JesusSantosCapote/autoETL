@@ -1,22 +1,27 @@
+import abc
 from query_generator.dsl.parser_rules import parser
-import os
 from query_generator.join_computation import compute_joins
 from query_generator.maximal_join_trees import maximal_join_trees_generator
-from query_generator.dsl.visitors import VisitorSymbolTable, VisitorSemanticCheck, VisitorGetSelects, VisitorPostgreSQL, VisitorGetTypes
+from query_generator.dsl.visitors import VisitorSymbolTable, VisitorSemanticCheck, VisitorGetSelects, VisitorPostgreSQL, VisitorGetTypes, VisitorGetLevel, VisitorPostgreSQLCreate, VisitorPostgreSQLSelect
 from data_catalog.handler import DataCatalogHandler
 from crawler.postgresSql_crawler import PostgreSqlCrawler
-import psycopg2
 from utils.load_graphs import load_graph, load_graph_list
 
-class Orchestrator():
-    def __init__(self, dbname) -> None:
+
+class Orchestrator:
+    def __init__(self, dbname, dwname, source_sgbd, target_sgbd, script) -> None:
         self.attr_to_select_for_dim = []
         self.dbname = dbname
+        self.dwname = dwname
         self.join_graph = load_graph(dbname)
         self.code_is_good = True
         self.all_joins = []
         self.dimensional_model = None
         self.attr_types = []
+        self.level_dict = None
+        self.source_sgbd = source_sgbd
+        self.target_sgbd = target_sgbd
+        self.script = script
 
     def parse_code(self, code):
         ast = parser.parse(code)
@@ -48,10 +53,22 @@ class Orchestrator():
 
         return list(zip(dimensions_names, self.all_joins))
     
+    def generate_querys(self, selected_joins):
+        level_visitor = VisitorGetLevel()
+        level_visitor.visit_dimensional_model(self.dimensional_model)
+        source_visitor = {
+            'PostgreSQL': VisitorPostgreSQLSelect(selected_joins, f"{self.dbname}-{self.dwname}-{self.script}-querys", level_visitor.level_dict)
+            }
 
-    def generate_querys(self, selected_joins, dwname, script_name):
-        code_gen = VisitorPostgreSQL(selected_joins, self.join_graph, self.attr_types, f"{self.dbname}-{dwname}-{script_name}-querys")
-        code_gen.visit_dimensional_model(self.dimensional_model)
-        code_gen.export_querys()
+        target_visitor = {
+            'PostgreSQL': VisitorPostgreSQLCreate(self.join_graph, self.attr_types, f"{self.dbname}-{self.dwname}-{self.script}-querys", level_visitor.level_dict)
+            }        
 
-        
+        source_code_gen = source_visitor[self.source_sgbd]
+        target_code_gen = target_visitor[self.target_sgbd]
+
+        source_code_gen.visit_dimensional_model(self.dimensional_model)
+        source_code_gen.export_querys()
+
+        target_code_gen.visit_dimensional_model(self.dimensional_model)
+        target_code_gen.export_querys()

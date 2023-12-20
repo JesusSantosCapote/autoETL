@@ -14,7 +14,7 @@ Rule 4     List_Dimensional_Tables -> List_Dimensional_Tables Dimensional_Table
 Rule 5     Dimensional_Table -> DIM ID LBRACE List_Attr_Def RBRACE
 Rule 6     Dimensional_Table -> FACT ID LBRACE List_Attr_Def RBRACE
 Rule 7     List_Attr_Def -> List_Attr_Def Attr_Def
-Rule 8     Attr_Def -> Attr_Expression Type Alias
+Rule 8     Attr_Def -> Attr_Expression Type Alias Level
 Rule 9     Attr_Expression -> T X
 Rule 10    X -> PLUS T X
 Rule 11    X -> MINUS T X
@@ -50,8 +50,10 @@ Rule 40    Type -> empty
 Rule 41    Modifier -> PK
 Rule 42    Modifier -> FK TO ID DOT ID
 Rule 43    Modifier -> empty
-Rule 44    empty -> <empty>
-Rule 45    empty_list -> <empty>
+Rule 44    Level -> NUMBER
+Rule 45    Level -> empty
+Rule 46    empty -> <empty>
+Rule 47    empty_list -> <empty>
 
 Terminals, with rules where they appear
 
@@ -75,7 +77,7 @@ MAX                  : 25
 MIN                  : 26
 MINUS                : 11
 MONTHSTR             : 30
-NUMBER               : 18
+NUMBER               : 18 44
 NUMERIC              : 39
 PK                   : 41
 PLUS                 : 10
@@ -101,6 +103,7 @@ Dimensional_Model    : 0
 Dimensional_Table    : 2 4
 F                    : 13 14 15
 Func                 : 21
+Level                : 8
 List_Attr_Def        : 5 6 7
 List_Dimensional_Tables : 1 4
 Modifier             : 20
@@ -109,7 +112,7 @@ Table                : 20 21 22 23 24 25 26
 Type                 : 8
 X                    : 9 10 11
 Y                    : 13 14 15
-empty                : 32 40 43
+empty                : 32 40 43 45
 empty_list           : 12 16
 
 Parsing method: LALR
@@ -200,7 +203,7 @@ state 9
     (5) Dimensional_Table -> DIM ID LBRACE . List_Attr_Def RBRACE
     (3) List_Attr_Def -> . Attr_Def
     (7) List_Attr_Def -> . List_Attr_Def Attr_Def
-    (8) Attr_Def -> . Attr_Expression Type Alias
+    (8) Attr_Def -> . Attr_Expression Type Alias Level
     (9) Attr_Expression -> . T X
     (13) T -> . F Y
     (17) F -> . Attr
@@ -234,7 +237,7 @@ state 10
     (6) Dimensional_Table -> FACT ID LBRACE . List_Attr_Def RBRACE
     (3) List_Attr_Def -> . Attr_Def
     (7) List_Attr_Def -> . List_Attr_Def Attr_Def
-    (8) Attr_Def -> . Attr_Expression Type Alias
+    (8) Attr_Def -> . Attr_Expression Type Alias Level
     (9) Attr_Expression -> . T X
     (13) T -> . F Y
     (17) F -> . Attr
@@ -274,7 +277,7 @@ state 12
 
     (5) Dimensional_Table -> DIM ID LBRACE List_Attr_Def . RBRACE
     (7) List_Attr_Def -> List_Attr_Def . Attr_Def
-    (8) Attr_Def -> . Attr_Expression Type Alias
+    (8) Attr_Def -> . Attr_Expression Type Alias Level
     (9) Attr_Expression -> . T X
     (13) T -> . F Y
     (17) F -> . Attr
@@ -316,7 +319,7 @@ state 13
 
 state 14
 
-    (8) Attr_Def -> Attr_Expression . Type Alias
+    (8) Attr_Def -> Attr_Expression . Type Alias Level
     (33) Type -> . INT
     (34) Type -> . STR
     (35) Type -> . DATE
@@ -325,7 +328,7 @@ state 14
     (38) Type -> . FLOAT
     (39) Type -> . NUMERIC
     (40) Type -> . empty
-    (44) empty -> .
+    (46) empty -> .
 
     INT             shift and go to state 26
     STR             shift and go to state 27
@@ -334,12 +337,12 @@ state 14
     SERIAL          shift and go to state 30
     FLOAT           shift and go to state 31
     NUMERIC         shift and go to state 32
-    AS              reduce using rule 44 (empty -> .)
-    RBRACE          reduce using rule 44 (empty -> .)
-    NUMBER          reduce using rule 44 (empty -> .)
-    LPAREN          reduce using rule 44 (empty -> .)
-    ID              reduce using rule 44 (empty -> .)
-    SELF            reduce using rule 44 (empty -> .)
+    AS              reduce using rule 46 (empty -> .)
+    NUMBER          reduce using rule 46 (empty -> .)
+    RBRACE          reduce using rule 46 (empty -> .)
+    LPAREN          reduce using rule 46 (empty -> .)
+    ID              reduce using rule 46 (empty -> .)
+    SELF            reduce using rule 46 (empty -> .)
 
     Type                           shift and go to state 25
     empty                          shift and go to state 33
@@ -350,24 +353,24 @@ state 15
     (10) X -> . PLUS T X
     (11) X -> . MINUS T X
     (12) X -> . empty_list
-    (45) empty_list -> .
+    (47) empty_list -> .
 
     PLUS            shift and go to state 35
     MINUS           shift and go to state 36
-    INT             reduce using rule 45 (empty_list -> .)
-    STR             reduce using rule 45 (empty_list -> .)
-    DATE            reduce using rule 45 (empty_list -> .)
-    DATETIME        reduce using rule 45 (empty_list -> .)
-    SERIAL          reduce using rule 45 (empty_list -> .)
-    FLOAT           reduce using rule 45 (empty_list -> .)
-    NUMERIC         reduce using rule 45 (empty_list -> .)
-    AS              reduce using rule 45 (empty_list -> .)
-    RBRACE          reduce using rule 45 (empty_list -> .)
-    NUMBER          reduce using rule 45 (empty_list -> .)
-    LPAREN          reduce using rule 45 (empty_list -> .)
-    ID              reduce using rule 45 (empty_list -> .)
-    SELF            reduce using rule 45 (empty_list -> .)
-    RPAREN          reduce using rule 45 (empty_list -> .)
+    INT             reduce using rule 47 (empty_list -> .)
+    STR             reduce using rule 47 (empty_list -> .)
+    DATE            reduce using rule 47 (empty_list -> .)
+    DATETIME        reduce using rule 47 (empty_list -> .)
+    SERIAL          reduce using rule 47 (empty_list -> .)
+    FLOAT           reduce using rule 47 (empty_list -> .)
+    NUMERIC         reduce using rule 47 (empty_list -> .)
+    AS              reduce using rule 47 (empty_list -> .)
+    NUMBER          reduce using rule 47 (empty_list -> .)
+    RBRACE          reduce using rule 47 (empty_list -> .)
+    LPAREN          reduce using rule 47 (empty_list -> .)
+    ID              reduce using rule 47 (empty_list -> .)
+    SELF            reduce using rule 47 (empty_list -> .)
+    RPAREN          reduce using rule 47 (empty_list -> .)
 
     X                              shift and go to state 34
     empty_list                     shift and go to state 37
@@ -378,26 +381,26 @@ state 16
     (14) Y -> . TIMES F Y
     (15) Y -> . DIVIDE F Y
     (16) Y -> . empty_list
-    (45) empty_list -> .
+    (47) empty_list -> .
 
     TIMES           shift and go to state 39
     DIVIDE          shift and go to state 40
-    PLUS            reduce using rule 45 (empty_list -> .)
-    MINUS           reduce using rule 45 (empty_list -> .)
-    INT             reduce using rule 45 (empty_list -> .)
-    STR             reduce using rule 45 (empty_list -> .)
-    DATE            reduce using rule 45 (empty_list -> .)
-    DATETIME        reduce using rule 45 (empty_list -> .)
-    SERIAL          reduce using rule 45 (empty_list -> .)
-    FLOAT           reduce using rule 45 (empty_list -> .)
-    NUMERIC         reduce using rule 45 (empty_list -> .)
-    AS              reduce using rule 45 (empty_list -> .)
-    RBRACE          reduce using rule 45 (empty_list -> .)
-    NUMBER          reduce using rule 45 (empty_list -> .)
-    LPAREN          reduce using rule 45 (empty_list -> .)
-    ID              reduce using rule 45 (empty_list -> .)
-    SELF            reduce using rule 45 (empty_list -> .)
-    RPAREN          reduce using rule 45 (empty_list -> .)
+    PLUS            reduce using rule 47 (empty_list -> .)
+    MINUS           reduce using rule 47 (empty_list -> .)
+    INT             reduce using rule 47 (empty_list -> .)
+    STR             reduce using rule 47 (empty_list -> .)
+    DATE            reduce using rule 47 (empty_list -> .)
+    DATETIME        reduce using rule 47 (empty_list -> .)
+    SERIAL          reduce using rule 47 (empty_list -> .)
+    FLOAT           reduce using rule 47 (empty_list -> .)
+    NUMERIC         reduce using rule 47 (empty_list -> .)
+    AS              reduce using rule 47 (empty_list -> .)
+    NUMBER          reduce using rule 47 (empty_list -> .)
+    RBRACE          reduce using rule 47 (empty_list -> .)
+    LPAREN          reduce using rule 47 (empty_list -> .)
+    ID              reduce using rule 47 (empty_list -> .)
+    SELF            reduce using rule 47 (empty_list -> .)
+    RPAREN          reduce using rule 47 (empty_list -> .)
 
     Y                              shift and go to state 38
     empty_list                     shift and go to state 41
@@ -418,8 +421,8 @@ state 17
     FLOAT           reduce using rule 17 (F -> Attr .)
     NUMERIC         reduce using rule 17 (F -> Attr .)
     AS              reduce using rule 17 (F -> Attr .)
-    RBRACE          reduce using rule 17 (F -> Attr .)
     NUMBER          reduce using rule 17 (F -> Attr .)
+    RBRACE          reduce using rule 17 (F -> Attr .)
     LPAREN          reduce using rule 17 (F -> Attr .)
     ID              reduce using rule 17 (F -> Attr .)
     SELF            reduce using rule 17 (F -> Attr .)
@@ -442,8 +445,8 @@ state 18
     FLOAT           reduce using rule 18 (F -> NUMBER .)
     NUMERIC         reduce using rule 18 (F -> NUMBER .)
     AS              reduce using rule 18 (F -> NUMBER .)
-    RBRACE          reduce using rule 18 (F -> NUMBER .)
     NUMBER          reduce using rule 18 (F -> NUMBER .)
+    RBRACE          reduce using rule 18 (F -> NUMBER .)
     LPAREN          reduce using rule 18 (F -> NUMBER .)
     ID              reduce using rule 18 (F -> NUMBER .)
     SELF            reduce using rule 18 (F -> NUMBER .)
@@ -503,7 +506,7 @@ state 22
 
     (6) Dimensional_Table -> FACT ID LBRACE List_Attr_Def . RBRACE
     (7) List_Attr_Def -> List_Attr_Def . Attr_Def
-    (8) Attr_Def -> . Attr_Expression Type Alias
+    (8) Attr_Def -> . Attr_Expression Type Alias Level
     (9) Attr_Expression -> . T X
     (13) T -> . F Y
     (17) F -> . Attr
@@ -554,17 +557,17 @@ state 24
 
 state 25
 
-    (8) Attr_Def -> Attr_Expression Type . Alias
+    (8) Attr_Def -> Attr_Expression Type . Alias Level
     (31) Alias -> . AS ID
     (32) Alias -> . empty
-    (44) empty -> .
+    (46) empty -> .
 
     AS              shift and go to state 46
-    RBRACE          reduce using rule 44 (empty -> .)
-    NUMBER          reduce using rule 44 (empty -> .)
-    LPAREN          reduce using rule 44 (empty -> .)
-    ID              reduce using rule 44 (empty -> .)
-    SELF            reduce using rule 44 (empty -> .)
+    NUMBER          reduce using rule 46 (empty -> .)
+    RBRACE          reduce using rule 46 (empty -> .)
+    LPAREN          reduce using rule 46 (empty -> .)
+    ID              reduce using rule 46 (empty -> .)
+    SELF            reduce using rule 46 (empty -> .)
 
     Alias                          shift and go to state 45
     empty                          shift and go to state 47
@@ -574,8 +577,8 @@ state 26
     (33) Type -> INT .
 
     AS              reduce using rule 33 (Type -> INT .)
-    RBRACE          reduce using rule 33 (Type -> INT .)
     NUMBER          reduce using rule 33 (Type -> INT .)
+    RBRACE          reduce using rule 33 (Type -> INT .)
     LPAREN          reduce using rule 33 (Type -> INT .)
     ID              reduce using rule 33 (Type -> INT .)
     SELF            reduce using rule 33 (Type -> INT .)
@@ -586,8 +589,8 @@ state 27
     (34) Type -> STR .
 
     AS              reduce using rule 34 (Type -> STR .)
-    RBRACE          reduce using rule 34 (Type -> STR .)
     NUMBER          reduce using rule 34 (Type -> STR .)
+    RBRACE          reduce using rule 34 (Type -> STR .)
     LPAREN          reduce using rule 34 (Type -> STR .)
     ID              reduce using rule 34 (Type -> STR .)
     SELF            reduce using rule 34 (Type -> STR .)
@@ -598,8 +601,8 @@ state 28
     (35) Type -> DATE .
 
     AS              reduce using rule 35 (Type -> DATE .)
-    RBRACE          reduce using rule 35 (Type -> DATE .)
     NUMBER          reduce using rule 35 (Type -> DATE .)
+    RBRACE          reduce using rule 35 (Type -> DATE .)
     LPAREN          reduce using rule 35 (Type -> DATE .)
     ID              reduce using rule 35 (Type -> DATE .)
     SELF            reduce using rule 35 (Type -> DATE .)
@@ -610,8 +613,8 @@ state 29
     (36) Type -> DATETIME .
 
     AS              reduce using rule 36 (Type -> DATETIME .)
-    RBRACE          reduce using rule 36 (Type -> DATETIME .)
     NUMBER          reduce using rule 36 (Type -> DATETIME .)
+    RBRACE          reduce using rule 36 (Type -> DATETIME .)
     LPAREN          reduce using rule 36 (Type -> DATETIME .)
     ID              reduce using rule 36 (Type -> DATETIME .)
     SELF            reduce using rule 36 (Type -> DATETIME .)
@@ -622,8 +625,8 @@ state 30
     (37) Type -> SERIAL .
 
     AS              reduce using rule 37 (Type -> SERIAL .)
-    RBRACE          reduce using rule 37 (Type -> SERIAL .)
     NUMBER          reduce using rule 37 (Type -> SERIAL .)
+    RBRACE          reduce using rule 37 (Type -> SERIAL .)
     LPAREN          reduce using rule 37 (Type -> SERIAL .)
     ID              reduce using rule 37 (Type -> SERIAL .)
     SELF            reduce using rule 37 (Type -> SERIAL .)
@@ -634,8 +637,8 @@ state 31
     (38) Type -> FLOAT .
 
     AS              reduce using rule 38 (Type -> FLOAT .)
-    RBRACE          reduce using rule 38 (Type -> FLOAT .)
     NUMBER          reduce using rule 38 (Type -> FLOAT .)
+    RBRACE          reduce using rule 38 (Type -> FLOAT .)
     LPAREN          reduce using rule 38 (Type -> FLOAT .)
     ID              reduce using rule 38 (Type -> FLOAT .)
     SELF            reduce using rule 38 (Type -> FLOAT .)
@@ -646,8 +649,8 @@ state 32
     (39) Type -> NUMERIC .
 
     AS              reduce using rule 39 (Type -> NUMERIC .)
-    RBRACE          reduce using rule 39 (Type -> NUMERIC .)
     NUMBER          reduce using rule 39 (Type -> NUMERIC .)
+    RBRACE          reduce using rule 39 (Type -> NUMERIC .)
     LPAREN          reduce using rule 39 (Type -> NUMERIC .)
     ID              reduce using rule 39 (Type -> NUMERIC .)
     SELF            reduce using rule 39 (Type -> NUMERIC .)
@@ -658,8 +661,8 @@ state 33
     (40) Type -> empty .
 
     AS              reduce using rule 40 (Type -> empty .)
-    RBRACE          reduce using rule 40 (Type -> empty .)
     NUMBER          reduce using rule 40 (Type -> empty .)
+    RBRACE          reduce using rule 40 (Type -> empty .)
     LPAREN          reduce using rule 40 (Type -> empty .)
     ID              reduce using rule 40 (Type -> empty .)
     SELF            reduce using rule 40 (Type -> empty .)
@@ -677,8 +680,8 @@ state 34
     FLOAT           reduce using rule 9 (Attr_Expression -> T X .)
     NUMERIC         reduce using rule 9 (Attr_Expression -> T X .)
     AS              reduce using rule 9 (Attr_Expression -> T X .)
-    RBRACE          reduce using rule 9 (Attr_Expression -> T X .)
     NUMBER          reduce using rule 9 (Attr_Expression -> T X .)
+    RBRACE          reduce using rule 9 (Attr_Expression -> T X .)
     LPAREN          reduce using rule 9 (Attr_Expression -> T X .)
     ID              reduce using rule 9 (Attr_Expression -> T X .)
     SELF            reduce using rule 9 (Attr_Expression -> T X .)
@@ -751,8 +754,8 @@ state 37
     FLOAT           reduce using rule 12 (X -> empty_list .)
     NUMERIC         reduce using rule 12 (X -> empty_list .)
     AS              reduce using rule 12 (X -> empty_list .)
-    RBRACE          reduce using rule 12 (X -> empty_list .)
     NUMBER          reduce using rule 12 (X -> empty_list .)
+    RBRACE          reduce using rule 12 (X -> empty_list .)
     LPAREN          reduce using rule 12 (X -> empty_list .)
     ID              reduce using rule 12 (X -> empty_list .)
     SELF            reduce using rule 12 (X -> empty_list .)
@@ -773,8 +776,8 @@ state 38
     FLOAT           reduce using rule 13 (T -> F Y .)
     NUMERIC         reduce using rule 13 (T -> F Y .)
     AS              reduce using rule 13 (T -> F Y .)
-    RBRACE          reduce using rule 13 (T -> F Y .)
     NUMBER          reduce using rule 13 (T -> F Y .)
+    RBRACE          reduce using rule 13 (T -> F Y .)
     LPAREN          reduce using rule 13 (T -> F Y .)
     ID              reduce using rule 13 (T -> F Y .)
     SELF            reduce using rule 13 (T -> F Y .)
@@ -845,8 +848,8 @@ state 41
     FLOAT           reduce using rule 16 (Y -> empty_list .)
     NUMERIC         reduce using rule 16 (Y -> empty_list .)
     AS              reduce using rule 16 (Y -> empty_list .)
-    RBRACE          reduce using rule 16 (Y -> empty_list .)
     NUMBER          reduce using rule 16 (Y -> empty_list .)
+    RBRACE          reduce using rule 16 (Y -> empty_list .)
     LPAREN          reduce using rule 16 (Y -> empty_list .)
     ID              reduce using rule 16 (Y -> empty_list .)
     SELF            reduce using rule 16 (Y -> empty_list .)
@@ -894,28 +897,36 @@ state 44
 
 state 45
 
-    (8) Attr_Def -> Attr_Expression Type Alias .
+    (8) Attr_Def -> Attr_Expression Type Alias . Level
+    (44) Level -> . NUMBER
+    (45) Level -> . empty
+    (46) empty -> .
 
-    RBRACE          reduce using rule 8 (Attr_Def -> Attr_Expression Type Alias .)
-    NUMBER          reduce using rule 8 (Attr_Def -> Attr_Expression Type Alias .)
-    LPAREN          reduce using rule 8 (Attr_Def -> Attr_Expression Type Alias .)
-    ID              reduce using rule 8 (Attr_Def -> Attr_Expression Type Alias .)
-    SELF            reduce using rule 8 (Attr_Def -> Attr_Expression Type Alias .)
+  ! shift/reduce conflict for NUMBER resolved as shift
+    NUMBER          shift and go to state 63
+    RBRACE          reduce using rule 46 (empty -> .)
+    LPAREN          reduce using rule 46 (empty -> .)
+    ID              reduce using rule 46 (empty -> .)
+    SELF            reduce using rule 46 (empty -> .)
 
+  ! NUMBER          [ reduce using rule 46 (empty -> .) ]
+
+    Level                          shift and go to state 62
+    empty                          shift and go to state 64
 
 state 46
 
     (31) Alias -> AS . ID
 
-    ID              shift and go to state 62
+    ID              shift and go to state 65
 
 
 state 47
 
     (32) Alias -> empty .
 
-    RBRACE          reduce using rule 32 (Alias -> empty .)
     NUMBER          reduce using rule 32 (Alias -> empty .)
+    RBRACE          reduce using rule 32 (Alias -> empty .)
     LPAREN          reduce using rule 32 (Alias -> empty .)
     ID              reduce using rule 32 (Alias -> empty .)
     SELF            reduce using rule 32 (Alias -> empty .)
@@ -927,26 +938,26 @@ state 48
     (10) X -> . PLUS T X
     (11) X -> . MINUS T X
     (12) X -> . empty_list
-    (45) empty_list -> .
+    (47) empty_list -> .
 
     PLUS            shift and go to state 35
     MINUS           shift and go to state 36
-    INT             reduce using rule 45 (empty_list -> .)
-    STR             reduce using rule 45 (empty_list -> .)
-    DATE            reduce using rule 45 (empty_list -> .)
-    DATETIME        reduce using rule 45 (empty_list -> .)
-    SERIAL          reduce using rule 45 (empty_list -> .)
-    FLOAT           reduce using rule 45 (empty_list -> .)
-    NUMERIC         reduce using rule 45 (empty_list -> .)
-    AS              reduce using rule 45 (empty_list -> .)
-    RBRACE          reduce using rule 45 (empty_list -> .)
-    NUMBER          reduce using rule 45 (empty_list -> .)
-    LPAREN          reduce using rule 45 (empty_list -> .)
-    ID              reduce using rule 45 (empty_list -> .)
-    SELF            reduce using rule 45 (empty_list -> .)
-    RPAREN          reduce using rule 45 (empty_list -> .)
+    INT             reduce using rule 47 (empty_list -> .)
+    STR             reduce using rule 47 (empty_list -> .)
+    DATE            reduce using rule 47 (empty_list -> .)
+    DATETIME        reduce using rule 47 (empty_list -> .)
+    SERIAL          reduce using rule 47 (empty_list -> .)
+    FLOAT           reduce using rule 47 (empty_list -> .)
+    NUMERIC         reduce using rule 47 (empty_list -> .)
+    AS              reduce using rule 47 (empty_list -> .)
+    NUMBER          reduce using rule 47 (empty_list -> .)
+    RBRACE          reduce using rule 47 (empty_list -> .)
+    LPAREN          reduce using rule 47 (empty_list -> .)
+    ID              reduce using rule 47 (empty_list -> .)
+    SELF            reduce using rule 47 (empty_list -> .)
+    RPAREN          reduce using rule 47 (empty_list -> .)
 
-    X                              shift and go to state 63
+    X                              shift and go to state 66
     empty_list                     shift and go to state 37
 
 state 49
@@ -955,26 +966,26 @@ state 49
     (10) X -> . PLUS T X
     (11) X -> . MINUS T X
     (12) X -> . empty_list
-    (45) empty_list -> .
+    (47) empty_list -> .
 
     PLUS            shift and go to state 35
     MINUS           shift and go to state 36
-    INT             reduce using rule 45 (empty_list -> .)
-    STR             reduce using rule 45 (empty_list -> .)
-    DATE            reduce using rule 45 (empty_list -> .)
-    DATETIME        reduce using rule 45 (empty_list -> .)
-    SERIAL          reduce using rule 45 (empty_list -> .)
-    FLOAT           reduce using rule 45 (empty_list -> .)
-    NUMERIC         reduce using rule 45 (empty_list -> .)
-    AS              reduce using rule 45 (empty_list -> .)
-    RBRACE          reduce using rule 45 (empty_list -> .)
-    NUMBER          reduce using rule 45 (empty_list -> .)
-    LPAREN          reduce using rule 45 (empty_list -> .)
-    ID              reduce using rule 45 (empty_list -> .)
-    SELF            reduce using rule 45 (empty_list -> .)
-    RPAREN          reduce using rule 45 (empty_list -> .)
+    INT             reduce using rule 47 (empty_list -> .)
+    STR             reduce using rule 47 (empty_list -> .)
+    DATE            reduce using rule 47 (empty_list -> .)
+    DATETIME        reduce using rule 47 (empty_list -> .)
+    SERIAL          reduce using rule 47 (empty_list -> .)
+    FLOAT           reduce using rule 47 (empty_list -> .)
+    NUMERIC         reduce using rule 47 (empty_list -> .)
+    AS              reduce using rule 47 (empty_list -> .)
+    NUMBER          reduce using rule 47 (empty_list -> .)
+    RBRACE          reduce using rule 47 (empty_list -> .)
+    LPAREN          reduce using rule 47 (empty_list -> .)
+    ID              reduce using rule 47 (empty_list -> .)
+    SELF            reduce using rule 47 (empty_list -> .)
+    RPAREN          reduce using rule 47 (empty_list -> .)
 
-    X                              shift and go to state 64
+    X                              shift and go to state 67
     empty_list                     shift and go to state 37
 
 state 50
@@ -983,28 +994,28 @@ state 50
     (14) Y -> . TIMES F Y
     (15) Y -> . DIVIDE F Y
     (16) Y -> . empty_list
-    (45) empty_list -> .
+    (47) empty_list -> .
 
     TIMES           shift and go to state 39
     DIVIDE          shift and go to state 40
-    PLUS            reduce using rule 45 (empty_list -> .)
-    MINUS           reduce using rule 45 (empty_list -> .)
-    INT             reduce using rule 45 (empty_list -> .)
-    STR             reduce using rule 45 (empty_list -> .)
-    DATE            reduce using rule 45 (empty_list -> .)
-    DATETIME        reduce using rule 45 (empty_list -> .)
-    SERIAL          reduce using rule 45 (empty_list -> .)
-    FLOAT           reduce using rule 45 (empty_list -> .)
-    NUMERIC         reduce using rule 45 (empty_list -> .)
-    AS              reduce using rule 45 (empty_list -> .)
-    RBRACE          reduce using rule 45 (empty_list -> .)
-    NUMBER          reduce using rule 45 (empty_list -> .)
-    LPAREN          reduce using rule 45 (empty_list -> .)
-    ID              reduce using rule 45 (empty_list -> .)
-    SELF            reduce using rule 45 (empty_list -> .)
-    RPAREN          reduce using rule 45 (empty_list -> .)
+    PLUS            reduce using rule 47 (empty_list -> .)
+    MINUS           reduce using rule 47 (empty_list -> .)
+    INT             reduce using rule 47 (empty_list -> .)
+    STR             reduce using rule 47 (empty_list -> .)
+    DATE            reduce using rule 47 (empty_list -> .)
+    DATETIME        reduce using rule 47 (empty_list -> .)
+    SERIAL          reduce using rule 47 (empty_list -> .)
+    FLOAT           reduce using rule 47 (empty_list -> .)
+    NUMERIC         reduce using rule 47 (empty_list -> .)
+    AS              reduce using rule 47 (empty_list -> .)
+    NUMBER          reduce using rule 47 (empty_list -> .)
+    RBRACE          reduce using rule 47 (empty_list -> .)
+    LPAREN          reduce using rule 47 (empty_list -> .)
+    ID              reduce using rule 47 (empty_list -> .)
+    SELF            reduce using rule 47 (empty_list -> .)
+    RPAREN          reduce using rule 47 (empty_list -> .)
 
-    Y                              shift and go to state 65
+    Y                              shift and go to state 68
     empty_list                     shift and go to state 41
 
 state 51
@@ -1013,28 +1024,28 @@ state 51
     (14) Y -> . TIMES F Y
     (15) Y -> . DIVIDE F Y
     (16) Y -> . empty_list
-    (45) empty_list -> .
+    (47) empty_list -> .
 
     TIMES           shift and go to state 39
     DIVIDE          shift and go to state 40
-    PLUS            reduce using rule 45 (empty_list -> .)
-    MINUS           reduce using rule 45 (empty_list -> .)
-    INT             reduce using rule 45 (empty_list -> .)
-    STR             reduce using rule 45 (empty_list -> .)
-    DATE            reduce using rule 45 (empty_list -> .)
-    DATETIME        reduce using rule 45 (empty_list -> .)
-    SERIAL          reduce using rule 45 (empty_list -> .)
-    FLOAT           reduce using rule 45 (empty_list -> .)
-    NUMERIC         reduce using rule 45 (empty_list -> .)
-    AS              reduce using rule 45 (empty_list -> .)
-    RBRACE          reduce using rule 45 (empty_list -> .)
-    NUMBER          reduce using rule 45 (empty_list -> .)
-    LPAREN          reduce using rule 45 (empty_list -> .)
-    ID              reduce using rule 45 (empty_list -> .)
-    SELF            reduce using rule 45 (empty_list -> .)
-    RPAREN          reduce using rule 45 (empty_list -> .)
+    PLUS            reduce using rule 47 (empty_list -> .)
+    MINUS           reduce using rule 47 (empty_list -> .)
+    INT             reduce using rule 47 (empty_list -> .)
+    STR             reduce using rule 47 (empty_list -> .)
+    DATE            reduce using rule 47 (empty_list -> .)
+    DATETIME        reduce using rule 47 (empty_list -> .)
+    SERIAL          reduce using rule 47 (empty_list -> .)
+    FLOAT           reduce using rule 47 (empty_list -> .)
+    NUMERIC         reduce using rule 47 (empty_list -> .)
+    AS              reduce using rule 47 (empty_list -> .)
+    NUMBER          reduce using rule 47 (empty_list -> .)
+    RBRACE          reduce using rule 47 (empty_list -> .)
+    LPAREN          reduce using rule 47 (empty_list -> .)
+    ID              reduce using rule 47 (empty_list -> .)
+    SELF            reduce using rule 47 (empty_list -> .)
+    RPAREN          reduce using rule 47 (empty_list -> .)
 
-    Y                              shift and go to state 66
+    Y                              shift and go to state 69
     empty_list                     shift and go to state 41
 
 state 52
@@ -1053,8 +1064,8 @@ state 52
     FLOAT           reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
     NUMERIC         reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
     AS              reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
-    RBRACE          reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
     NUMBER          reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
+    RBRACE          reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
     LPAREN          reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
     ID              reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
     SELF            reduce using rule 19 (F -> LPAREN Attr_Expression RPAREN .)
@@ -1067,72 +1078,72 @@ state 53
     (41) Modifier -> . PK
     (42) Modifier -> . FK TO ID DOT ID
     (43) Modifier -> . empty
-    (44) empty -> .
+    (46) empty -> .
 
-    PK              shift and go to state 68
-    FK              shift and go to state 69
-    TIMES           reduce using rule 44 (empty -> .)
-    DIVIDE          reduce using rule 44 (empty -> .)
-    PLUS            reduce using rule 44 (empty -> .)
-    MINUS           reduce using rule 44 (empty -> .)
-    INT             reduce using rule 44 (empty -> .)
-    STR             reduce using rule 44 (empty -> .)
-    DATE            reduce using rule 44 (empty -> .)
-    DATETIME        reduce using rule 44 (empty -> .)
-    SERIAL          reduce using rule 44 (empty -> .)
-    FLOAT           reduce using rule 44 (empty -> .)
-    NUMERIC         reduce using rule 44 (empty -> .)
-    AS              reduce using rule 44 (empty -> .)
-    RBRACE          reduce using rule 44 (empty -> .)
-    NUMBER          reduce using rule 44 (empty -> .)
-    LPAREN          reduce using rule 44 (empty -> .)
-    ID              reduce using rule 44 (empty -> .)
-    SELF            reduce using rule 44 (empty -> .)
-    RPAREN          reduce using rule 44 (empty -> .)
+    PK              shift and go to state 71
+    FK              shift and go to state 72
+    TIMES           reduce using rule 46 (empty -> .)
+    DIVIDE          reduce using rule 46 (empty -> .)
+    PLUS            reduce using rule 46 (empty -> .)
+    MINUS           reduce using rule 46 (empty -> .)
+    INT             reduce using rule 46 (empty -> .)
+    STR             reduce using rule 46 (empty -> .)
+    DATE            reduce using rule 46 (empty -> .)
+    DATETIME        reduce using rule 46 (empty -> .)
+    SERIAL          reduce using rule 46 (empty -> .)
+    FLOAT           reduce using rule 46 (empty -> .)
+    NUMERIC         reduce using rule 46 (empty -> .)
+    AS              reduce using rule 46 (empty -> .)
+    NUMBER          reduce using rule 46 (empty -> .)
+    RBRACE          reduce using rule 46 (empty -> .)
+    LPAREN          reduce using rule 46 (empty -> .)
+    ID              reduce using rule 46 (empty -> .)
+    SELF            reduce using rule 46 (empty -> .)
+    RPAREN          reduce using rule 46 (empty -> .)
 
-    Modifier                       shift and go to state 67
-    empty                          shift and go to state 70
+    Modifier                       shift and go to state 70
+    empty                          shift and go to state 73
 
 state 54
 
     (21) Attr -> Table TWODOTS Func . LPAREN ID RPAREN
 
-    LPAREN          shift and go to state 71
+    LPAREN          shift and go to state 74
 
 
 state 55
 
     (22) Attr -> Table TWODOTS SUM . LPAREN ID RPAREN
 
-    LPAREN          shift and go to state 72
+    LPAREN          shift and go to state 75
 
 
 state 56
 
     (23) Attr -> Table TWODOTS AVG . LPAREN ID RPAREN
 
-    LPAREN          shift and go to state 73
+    LPAREN          shift and go to state 76
 
 
 state 57
 
     (24) Attr -> Table TWODOTS COUNT . LPAREN ID RPAREN
 
-    LPAREN          shift and go to state 74
+    LPAREN          shift and go to state 77
 
 
 state 58
 
     (25) Attr -> Table TWODOTS MAX . LPAREN ID RPAREN
 
-    LPAREN          shift and go to state 75
+    LPAREN          shift and go to state 78
 
 
 state 59
 
     (26) Attr -> Table TWODOTS MIN . LPAREN ID RPAREN
 
-    LPAREN          shift and go to state 76
+    LPAREN          shift and go to state 79
 
 
 state 60
@@ -1151,16 +1162,49 @@ state 61
 
 state 62
 
+    (8) Attr_Def -> Attr_Expression Type Alias Level .
+
+    RBRACE          reduce using rule 8 (Attr_Def -> Attr_Expression Type Alias Level .)
+    NUMBER          reduce using rule 8 (Attr_Def -> Attr_Expression Type Alias Level .)
+    LPAREN          reduce using rule 8 (Attr_Def -> Attr_Expression Type Alias Level .)
+    ID              reduce using rule 8 (Attr_Def -> Attr_Expression Type Alias Level .)
+    SELF            reduce using rule 8 (Attr_Def -> Attr_Expression Type Alias Level .)
+
+
+state 63
+
+    (44) Level -> NUMBER .
+
+    RBRACE          reduce using rule 44 (Level -> NUMBER .)
+    NUMBER          reduce using rule 44 (Level -> NUMBER .)
+    LPAREN          reduce using rule 44 (Level -> NUMBER .)
+    ID              reduce using rule 44 (Level -> NUMBER .)
+    SELF            reduce using rule 44 (Level -> NUMBER .)
+
+
+state 64
+
+    (45) Level -> empty .
+
+    RBRACE          reduce using rule 45 (Level -> empty .)
+    NUMBER          reduce using rule 45 (Level -> empty .)
+    LPAREN          reduce using rule 45 (Level -> empty .)
+    ID              reduce using rule 45 (Level -> empty .)
+    SELF            reduce using rule 45 (Level -> empty .)
+
+
+state 65
+
     (31) Alias -> AS ID .
 
-    RBRACE          reduce using rule 31 (Alias -> AS ID .)
     NUMBER          reduce using rule 31 (Alias -> AS ID .)
+    RBRACE          reduce using rule 31 (Alias -> AS ID .)
     LPAREN          reduce using rule 31 (Alias -> AS ID .)
     ID              reduce using rule 31 (Alias -> AS ID .)
     SELF            reduce using rule 31 (Alias -> AS ID .)
 
 
-state 63
+state 66
 
     (10) X -> PLUS T X .
 
@@ -1172,15 +1216,15 @@ state 63
     FLOAT           reduce using rule 10 (X -> PLUS T X .)
     NUMERIC         reduce using rule 10 (X -> PLUS T X .)
     AS              reduce using rule 10 (X -> PLUS T X .)
-    RBRACE          reduce using rule 10 (X -> PLUS T X .)
     NUMBER          reduce using rule 10 (X -> PLUS T X .)
+    RBRACE          reduce using rule 10 (X -> PLUS T X .)
     LPAREN          reduce using rule 10 (X -> PLUS T X .)
     ID              reduce using rule 10 (X -> PLUS T X .)
     SELF            reduce using rule 10 (X -> PLUS T X .)
     RPAREN          reduce using rule 10 (X -> PLUS T X .)
 
 
-state 64
+state 67
 
     (11) X -> MINUS T X .
 
@@ -1192,15 +1236,15 @@ state 64
     FLOAT           reduce using rule 11 (X -> MINUS T X .)
     NUMERIC         reduce using rule 11 (X -> MINUS T X .)
     AS              reduce using rule 11 (X -> MINUS T X .)
-    RBRACE          reduce using rule 11 (X -> MINUS T X .)
     NUMBER          reduce using rule 11 (X -> MINUS T X .)
+    RBRACE          reduce using rule 11 (X -> MINUS T X .)
     LPAREN          reduce using rule 11 (X -> MINUS T X .)
     ID              reduce using rule 11 (X -> MINUS T X .)
     SELF            reduce using rule 11 (X -> MINUS T X .)
     RPAREN          reduce using rule 11 (X -> MINUS T X .)
 
 
-state 65
+state 68
 
     (14) Y -> TIMES F Y .
 
@@ -1214,15 +1258,15 @@ state 65
     FLOAT           reduce using rule 14 (Y -> TIMES F Y .)
     NUMERIC         reduce using rule 14 (Y -> TIMES F Y .)
     AS              reduce using rule 14 (Y -> TIMES F Y .)
-    RBRACE          reduce using rule 14 (Y -> TIMES F Y .)
     NUMBER          reduce using rule 14 (Y -> TIMES F Y .)
+    RBRACE          reduce using rule 14 (Y -> TIMES F Y .)
     LPAREN          reduce using rule 14 (Y -> TIMES F Y .)
     ID              reduce using rule 14 (Y -> TIMES F Y .)
     SELF            reduce using rule 14 (Y -> TIMES F Y .)
     RPAREN          reduce using rule 14 (Y -> TIMES F Y .)
 
 
-state 66
+state 69
 
     (15) Y -> DIVIDE F Y .
 
@@ -1236,15 +1280,15 @@ state 66
     FLOAT           reduce using rule 15 (Y -> DIVIDE F Y .)
     NUMERIC         reduce using rule 15 (Y -> DIVIDE F Y .)
     AS              reduce using rule 15 (Y -> DIVIDE F Y .)
-    RBRACE          reduce using rule 15 (Y -> DIVIDE F Y .)
     NUMBER          reduce using rule 15 (Y -> DIVIDE F Y .)
+    RBRACE          reduce using rule 15 (Y -> DIVIDE F Y .)
     LPAREN          reduce using rule 15 (Y -> DIVIDE F Y .)
     ID              reduce using rule 15 (Y -> DIVIDE F Y .)
     SELF            reduce using rule 15 (Y -> DIVIDE F Y .)
     RPAREN          reduce using rule 15 (Y -> DIVIDE F Y .)
 
 
-state 67
+state 70
 
     (20) Attr -> Table TWODOTS ID Modifier .
 
@@ -1260,15 +1304,15 @@ state 67
     FLOAT           reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
     NUMERIC         reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
     AS              reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
-    RBRACE          reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
     NUMBER          reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
+    RBRACE          reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
     LPAREN          reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
     ID              reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
     SELF            reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
     RPAREN          reduce using rule 20 (Attr -> Table TWODOTS ID Modifier .)
 
 
-state 68
+state 71
 
     (41) Modifier -> PK .
 
@@ -1284,22 +1328,22 @@ state 68
     FLOAT           reduce using rule 41 (Modifier -> PK .)
     NUMERIC         reduce using rule 41 (Modifier -> PK .)
     AS              reduce using rule 41 (Modifier -> PK .)
-    RBRACE          reduce using rule 41 (Modifier -> PK .)
     NUMBER          reduce using rule 41 (Modifier -> PK .)
+    RBRACE          reduce using rule 41 (Modifier -> PK .)
     LPAREN          reduce using rule 41 (Modifier -> PK .)
     ID              reduce using rule 41 (Modifier -> PK .)
     SELF            reduce using rule 41 (Modifier -> PK .)
     RPAREN          reduce using rule 41 (Modifier -> PK .)
 
 
-state 69
+state 72
 
     (42) Modifier -> FK . TO ID DOT ID
 
-    TO              shift and go to state 77
+    TO              shift and go to state 80
 
 
-state 70
+state 73
 
     (43) Modifier -> empty .
 
@@ -1315,113 +1359,113 @@ state 70
     FLOAT           reduce using rule 43 (Modifier -> empty .)
     NUMERIC         reduce using rule 43 (Modifier -> empty .)
     AS              reduce using rule 43 (Modifier -> empty .)
-    RBRACE          reduce using rule 43 (Modifier -> empty .)
     NUMBER          reduce using rule 43 (Modifier -> empty .)
+    RBRACE          reduce using rule 43 (Modifier -> empty .)
     LPAREN          reduce using rule 43 (Modifier -> empty .)
     ID              reduce using rule 43 (Modifier -> empty .)
     SELF            reduce using rule 43 (Modifier -> empty .)
     RPAREN          reduce using rule 43 (Modifier -> empty .)
 
 
-state 71
-
-    (21) Attr -> Table TWODOTS Func LPAREN . ID RPAREN
-
-    ID              shift and go to state 78
-
-
-state 72
-
-    (22) Attr -> Table TWODOTS SUM LPAREN . ID RPAREN
-
-    ID              shift and go to state 79
-
-
-state 73
-
-    (23) Attr -> Table TWODOTS AVG LPAREN . ID RPAREN
-
-    ID              shift and go to state 80
-
-
 state 74
 
-    (24) Attr -> Table TWODOTS COUNT LPAREN . ID RPAREN
+    (21) Attr -> Table TWODOTS Func LPAREN . ID RPAREN
 
     ID              shift and go to state 81
 
 
 state 75
 
-    (25) Attr -> Table TWODOTS MAX LPAREN . ID RPAREN
+    (22) Attr -> Table TWODOTS SUM LPAREN . ID RPAREN
 
     ID              shift and go to state 82
 
 
 state 76
 
-    (26) Attr -> Table TWODOTS MIN LPAREN . ID RPAREN
+    (23) Attr -> Table TWODOTS AVG LPAREN . ID RPAREN
 
     ID              shift and go to state 83
 
 
 state 77
 
-    (42) Modifier -> FK TO . ID DOT ID
+    (24) Attr -> Table TWODOTS COUNT LPAREN . ID RPAREN
 
     ID              shift and go to state 84
 
 
 state 78
 
-    (21) Attr -> Table TWODOTS Func LPAREN ID . RPAREN
+    (25) Attr -> Table TWODOTS MAX LPAREN . ID RPAREN
 
-    RPAREN          shift and go to state 85
+    ID              shift and go to state 85
 
 
 state 79
 
-    (22) Attr -> Table TWODOTS SUM LPAREN ID . RPAREN
+    (26) Attr -> Table TWODOTS MIN LPAREN . ID RPAREN
 
-    RPAREN          shift and go to state 86
+    ID              shift and go to state 86
 
 
 state 80
 
-    (23) Attr -> Table TWODOTS AVG LPAREN ID . RPAREN
+    (42) Modifier -> FK TO . ID DOT ID
 
-    RPAREN          shift and go to state 87
+    ID              shift and go to state 87
 
 
 state 81
 
-    (24) Attr -> Table TWODOTS COUNT LPAREN ID . RPAREN
+    (21) Attr -> Table TWODOTS Func LPAREN ID . RPAREN
 
     RPAREN          shift and go to state 88
 
 
 state 82
 
-    (25) Attr -> Table TWODOTS MAX LPAREN ID . RPAREN
+    (22) Attr -> Table TWODOTS SUM LPAREN ID . RPAREN
 
     RPAREN          shift and go to state 89
 
 
 state 83
 
-    (26) Attr -> Table TWODOTS MIN LPAREN ID . RPAREN
+    (23) Attr -> Table TWODOTS AVG LPAREN ID . RPAREN
 
     RPAREN          shift and go to state 90
 
 
 state 84
 
-    (42) Modifier -> FK TO ID . DOT ID
+    (24) Attr -> Table TWODOTS COUNT LPAREN ID . RPAREN
 
-    DOT             shift and go to state 91
+    RPAREN          shift and go to state 91
 
 
 state 85
+
+    (25) Attr -> Table TWODOTS MAX LPAREN ID . RPAREN
+
+    RPAREN          shift and go to state 92
+
+
+state 86
+
+    (26) Attr -> Table TWODOTS MIN LPAREN ID . RPAREN
+
+    RPAREN          shift and go to state 93
+
+
+state 87
+
+    (42) Modifier -> FK TO ID . DOT ID
+
+    DOT             shift and go to state 94
+
+
+state 88
 
     (21) Attr -> Table TWODOTS Func LPAREN ID RPAREN .
 
@@ -1437,15 +1481,15 @@ state 85
     FLOAT           reduce using rule 21 (Attr -> Table TWODOTS Func LPAREN ID RPAREN .)
     NUMERIC         reduce using rule 21 (Attr -> Table TWODOTS Func LPAREN ID RPAREN .)
     AS              reduce using rule 21 (Attr -> Table TWODOTS Func LPAREN ID RPAREN .)
-    RBRACE          reduce using rule 21 (Attr -> Table TWODOTS Func LPAREN ID RPAREN .)
     NUMBER          reduce using rule 21 (Attr -> Table TWODOTS Func LPAREN ID RPAREN .)
+    RBRACE          reduce using rule 21 (Attr -> Table TWODOTS Func LPAREN ID RPAREN .)
     LPAREN          reduce using rule 21 (Attr -> Table TWODOTS Func LPAREN ID RPAREN .)
     ID              reduce using rule 21 (Attr -> Table TWODOTS Func LPAREN ID RPAREN .)
     SELF            reduce using rule 21 (Attr -> Table TWODOTS Func LPAREN ID RPAREN .)
     RPAREN          reduce using rule 21 (Attr -> Table TWODOTS Func LPAREN ID RPAREN .)
 
 
-state 86
+state 89
 
     (22) Attr -> Table TWODOTS SUM LPAREN ID RPAREN .
 
@@ -1461,15 +1505,15 @@ state 86
     FLOAT           reduce using rule 22 (Attr -> Table TWODOTS SUM LPAREN ID RPAREN .)
     NUMERIC         reduce using rule 22 (Attr -> Table TWODOTS SUM LPAREN ID RPAREN .)
     AS              reduce using rule 22 (Attr -> Table TWODOTS SUM LPAREN ID RPAREN .)
-    RBRACE          reduce using rule 22 (Attr -> Table TWODOTS SUM LPAREN ID RPAREN .)
     NUMBER          reduce using rule 22 (Attr -> Table TWODOTS SUM LPAREN ID RPAREN .)
+    RBRACE          reduce using rule 22 (Attr -> Table TWODOTS SUM LPAREN ID RPAREN .)
     LPAREN          reduce using rule 22 (Attr -> Table TWODOTS SUM LPAREN ID RPAREN .)
     ID              reduce using rule 22 (Attr -> Table TWODOTS SUM LPAREN ID RPAREN .)
     SELF            reduce using rule 22 (Attr -> Table TWODOTS SUM LPAREN ID RPAREN .)
     RPAREN          reduce using rule 22 (Attr -> Table TWODOTS SUM LPAREN ID RPAREN .)
 
 
-state 87
+state 90
 
     (23) Attr -> Table TWODOTS AVG LPAREN ID RPAREN .
 
@@ -1485,15 +1529,15 @@ state 87
     FLOAT           reduce using rule 23 (Attr -> Table TWODOTS AVG LPAREN ID RPAREN .)
     NUMERIC         reduce using rule 23 (Attr -> Table TWODOTS AVG LPAREN ID RPAREN .)
     AS              reduce using rule 23 (Attr -> Table TWODOTS AVG LPAREN ID RPAREN .)
-    RBRACE          reduce using rule 23 (Attr -> Table TWODOTS AVG LPAREN ID RPAREN .)
     NUMBER          reduce using rule 23 (Attr -> Table TWODOTS AVG LPAREN ID RPAREN .)
+    RBRACE          reduce using rule 23 (Attr -> Table TWODOTS AVG LPAREN ID RPAREN .)
     LPAREN          reduce using rule 23 (Attr -> Table TWODOTS AVG LPAREN ID RPAREN .)
     ID              reduce using rule 23 (Attr -> Table TWODOTS AVG LPAREN ID RPAREN .)
     SELF            reduce using rule 23 (Attr -> Table TWODOTS AVG LPAREN ID RPAREN .)
     RPAREN          reduce using rule 23 (Attr -> Table TWODOTS AVG LPAREN ID RPAREN .)
 
 
-state 88
+state 91
 
     (24) Attr -> Table TWODOTS COUNT LPAREN ID RPAREN .
 
@@ -1509,15 +1553,15 @@ state 88
     FLOAT           reduce using rule 24 (Attr -> Table TWODOTS COUNT LPAREN ID RPAREN .)
     NUMERIC         reduce using rule 24 (Attr -> Table TWODOTS COUNT LPAREN ID RPAREN .)
     AS              reduce using rule 24 (Attr -> Table TWODOTS COUNT LPAREN ID RPAREN .)
-    RBRACE          reduce using rule 24 (Attr -> Table TWODOTS COUNT LPAREN ID RPAREN .)
     NUMBER          reduce using rule 24 (Attr -> Table TWODOTS COUNT LPAREN ID RPAREN .)
+    RBRACE          reduce using rule 24 (Attr -> Table TWODOTS COUNT LPAREN ID RPAREN .)
     LPAREN          reduce using rule 24 (Attr -> Table TWODOTS COUNT LPAREN ID RPAREN .)
     ID              reduce using rule 24 (Attr -> Table TWODOTS COUNT LPAREN ID RPAREN .)
     SELF            reduce using rule 24 (Attr -> Table TWODOTS COUNT LPAREN ID RPAREN .)
     RPAREN          reduce using rule 24 (Attr -> Table TWODOTS COUNT LPAREN ID RPAREN .)
 
 
-state 89
+state 92
 
     (25) Attr -> Table TWODOTS MAX LPAREN ID RPAREN .
 
@@ -1533,15 +1577,15 @@ state 89
     FLOAT           reduce using rule 25 (Attr -> Table TWODOTS MAX LPAREN ID RPAREN .)
     NUMERIC         reduce using rule 25 (Attr -> Table TWODOTS MAX LPAREN ID RPAREN .)
     AS              reduce using rule 25 (Attr -> Table TWODOTS MAX LPAREN ID RPAREN .)
-    RBRACE          reduce using rule 25 (Attr -> Table TWODOTS MAX LPAREN ID RPAREN .)
     NUMBER          reduce using rule 25 (Attr -> Table TWODOTS MAX LPAREN ID RPAREN .)
+    RBRACE          reduce using rule 25 (Attr -> Table TWODOTS MAX LPAREN ID RPAREN .)
     LPAREN          reduce using rule 25 (Attr -> Table TWODOTS MAX LPAREN ID RPAREN .)
     ID              reduce using rule 25 (Attr -> Table TWODOTS MAX LPAREN ID RPAREN .)
     SELF            reduce using rule 25 (Attr -> Table TWODOTS MAX LPAREN ID RPAREN .)
     RPAREN          reduce using rule 25 (Attr -> Table TWODOTS MAX LPAREN ID RPAREN .)
 
 
-state 90
+state 93
 
     (26) Attr -> Table TWODOTS MIN LPAREN ID RPAREN .
 
@@ -1557,22 +1601,22 @@ state 90
     FLOAT           reduce using rule 26 (Attr -> Table TWODOTS MIN LPAREN ID RPAREN .)
     NUMERIC         reduce using rule 26 (Attr -> Table TWODOTS MIN LPAREN ID RPAREN .)
     AS              reduce using rule 26 (Attr -> Table TWODOTS MIN LPAREN ID RPAREN .)
-    RBRACE          reduce using rule 26 (Attr -> Table TWODOTS MIN LPAREN ID RPAREN .)
     NUMBER          reduce using rule 26 (Attr -> Table TWODOTS MIN LPAREN ID RPAREN .)
+    RBRACE          reduce using rule 26 (Attr -> Table TWODOTS MIN LPAREN ID RPAREN .)
     LPAREN          reduce using rule 26 (Attr -> Table TWODOTS MIN LPAREN ID RPAREN .)
     ID              reduce using rule 26 (Attr -> Table TWODOTS MIN LPAREN ID RPAREN .)
     SELF            reduce using rule 26 (Attr -> Table TWODOTS MIN LPAREN ID RPAREN .)
     RPAREN          reduce using rule 26 (Attr -> Table TWODOTS MIN LPAREN ID RPAREN .)
 
 
-state 91
+state 94
 
     (42) Modifier -> FK TO ID DOT . ID
 
-    ID              shift and go to state 92
+    ID              shift and go to state 95
 
 
-state 92
+state 95
 
     (42) Modifier -> FK TO ID DOT ID .
 
@@ -1588,10 +1632,14 @@ state 92
     FLOAT           reduce using rule 42 (Modifier -> FK TO ID DOT ID .)
     NUMERIC         reduce using rule 42 (Modifier -> FK TO ID DOT ID .)
     AS              reduce using rule 42 (Modifier -> FK TO ID DOT ID .)
-    RBRACE          reduce using rule 42 (Modifier -> FK TO ID DOT ID .)
     NUMBER          reduce using rule 42 (Modifier -> FK TO ID DOT ID .)
+    RBRACE          reduce using rule 42 (Modifier -> FK TO ID DOT ID .)
     LPAREN          reduce using rule 42 (Modifier -> FK TO ID DOT ID .)
     ID              reduce using rule 42 (Modifier -> FK TO ID DOT ID .)
     SELF            reduce using rule 42 (Modifier -> FK TO ID DOT ID .)
     RPAREN          reduce using rule 42 (Modifier -> FK TO ID DOT ID .)
 
+WARNING: 
+WARNING: Conflicts:
+WARNING: 
+WARNING: shift/reduce conflict for NUMBER in state 45 resolved as shift

@@ -4,7 +4,7 @@ dimension supplier {
     supplier: s_phone as phone
     supplier: s_address as address
     nation: n_name as nation
-    region: r_name as region
+    region: r_name as region 1
 }
 
 dimension part {
@@ -17,7 +17,7 @@ dimension part {
 dimension order_date {
     orders: o_orderdate PK as o_date
     orders:week_day(o_orderdate) str as day
-    orders:month_str(o_orderdate) str as month
+    orders:month_str(o_orderdate) str as month 1
 }
 
 fact lineitem {

@@ -38,10 +38,12 @@ def p_List_Attr_Def(p):
 
 
 def p_Attr_Def(p):
-    '''Attr_Def : Attr_Expression Type Alias'''
+    '''Attr_Def : Attr_Expression Type Alias Level'''
     p[0] = p[1]
     p[0].alias = p[3]
     p[0].exp_type = p[2]
+    if p[4]:
+        p[0].level = p[4]
 
 
 def p_Attr_Expression(p):
@@ -158,6 +160,10 @@ def p_Modifier(p):
     if len(p) == 6:
         p[0] = (p[3], p[5])
 
+def p_Level(p):
+    """Level : NUMBER
+             | empty"""
+    p[0] = p[1]
 
 def p_empty(p):
     'empty : '

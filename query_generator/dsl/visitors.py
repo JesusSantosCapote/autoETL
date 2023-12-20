@@ -23,6 +23,23 @@ class Visitor(metaclass = abc.ABCMeta):
     @abc.abstractmethod
     def visit_dimensional_table(self, dimensional_table): pass
 
+class VisitorCodeGen(Visitor):
+    def visit_dimensional_model(self, dimensional_model):
+        return super().visit_dimensional_model(dimensional_model)
+    def visit_dimensional_table(self, dimensional_table):
+        return super().visit_dimensional_table(dimensional_table)
+    def visit_attr_expression(self, attr_expression):
+        return super().visit_attr_expression(attr_expression)
+    def visit_attribute(self, attribute):
+        return super().visit_attribute(attribute)
+    def visit_attr_function(self, attr_func):
+        return super().visit_attr_function(attr_func)
+    def visit_agg_attr(self, agg_attr):
+        return super().visit_agg_attr(agg_attr)
+
+    @abc.abstractmethod
+    def export_querys(self): pass
+
 
 class VisitorSymbolTable(Visitor):
     def __init__(self) -> None:
@@ -266,10 +283,37 @@ class VisitorGetTypes(Visitor):
         return super().visit_attr_function(attr_func)
     def visit_attribute(self, attribute):
         return super().visit_attribute(attribute)
-    
 
-class VisitorPostgreSQL(Visitor):
-    def __init__(self, join_list, join_tree, attr_types_dict, export_name) -> None:
+
+class VisitorGetLevel(Visitor):
+    def __init__(self) -> None:
+        super().__init__()
+        self.level_dict = {} #Keys are table names and values are tuples (attribute name, level)
+
+    def visit_dimensional_model(self, dimensional_model:DimensionalModel):
+         for table in dimensional_model.dimensional_table_list:
+             self.level_dict[table.name] = []
+             table.accept(self)
+
+    def visit_dimensional_table(self, dimensional_table:DimensionalTable):
+        for attr_expr in dimensional_table.list_attr:
+            if attr_expr.alias:
+                self.level_dict[dimensional_table.name].append((attr_expr.alias, attr_expr.level))
+            else:
+                self.level_dict[dimensional_table.name].append((attr_expr.elements[0].name, attr_expr.level))
+
+    def visit_attr_expression(self, attr_expression):
+        return super().visit_attr_expression(attr_expression)
+    def visit_attribute(self, attribute):
+        return super().visit_attribute(attribute)
+    def visit_agg_attr(self, agg_attr):
+        return super().visit_agg_attr(agg_attr)
+    def visit_attr_function(self, attr_func):
+        return super().visit_attr_function(attr_func)
+
+
+class VisitorPostgreSQL(VisitorCodeGen):
+    def __init__(self, join_list, join_tree, attr_types_dict, export_name, level_dict) -> None:
         super().__init__()
         self.prettyp_querys = []
         self.join_tree = join_tree
@@ -280,6 +324,7 @@ class VisitorPostgreSQL(Visitor):
         self.attr_types_dict = attr_types_dict
         self.query_dict = {}
         self.export_name = export_name
+        self.level_dict = level_dict
 
     def visit_dimensional_model(self, dimensional_model:DimensionalModel):
         for table in dimensional_model.dimensional_table_list:
@@ -454,3 +499,264 @@ class VisitorPostgreSQL(Visitor):
             select_path = os.path.join(path_to_save, f'{table}_select.sql')
             with open(select_path, 'w') as file:
                 file.write(querys[1])
+
+        metadata_query = ""
+        metadata_level_create = """CREATE TABLE IF NOT EXISTS level_metadata (
+                                  table_name TEXT,
+                                  attribute_name TEXT,
+                                  level INT,
+                                  PRIMARY KEY (table_name, attribute_name, level));"""
+        metadata_query = metadata_query + metadata_level_create + '\n\n'
+
+        insert_value = lambda table,attr,level: f"""INSERT INTO level_metadata VALUES('{table}', '{attr}', {level});"""
+        
+        for table, attr_level in self.level_dict.items():
+            for attr, level in attr_level:
+                insert_query = insert_value(table, attr, level)
+                metadata_query = metadata_query + insert_query + '\n'
+
+        level_metadata_path = os.path.join(path_to_save, 'level_metadata.sql')
+        with open(level_metadata_path, 'w') as file:
+            file.write(metadata_query)
+
+
+class VisitorPostgreSQLCreate(VisitorCodeGen):
+    def __init__(self, join_tree, attr_types_dict, export_name, level_dict) -> None:
+        super().__init__()
+        self.join_tree = join_tree
+        self.dsl_types_to_postgres = {'int': 'INT', 'str': 'TEXT', 'date': 'DATE', 'datetime': 'TIMESTAMP', 'serial':'serial', 'numeric':'NUMERIC', 'float':'FLOAT'}
+        self.attr_types_dict = attr_types_dict
+        self.query_dict = {}
+        self.export_name = export_name
+        self.level_dict = level_dict
+
+    def visit_dimensional_model(self, dimensional_model:DimensionalModel):
+        for table in dimensional_model.dimensional_table_list:
+            table.accept(self)
+
+    def visit_dimensional_table(self, dimensional_table:DimensionalTable):
+        query_create = f'CREATE TABLE IF NOT EXISTS {dimensional_table.name} (\n'
+        primary_key_part = 'PRIMARY KEY ('
+
+        for attr_expr in dimensional_table.list_attr:
+            #Name and Type
+            if attr_expr.alias:
+                query_create = query_create + attr_expr.alias + ' '
+                postgresql_type = self.dsl_types_to_postgres[self.attr_types_dict[dimensional_table.name][attr_expr.alias]]
+                query_create = query_create + postgresql_type
+            else:
+                query_create = query_create + attr_expr.elements[0].name + ' '
+                postgresql_type = self.dsl_types_to_postgres[self.attr_types_dict[dimensional_table.name][attr_expr.elements[0].name]]
+                query_create = query_create + postgresql_type #TODO: Mira a ver aqui que si el atributo es agregado no tiene xq tener el mismo tipo que en la fuente, arregla en el documento tambien
+            
+            query_create = query_create + ', \n'
+            
+        #PK Constraints
+        for attr_expr in dimensional_table.list_attr:
+            if len(attr_expr.elements) == 1:
+                if isinstance(attr_expr.elements[0], Attribute):
+                    if attr_expr.elements[0].primary_key:
+                        name = attr_expr.elements[0].name
+                        if attr_expr.alias:
+                            name = attr_expr.alias
+                        primary_key_part = primary_key_part + name + ', '
+        
+        primary_key_part = primary_key_part[0:-2]
+        primary_key_part = primary_key_part + '), \n'
+
+        query_create = query_create + primary_key_part
+
+        #FK Constraints
+        unique_part = 'UNIQUE('
+        for attr_expr in dimensional_table.list_attr:
+            if len(attr_expr.elements) == 1:
+                if isinstance(attr_expr.elements[0], Attribute):
+                    if attr_expr.elements[0].foreign_key:
+                        references = attr_expr.elements[0].foreign_key[0]
+                        name = attr_expr.elements[0].name
+                        if attr_expr.alias:
+                            name = attr_expr.alias
+                        query_create = query_create + f'FOREIGN KEY ({name})' + f' REFERENCES {references} ({attr_expr.elements[0].foreign_key[1]}), \n'
+                        unique_part = unique_part + f'{name}, '
+
+        if isinstance(dimensional_table, Fact):
+            unique_part = unique_part[0:-2]
+            unique_part = unique_part + '), \n'
+            query_create = query_create + unique_part
+            
+        query_create = query_create[0:-3] #Deleting the last ,
+        query_create = query_create + '\n);'
+
+        self.query_dict[dimensional_table.name] = query_create
+
+
+    def export_querys(self):
+        path_querys = os.path.join(os.getcwd(), 'data', 'querys')
+
+        dirs = os.listdir(path_querys)
+        if self.export_name not in dirs:
+            os.mkdir(os.path.join(path_querys, self.export_name))
+
+        path_to_save = os.path.join(path_querys, self.export_name)
+
+        for table, query in self.query_dict.items():
+            create_path = os.path.join(path_to_save, f'{table}_create.sql')
+            with open(create_path, 'w') as file:
+                file.write(query)
+
+        metadata_query = ""
+        metadata_level_create = """CREATE TABLE IF NOT EXISTS level_metadata (
+                                  table_name TEXT,
+                                  attribute_name TEXT,
+                                  level INT,
+                                  PRIMARY KEY (table_name, attribute_name, level));"""
+        metadata_query = metadata_query + metadata_level_create + '\n\n'
+
+        insert_value = lambda table,attr,level: f"""INSERT INTO level_metadata VALUES('{table}', '{attr}', {level});"""
+        
+        for table, attr_level in self.level_dict.items():
+            for attr, level in attr_level:
+                insert_query = insert_value(table, attr, level)
+                metadata_query = metadata_query + insert_query + '\n'
+
+        level_metadata_path = os.path.join(path_to_save, 'level_metadata.sql')
+        with open(level_metadata_path, 'w') as file:
+            file.write(metadata_query)
+
+    def visit_attribute(self, attribute):
+        return super().visit_attribute(attribute)
+    def visit_agg_attr(self, agg_attr):
+        return super().visit_agg_attr(agg_attr)
+    def visit_attr_expression(self, attr_expression):
+        return super().visit_attr_expression(attr_expression)
+    def visit_attr_function(self, attr_func):
+        return super().visit_attr_function(attr_func)
+
+
+class VisitorPostgreSQLSelect(VisitorCodeGen):
+    def __init__(self, join_list, export_name, level_dict) -> None:
+        super().__init__()
+        self.dsl_agg_to_postgres = {'sum': 'SUM', 'avg': 'AVG', 'count': 'COUNT'}
+        self.join_list = join_list
+        self.join_index = 0
+        self.query_dict = {}
+        self.export_name = export_name
+        self.level_dict = level_dict
+
+    def visit_dimensional_model(self, dimensional_model:DimensionalModel):
+        for table in dimensional_model.dimensional_table_list:
+            table.accept(self)
+
+    def visit_dimensional_table(self, dimensional_table:DimensionalTable):
+        select_part = 'SELECT DISTINCT '
+        from_part = 'FROM '
+        groupby_attr = []
+        has_agg_attr = False
+
+        #SELECT statement
+        for attr_expr, index in zip(dimensional_table.list_attr, range(len(dimensional_table.list_attr))):
+            have_to_put_comma = True
+            for elem in attr_expr.elements:
+                if isinstance(elem, Attribute):
+                    if elem.table_name != 'self':
+                        select_part = select_part + f'{elem.table_name}.{elem.name}'
+                        if f'{elem.table_name}.{elem.name}' not in groupby_attr:
+                            groupby_attr.append(f'{elem.table_name}.{elem.name}')
+                    else:
+                        if not elem.primary_key:
+                            dsl_logger.error('Only serial Primary keys can be declared with table self')
+                        have_to_put_comma = False
+                elif isinstance(elem, AttributeFunction):
+                    if elem.func == 'week_day':
+                        if elem.table_name != 'self':
+                            select_part = select_part + f"to_char({elem.table_name}.{elem.name}, 'Day')"
+                        else:
+                            dsl_logger.error('Only serial Primary keys can be declared with table self')
+
+                    if elem.func == 'month_str':
+                        if elem.table_name != 'self':
+                            select_part = select_part + f"to_char({elem.table_name}.{elem.name}, 'Month')"
+                        else:
+                            dsl_logger.error('Only serial Primary keys can be declared with table self')
+
+                
+                elif isinstance(elem, AggAttribute): #TODO check if here i must to check if self is a valid table_name for this kind of attr
+                    has_agg_attr = True
+                    if elem.table_name != 'self':
+                        select_part = select_part + f'{self.dsl_agg_to_postgres[elem.agg_function]}({elem.table_name}.{elem.name})'
+                    else:
+                        select_part = select_part + f'{self.dsl_agg_to_postgres[elem.agg_function]}({elem.name})'
+                    
+                    # if elem.table_grouping_attr != 'self':
+                    #     if f'{elem.table_grouping_attr}.{elem.grouping_attr}' not in groupby_attr:
+                    #         groupby_attr.append(f'{elem.table_grouping_attr}.{elem.grouping_attr}')
+                    # else:
+                    #     if f'{elem.grouping_attr}' not in groupby_attr:
+                    #         groupby_attr.append(f'{elem.grouping_attr}')
+
+                else:
+                    select_part = select_part + elem
+
+            if attr_expr.alias:
+                if len(attr_expr.elements) > 1:
+                    select_part = select_part + ' AS ' + f'{attr_expr.alias}'
+                else:
+                    if attr_expr.elements[0].table_name != 'self':
+                        select_part = select_part + ' AS ' + f'{attr_expr.alias}'
+            
+            if index < len(dimensional_table.list_attr) - 1:
+                if have_to_put_comma:
+                    select_part = select_part + ', '
+
+        #FROM statement
+        join = self.join_list[self.join_index]
+        self.join_index += 1
+        for i in range(0, len(join), 2):
+            if i == 0:
+                from_part = from_part + join[i]
+            else:
+                conditions = ''
+                for cond, index in zip(join[i-1], range(len(join[i-1]))):
+                    conditions = conditions + f'{cond[0]} = {cond[1]}'
+                    if index != len(join[i-1]) - 1:
+                        conditions = conditions + ' AND '
+                from_part = from_part + f'\nJOIN {join[i]} ON ' + conditions
+
+        groupby_part = ''
+        if len(groupby_attr) >= 1:
+            groupby_part = groupby_part + 'GROUP BY '
+            for attr, index in zip(groupby_attr, range(len(groupby_attr))):
+                groupby_part = groupby_part + attr
+                if index != len(groupby_attr) - 1:
+                    groupby_part = groupby_part + ',' 
+
+        select_part = select_part + '\n' + from_part
+        if has_agg_attr:
+            select_part = select_part + '\n' + groupby_part
+        select_part = select_part + ';'
+        
+        self.query_dict[dimensional_table.name] = select_part
+
+
+    def export_querys(self):
+        path_querys = os.path.join(os.getcwd(), 'data', 'querys')
+
+        dirs = os.listdir(path_querys)
+        if self.export_name not in dirs:
+            os.mkdir(os.path.join(path_querys, self.export_name))
+
+        path_to_save = os.path.join(path_querys, self.export_name)
+
+        for table, query in self.query_dict.items():
+            select_path = os.path.join(path_to_save, f'{table}_select.sql')
+            with open(select_path, 'w') as file:
+                file.write(query)
+
+    def visit_attr_function(self, attr_func):
+        return super().visit_attr_function(attr_func)
+    def visit_agg_attr(self, agg_attr):
+        return super().visit_agg_attr(agg_attr)
+    def visit_attr_expression(self, attr_expression):
+        return super().visit_attr_expression(attr_expression)
+    def visit_attribute(self, attribute):
+        return super().visit_attribute(attribute)

@@ -8,29 +8,14 @@ from query_generator.maximal_join_trees import maximal_join_trees_generator
 conn_path = os.path.join(os.getcwd(), 'data', 'connections')
 
 crawlers_for_sgbd = {'PostgreSQL': PostgreSqlCrawler}
-st.title('AutoETL')
 st.markdown("# Connections")
 st.sidebar.markdown("# Connections").title('AutoETL')
 
-with st.form("my_form"):
-    st.write("New Connections")
-    sgbd = st.selectbox("SGBD", ["PostgreSQL"])
-    db = st.text_input("Database name", key='db')
-    user = st.text_input("User", key='user')
-    password = st.text_input("Password", key='pass')
-    host = st.text_input("Host", key='host')
-    port = st.text_input("Port", key='port')
+st.sidebar.markdown("## Delete Stored Connection")
+del_options = os.listdir(conn_path)
+del_select = st.sidebar.selectbox("Select one connection to delete", del_options)
+delete_btn = st.sidebar.button("Delete", type='primary')
 
-   # Every form must have a submit button.
-    submitted = st.form_submit_button("Submit")
-    if submitted:
-        if not sgbd or not db or not user or not password or not host or not port:
-            st.error('All fields in the form must contain a value', icon="🚨")
-        else:
-            conn_dict = {'sgbd': sgbd, 'dbname': db, 'user': user, 'password': password, 'host': host, 'port': port}
-            conn_path_save = os.path.join(conn_path, f'{db}.json')
-            with open(conn_path_save, 'w') as file:
-                json.dump(conn_dict, file, indent=4)
 
 st.markdown("### Stablish connection")
 select_options = []
@@ -77,5 +62,28 @@ if st.button("Connect"):
         handler.export_join_graph()
 
         maximal_join_trees_generator(handler.join_graph)
+
+
+with st.form("my_form"):
+    st.write("New Connections")
+    sgbd = st.selectbox("SGBD", ["PostgreSQL"])
+    db = st.text_input("Database name", key='db')
+    user = st.text_input("User", key='user')
+    password = st.text_input("Password", key='pass')
+    host = st.text_input("Host", key='host')
+    port = st.text_input("Port", key='port')
+
+   # Every form must have a submit button.
+    submitted = st.form_submit_button("Submit")
+    if submitted:
+        if not sgbd or not db or not user or not password or not host or not port:
+            st.error('All fields in the form must contain a value', icon="🚨")
+        else:
+            conn_dict = {'sgbd': sgbd, 'dbname': db, 'user': user, 'password': password, 'host': host, 'port': port}
+            conn_path_save = os.path.join(conn_path, f'{db}.json')
+            with open(conn_path_save, 'w') as file:
+                json.dump(conn_dict, file, indent=4)
+
+
 
 

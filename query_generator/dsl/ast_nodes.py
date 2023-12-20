@@ -40,10 +40,11 @@ class AggAttribute(Visitable):
 
 
 class AttributeExpression(Visitable):
-    def __init__(self, elements, exp_type=None, alias=None) -> None:
+    def __init__(self, elements, level=0, exp_type=None, alias=None) -> None:
         self.elements = elements
         self.alias = alias
         self.exp_type = exp_type
+        self.level = level
     
     def accept(self, visitor):
         visitor.visit_attr_expression(self)
