@@ -13,7 +13,7 @@ class DataCatalogHandler():
         self.db_name = db_name
         self.join_graph = None
 
-    def create_data_catalog(self):
+    def create_graph_database(self):
         driver = GraphDatabase.driver(self._uri, auth=(self._user, self._password))
         try:
             driver.verify_connectivity()

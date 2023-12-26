@@ -1,7 +1,7 @@
 import streamlit as st
 import json
 import os
-from crawler.postgresSql_crawler import PostgreSqlCrawler
+from crawler.postgreSql_crawler import PostgreSqlCrawler
 from data_catalog.handler import DataCatalogHandler
 from query_generator.maximal_join_trees import maximal_join_trees_generator
 
@@ -58,7 +58,7 @@ if st.button("Connect"):
             db_schema_dict = json.load(file)
 
         handler = DataCatalogHandler(db_schema_dict, conn_info['dbname'], 'neo4j', 'datacatalog', 'bolt://data_catalog:7687')
-        handler.create_data_catalog()
+        handler.create_graph_database()
         handler.export_join_graph()
 
         maximal_join_trees_generator(handler.join_graph)

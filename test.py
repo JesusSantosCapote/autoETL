@@ -1,4 +1,4 @@
-from crawler.postgresSql_crawler import PostgreSqlCrawler
+from crawler.postgreSql_crawler import PostgreSqlCrawler
 from Retail_Sales.config import CONNECTION_INFO
 from data_catalog.handler import DataCatalogHandler
 from networkx import DiGraph, path_graph

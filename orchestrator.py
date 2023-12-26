@@ -4,7 +4,7 @@ from query_generator.join_computation import compute_joins
 from query_generator.maximal_join_trees import maximal_join_trees_generator
 from query_generator.dsl.visitors import VisitorSymbolTable, VisitorSemanticCheck, VisitorGetSelects, VisitorPostgreSQL, VisitorGetTypes, VisitorGetLevel, VisitorPostgreSQLCreate, VisitorPostgreSQLSelect
 from data_catalog.handler import DataCatalogHandler
-from crawler.postgresSql_crawler import PostgreSqlCrawler
+from crawler.postgreSql_crawler import PostgreSqlCrawler
 from utils.load_graphs import load_graph, load_graph_list
 
 
