@@ -2,8 +2,8 @@ dimension tienda {
 tienda: idtienda PK
 tienda:nombre
 reparto:nombre as reparto
-municipio:nombre as municipio
-provincia:nombre as provincia
+municipio:nombre as municipio 1
+provincia:nombre as provincia 2
 }
 
 dimension producto {
@@ -21,7 +21,7 @@ producto:costo
 dimension fecha {
 venta:fecha PK
 venta:week_day(fecha) str as Dia
-venta:month_str(fecha) str as Mes
+venta:month_str(fecha) str as Mes 1
 }
 
 fact venta {

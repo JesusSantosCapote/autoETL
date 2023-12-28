@@ -4,7 +4,7 @@ from faker import Faker
 from faker.providers import address
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, select, exists
-from experiments.retail_sales.create import *
+from create import Province, Product, Municipality, Neighborhood, Sale, Store, Package, Category, Brand, Department
 import random
 import json
 import os
@@ -12,22 +12,22 @@ from datetime import date
 
 SEED = 4321
 
-fake = Faker()
+fake = faker.Faker()
 fake.add_provider(address)
 Faker.seed(SEED)
 
 rand = random.Random()
 rand.seed(SEED)
 
-dialect = 'postgresql',
-driver =  'psycopg2',
-user = 'postgres',
-password = 'postgres',
-host = '172.20.0.2',
-port = '5432',
+dialect = 'postgresql'
+driver =  'psycopg2'
+user = 'postgres'
+password = 'postgres'
+host = 'db'
+port = '5432'
 dbname = 'retailsales'
 
-engine = create_engine(f'{dialect}+{driver}://{user}:{password}@{host}:{port}/{database}', echo=True, future=True)
+engine = create_engine(f'{dialect}+{driver}://{user}:{password}@{host}:{port}/{dbname}', echo=True, future=True)
 conn = engine.connect()
 session = Session(engine)
 
@@ -115,7 +115,7 @@ def department_stores_populate():
 
 def product_tables_populate():
     pwd = os.getcwd()
-    data_path = os.path.join(pwd, 'products.json')
+    data_path = os.path.join(pwd, 'experiments', 'retail_sales', 'products.json')
 
     with open(data_path) as file:
         data = json.load(file)
@@ -166,10 +166,10 @@ def sale_table_populate():
                 session.flush()
 
 
-if __name__ == "__main__":
-    locations_tables_populate()
-    department_stores_populate()
-    product_tables_populate()
-    sale_table_populate()
-    session.commit()
-    session.close()
+locations_tables_populate()
+department_stores_populate()
+product_tables_populate()
+sale_table_populate()
+session.commit()
+session.close()
+print("RETAIL SALES POPULATED SUCCEFULLY")

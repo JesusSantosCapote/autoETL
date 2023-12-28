@@ -2,36 +2,35 @@ import sqlalchemy
 from sqlalchemy import create_engine, Table, text
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy import Column, Integer, String, ForeignKey, Date
-from config import CONNECTION_INFO
 import psycopg2
 
 
-dialect = CONNECTION_INFO['dialect']
-driver = CONNECTION_INFO['driver']
-user = CONNECTION_INFO['user']
-password = CONNECTION_INFO['password']
-host = CONNECTION_INFO['host']
-port = CONNECTION_INFO['port']
-database = CONNECTION_INFO['dbname']
+dialect = 'postgresql'
+driver =  'psycopg2'
+user = 'postgres'
+password = 'postgres'
+host = 'db'
+port = 5432
+dbname = 'retailsales'
 
 connection = psycopg2.connect(user=user, password=password, host=host, port=port)
 cursor = connection.cursor()
 connection.autocommit = True
 
 # Database table list
-cursor.execute("SELECT datname FROM pg_catalog.pg_database WHERE datname = '{}'".format(database))
+cursor.execute("SELECT datname FROM pg_catalog.pg_database WHERE datname = '{}'".format(dbname))
 existing_databases = cursor.fetchall()
 
 # Check if the database exists
 if existing_databases:
-    print("Database '{}' already exists.".format(database))
+    print("Database '{}' already exists.".format(dbname))
 else:
-    # Create the database
-    cursor.execute("CREATE DATABASE {}".format(database))
-    print("Database '{}' created successfully.".format(database))
+    # Create the dbname
+    cursor.execute("CREATE DATABASE {}".format(dbname))
+    print("Database '{}' created successfully.".format(dbname))
 
 
-engine = create_engine(f'{dialect}+{driver}://{user}:{password}@{host}:{port}/{database}', echo=True, future=True)
+engine = create_engine(f'{dialect}+{driver}://{user}:{password}@{host}:{port}/{dbname}', echo=True, future=True)
 Base = declarative_base()
 
 class Province(Base):
@@ -142,5 +141,5 @@ class Sale(Base):
     payment = Column(Integer, name='pago')
 
 
-if __name__ == "__main__":
-    Base.metadata.create_all(engine)
+Base.metadata.create_all(engine)
+print('DATABASE retail_sales CREATED SUCCEFULLY')
