@@ -28,7 +28,7 @@
         },
         {
             "producto": "Pantalones vaqueros",
-            "marca": "Levi's",
+            "marca": "Levis",
             "categoria": "Bottoms",
             "empaquetado": "Caja"
         },
@@ -148,7 +148,7 @@
         },
         {
             "producto": "Arroz",
-            "marca": "Uncle Ben's",
+            "marca": "Uncle Bens",
             "categoria": "Cereales",
             "empaquetado": "Paquete"
         },
@@ -188,7 +188,7 @@
         },
         {
             "producto": "Ratatouille",
-            "marca": "America's Test Kitchen",
+            "marca": "Americas Test Kitchen",
             "categoria": "Libros_Cocina",
             "empaquetado": "Tapa dura"
         },
