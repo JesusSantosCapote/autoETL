@@ -146,3 +146,23 @@
 
 2023-12-30 00:20:43,515~INFO~Connection with Data Catalog succefully~module:handler
 
+2023-12-31 02:22:06,570~INFO~Connection with database: tpch succefully~module:postgreSql_crawler
+
+2023-12-31 02:22:06,608~INFO~Metadata exported correctly~module:postgreSql_crawler
+
+2023-12-31 02:22:06,609~INFO~Json Metadata exported correctly~module:postgreSql_crawler
+
+2023-12-31 02:22:06,628~INFO~Connection with Data Catalog succefully~module:handler
+
+2023-12-31 02:22:07,238~INFO~Connection with Data Catalog succefully~module:handler
+
+2023-12-31 04:07:53,982~INFO~Connection with database: retailsales succefully~module:postgreSql_crawler
+
+2023-12-31 04:07:54,056~INFO~Metadata exported correctly~module:postgreSql_crawler
+
+2023-12-31 04:07:54,059~INFO~Json Metadata exported correctly~module:postgreSql_crawler
+
+2023-12-31 04:07:54,067~INFO~Connection with Data Catalog succefully~module:handler
+
+2023-12-31 04:07:54,299~INFO~Connection with Data Catalog succefully~module:handler
+

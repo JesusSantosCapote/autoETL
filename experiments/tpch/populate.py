@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS lineitem (
   l_suppkey           INT,
   l_linenumber        INT,
   l_quantity          INT,
-  l_extendedprice     FLOAT,
+  l_payment           FLOAT,
   PRIMARY KEY (l_linenumber),
   FOREIGN KEY (l_orderkey) REFERENCES orders (o_orderkey) ON DELETE CASCADE,
   FOREIGN KEY (l_partkey) REFERENCES part (p_partkey) ON DELETE CASCADE,

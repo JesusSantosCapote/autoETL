@@ -152,7 +152,7 @@ def product_tables_populate():
 def sale_table_populate():
     stores_pk = session.execute(select(Store.id_Store)).fetchall()
     products_pk = session.execute(select(Product.id_Prod, Product.price)).fetchall()
-
+    used_comb = []
     for year in [2022, 2023]:
         for month in range(1, 13):
             month_sales = rand.randint(10, 20)
@@ -161,8 +161,14 @@ def sale_table_populate():
                 product, price = rand.choice(products_pk)
                 store = rand.choice(stores_pk)[0]
                 quantity_sold = rand.randint(1, 5)
-                session.add(Sale(date=date(year,month,day), id_prod=product, id_store=store, 
+                used_comb.append((date(year,month,day), product, store))
+                if rand.randint(0, 1):
+                    comb = rand.choice(used_comb)
+                    session.add(Sale(date=comb[0], id_prod=comb[1], id_store=comb[2], 
                                  quantity_sold=quantity_sold, payment=price*quantity_sold))
+                else:    
+                    session.add(Sale(date=date(year,month,day), id_prod=product, id_store=store, 
+                                    quantity_sold=quantity_sold, payment=price*quantity_sold))
                 session.flush()
 
 

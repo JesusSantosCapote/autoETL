@@ -57,12 +57,12 @@ with open(os.path.join(query_path, 'supplier_select.sql')) as file:
 with open(os.path.join(query_path, 'part_select.sql')) as file:
     cursor_source.execute(file.read())
     rows = cursor_source.fetchall()
-    for p_partkey, name, brand, p_size in rows:
+    for p_partkey, name, brand, p_size, prize in rows:
         cursor_target.execute(f"""INSERT INTO part 
-                              VALUES ({p_partkey}, '{name}', '{brand}', {p_size})
+                              VALUES ({p_partkey}, '{name}', '{brand}', {p_size}, {prize})
                               ON CONFLICT (p_partkey) 
                               DO UPDATE SET name = EXCLUDED.name, brand = EXCLUDED.brand, 
-                              p_size = EXCLUDED.p_size;""")
+                              p_size = EXCLUDED.p_size, p_retailprice = EXCLUDED.p_retailprice;""")
         
 with open(os.path.join(query_path, 'order_date_select.sql')) as file:
     cursor_source.execute(file.read())

@@ -14,6 +14,7 @@ INSERT INTO level_metadata VALUES('part', 'p_partkey', 0);
 INSERT INTO level_metadata VALUES('part', 'name', 0);
 INSERT INTO level_metadata VALUES('part', 'brand', 0);
 INSERT INTO level_metadata VALUES('part', 'p_size', 0);
+INSERT INTO level_metadata VALUES('part', 'p_retailprice', 0);
 INSERT INTO level_metadata VALUES('order_date', 'o_date', 0);
 INSERT INTO level_metadata VALUES('order_date', 'day', 0);
 INSERT INTO level_metadata VALUES('order_date', 'month', 1);
