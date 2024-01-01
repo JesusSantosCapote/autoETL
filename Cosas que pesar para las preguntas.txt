@@ -16,3 +16,5 @@ que se le pueden dejar a otros visitors como la de si una tabla existe en la fue
 cambiar VisitorSymbolTable por VisitorNamingCheck
 
 pagina para los logs del dsl.
+
+no me gusta como uso indistintamente, esquema estrella, almacen de datos y escenario analitico.

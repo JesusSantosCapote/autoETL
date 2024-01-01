@@ -58,7 +58,8 @@ if st.button("Connect"):
             db_schema_dict = json.load(file)
 
         handler = DataCatalogHandler(db_schema_dict, conn_info['dbname'], 'neo4j', 'datacatalog', 'bolt://data_catalog:7687')
-        handler.create_graph_database()
+        handler.create_database()
+        handler.populate_graph_database()
         handler.export_join_graph()
 
         maximal_join_trees_generator(handler.join_graph)
