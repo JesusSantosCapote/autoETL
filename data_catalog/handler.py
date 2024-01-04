@@ -13,7 +13,25 @@ class DataCatalogHandler():
         self.db_name = db_name
         self.join_graph = None
 
-    def create_graph_database(self):
+    def create_database(self):
+        driver = GraphDatabase.driver(self._uri, auth=(self._user, self._password))
+        try:
+            driver.verify_connectivity()
+            logger.info('Connection with Data Catalog succefully')
+
+            with driver.session(database='system') as session:
+                query = f"""CREATE OR REPLACE DATABASE {self.db_name}"""
+                session.run(query)
+
+            with driver.session(database=self.db_name) as session:
+                constraint = """CREATE CONSTRAINT name_unique IF NOT EXISTS FOR (t:Table)
+                                REQUIRE t.name IS UNIQUE"""
+                session.run(constraint)
+        except Exception as e:
+            logger.error(e)
+
+
+    def populate_graph_database(self):
         driver = GraphDatabase.driver(self._uri, auth=(self._user, self._password))
         try:
             driver.verify_connectivity()
@@ -21,13 +39,7 @@ class DataCatalogHandler():
         except Exception as e:
             logger.error(e)
 
-        with driver.session(database='neo4j') as session:
-            try:
-                constraint = """CREATE CONSTRAINT FOR (t:Table)
-                                REQUIRE t.name IS UNIQUE"""
-                session.run(constraint)
-            except:
-                pass
+        with driver.session(database=self.db_name) as session:
 
             for table in self.db_dict.keys():
                 attrs = [] #This is needed because neo4j dont support list of lists
@@ -65,7 +77,7 @@ class DataCatalogHandler():
 
         join_graph = DiGraph()
         query = """MATCH (t1:Table) RETURN t1"""
-        tables,_,_ = driver.execute_query(query,database_='neo4j')
+        tables,_,_ = driver.execute_query(query,database_=self.db_name)
 
         #Graph Nodes
         for table in tables:
@@ -83,7 +95,7 @@ class DataCatalogHandler():
 
         #Graph Edges
         query = """MATCH (t1:Table) -[r:HAS_FK_TO]-> (t2:Table) RETURN t1.name, r, t2.name"""
-        edges,_,_ = driver.execute_query(query, database_='neo4j')
+        edges,_,_ = driver.execute_query(query, database_=self.db_name)
 
         for edge in edges:
             t1 = edge[0]
@@ -101,7 +113,7 @@ class DataCatalogHandler():
                    WHERE r1.referenced_attr = r2.referenced_attr AND r2.foreign_key IN t3.pks
                    RETURN t1.name, t3.name, r1.foreign_key, r2.foreign_key"""
         
-        edges,_,_ = driver.execute_query(query, database_='neo4j')
+        edges,_,_ = driver.execute_query(query, database_=self.db_name)
 
         for edge in edges:
             t1 = edge[0]

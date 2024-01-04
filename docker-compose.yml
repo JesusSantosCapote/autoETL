@@ -26,10 +26,11 @@ services:
 
 
   data_catalog:
-    image: neo4j
+    image: neo4j:enterprise
     restart: always
     environment:
       - NEO4J_AUTH=neo4j/datacatalog
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
     ports:
       - "7687:7687"
       - "7474:7474"
