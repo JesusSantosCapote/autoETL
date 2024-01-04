@@ -41,7 +41,10 @@ if uploaded_file is not None:
 
 saved_scripts = os.listdir(os.path.join(os.getcwd(), 'data', 'scripts'))
 
+
 script_to_run = st.selectbox("Pick a script", saved_scripts)
+with open(os.path.join(os.getcwd(), 'dsl_log.log'), 'w') as file:
+    file.truncate(0)
 
 if script_to_run:
     with open(os.path.join(os.getcwd(), 'data', 'scripts', script_to_run), 'r') as file:
@@ -55,10 +58,7 @@ if script_to_run:
         orch = Orchestrator(st.session_state.conn_info['dbname'], dw, st.session_state.conn_info['sgbd'], target_sgbd, script_to_run)
         orch.parse_code(code)
         if not orch.code_is_good:
-            error = ''
-            with open(os.path.join(os.getcwd(), 'dsl_log.log')) as file:
-                error = file.read()    
-            st.error(error, icon="🚨")
+            st.error("Errors founded in script. See Logs page", icon="🚨")
 
         else:
             all_joins = orch.compute_joins()

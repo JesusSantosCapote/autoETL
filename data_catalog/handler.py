@@ -100,6 +100,7 @@ class DataCatalogHandler():
         for edge in edges:
             t1 = edge[0]
             t2 = edge[2]
+            if t1 == t2: continue
             if join_graph.has_edge(t1, t2):
                 join_graph.edges[t1, t2]['conditions'].append((edge['r']['foreign_key'], edge['r']['referenced_attr']))
 
@@ -118,6 +119,7 @@ class DataCatalogHandler():
         for edge in edges:
             t1 = edge[0]
             t2 = edge[1]
+            if t1 == t2: continue
             if join_graph.has_edge(t1, t2):
                 join_graph.edges[t1, t2]['conditions'].append((edge[2], edge[3]))
             

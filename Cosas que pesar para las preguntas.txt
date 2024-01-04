@@ -1,20 +1,11 @@
 Que pasa si quiero reutilizar dimensiones en otros esquemas estrella 
-Que pasa con las relaciones unarias
-Que pasa si quiero integrar datos de mas de una fuente
 
-Mira a ver esa talla del group by con todos los atributos en la documentacion de postgres
 
-Revisa si los errores se reportan, tanto de DSL como otros
-
-Revisa que pasa si existen varias llaver foraneas entre un mismo par de nodos
-
-Borrar neo4j para conectarte con otra base de datos.
 
 Reestructurar un poco los visitors, en particular el visitor get types que hace comprobaciones \
 que se le pueden dejar a otros visitors como la de si una tabla existe en la fuente
 
-cambiar VisitorSymbolTable por VisitorNamingCheck
 
-pagina para los logs del dsl.
+
 
 no me gusta como uso indistintamente, esquema estrella, almacen de datos y escenario analitico.
