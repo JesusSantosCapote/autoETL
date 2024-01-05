@@ -2,7 +2,7 @@ from query_generator.dsl.parser_rules import parser
 import os
 from query_generator.join_computation import compute_joins
 from query_generator.maximal_join_trees import maximal_join_trees_generator
-from query_generator.dsl.visitors import VisitorSymbolTable, VisitorSemanticCheck, VisitorGetSelects, VisitorPostgreSQL, VisitorGetTypes
+from query_generator.dsl.visitors import VisitorNamingCheck, VisitorSemanticCheck, VisitorGetSelects, VisitorPostgreSQL, VisitorGetTypes
 from data_catalog.handler import DataCatalogHandler
 from crawler.postgreSql_crawler import PostgreSqlCrawler
 import psycopg2
@@ -26,7 +26,7 @@ with open(path) as file:
     code = file.read()
 
 a = parser.parse(code)
-st = VisitorSymbolTable()
+st = VisitorNamingCheck()
 st.visit_dimensional_model(a)
 semantic = VisitorSemanticCheck(st.symbol_table)
 semantic.visit_dimensional_model(a)
