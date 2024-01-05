@@ -39,12 +39,13 @@ if uploaded_file is not None:
     with open(os.path.join(os.getcwd(), 'data', 'scripts', name), 'w') as file:
         file.write(script)
 
-saved_scripts = os.listdir(os.path.join(os.getcwd(), 'data', 'scripts'))
+saved_scripts = [''] + os.listdir(os.path.join(os.getcwd(), 'data', 'scripts'))
 
 
 script_to_run = st.selectbox("Pick a script", saved_scripts)
 with open(os.path.join(os.getcwd(), 'dsl_log.log'), 'w') as file:
-    file.truncate(0)
+    file.write('')
+
 
 if script_to_run:
     with open(os.path.join(os.getcwd(), 'data', 'scripts', script_to_run), 'r') as file:

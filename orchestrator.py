@@ -2,7 +2,7 @@ import abc
 from query_generator.dsl.parser_rules import parser
 from query_generator.join_computation import compute_joins
 from query_generator.maximal_join_trees import maximal_join_trees_generator
-from query_generator.dsl.visitors import VisitorSymbolTable, VisitorSemanticCheck, VisitorGetSelects, VisitorPostgreSQL, VisitorGetTypes, VisitorGetLevel, VisitorPostgreSQLCreate, VisitorPostgreSQLSelect
+from query_generator.dsl.visitors import VisitorNamingCheck, VisitorSemanticCheck, VisitorGetSelects, VisitorPostgreSQL, VisitorGetTypes, VisitorGetLevel, VisitorPostgreSQLCreate, VisitorPostgreSQLSelect
 from data_catalog.handler import DataCatalogHandler
 from crawler.postgreSql_crawler import PostgreSqlCrawler
 from utils.load_graphs import load_graph, load_graph_list
@@ -26,20 +26,25 @@ class Orchestrator:
     def parse_code(self, code):
         ast = parser.parse(code)
         self.dimensional_model = ast
-        symbol_table = VisitorSymbolTable()
+        symbol_table = VisitorNamingCheck()
         symbol_table.visit_dimensional_model(ast)
-        semantic = VisitorSemanticCheck(symbol_table.symbol_table)
-        semantic.visit_dimensional_model(ast)
-        selects = VisitorGetSelects()
-        selects.visit_dimensional_model(ast)
-        self.attr_to_select_for_dim = selects.selects_for_dimensions
-
+        
+        semantic = VisitorSemanticCheck(symbol_table.symbol_table, self.join_graph)
+        if symbol_table.good_naming:
+            semantic.visit_dimensional_model(ast)
+        
         type_check = VisitorGetTypes(self.join_graph)
-        type_check.visit_dimensional_model(ast)
-        self.attr_types = type_check.dimensions_attrs
+        if semantic.good_semantic:
+            type_check.visit_dimensional_model(ast)
+            self.attr_types = type_check.dimensions_attrs
 
         self.code_is_good = symbol_table.good_naming and semantic.good_semantic and type_check.good_type
+        if self.code_is_good:
+            selects = VisitorGetSelects()
+            selects.visit_dimensional_model(ast)
+            self.attr_to_select_for_dim = selects.selects_for_dimensions
 
+        
     def compute_joins(self):
         join_trees = load_graph_list(self.dbname)
 
