@@ -27,11 +27,11 @@ with open(path) as file:
 
 a = parser.parse(code)
 st = VisitorNamingCheck()
-st.visit_dimensional_model(a)
+st.visit_dimensional_schema(a)
 semantic = VisitorSemanticCheck(st.symbol_table)
-semantic.visit_dimensional_model(a)
+semantic.visit_dimensional_schema(a)
 selects = VisitorGetSelects()
-selects.visit_dimensional_model(a)
+selects.visit_dimensional_schema(a)
 attr_to_select_for_dim = selects.selects_for_dimensions
 
 db_params = {'dbname': 'tpch', 'user': 'postgres', 'password': 'postgres', 'host':'some-postgres' , 'port':'5432'}
@@ -46,7 +46,7 @@ datacatalog.export_join_graph()
 join_graph = load_graph(db_params['dbname'])
 
 type_check = VisitorGetTypes(join_graph)
-type_check.visit_dimensional_model(a)
+type_check.visit_dimensional_schema(a)
 
 maximal_join_trees_generator(join_graph)
 join_trees = load_graph_list(db_params['dbname'])
@@ -57,7 +57,7 @@ for attrs in attr_to_select_for_dim:
     all_joins.append(joins[0]) #TODO here the user must select the join not select the 0 for defect
 
 code_gen = VisitorPostgreSQL(all_joins, join_graph, type_check.dimensions_attrs, f"{db_params['dbname']}_tpch_dw_querys")
-code_gen.visit_dimensional_model(a)
+code_gen.visit_dimensional_schema(a)
 code_gen.export_querys()
 
 

@@ -4,9 +4,9 @@ from query_generator.dsl.lexer import tokens
 from logger import dsl_logger
 
 
-def p_Dimensional_Model(p):
-    '''Dimensional_Model : List_Dimensional_Tables'''
-    p[0] = DimensionalModel(p[1])
+def p_Dimensional_Schema(p):
+    '''Dimensional_Schema : List_Dimensional_Tables'''
+    p[0] = DimensionalSchema(p[1])
 
 
 def p_List_First(p):

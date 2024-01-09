@@ -1,6 +1,6 @@
 from query_generator.dsl.visitable import Visitable
 
-class DimensionalModel(Visitable):
+class DimensionalSchema(Visitable):
     def __init__(self, dimensional_table_list) -> None:
         self.dimensional_table_list = dimensional_table_list
 

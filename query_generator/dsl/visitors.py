@@ -2,11 +2,11 @@ import abc
 import os
 import json
 from logger import dsl_logger
-from query_generator.dsl.ast_nodes import Dimension, Fact, DimensionalModel, DimensionalTable, AttributeFunction, AggAttribute, Attribute, AttributeExpression
+from query_generator.dsl.ast_nodes import Dimension, Fact, DimensionalSchema, DimensionalTable, AttributeFunction, AggAttribute, Attribute, AttributeExpression
 
 class Visitor(metaclass = abc.ABCMeta):
     @abc.abstractmethod
-    def visit_dimensional_model(self, dimensional_model): pass 
+    def visit_dimensional_schema(self, dimensional_schema): pass 
 
     @abc.abstractmethod
     def visit_attribute(self, attribute): pass
@@ -24,8 +24,8 @@ class Visitor(metaclass = abc.ABCMeta):
     def visit_dimensional_table(self, dimensional_table): pass
 
 class VisitorCodeGen(Visitor):
-    def visit_dimensional_model(self, dimensional_model):
-        return super().visit_dimensional_model(dimensional_model)
+    def visit_dimensional_schema(self, dimensional_schema):
+        return super().visit_dimensional_schema(dimensional_schema)
     def visit_dimensional_table(self, dimensional_table):
         return super().visit_dimensional_table(dimensional_table)
     def visit_attr_expression(self, attr_expression):
@@ -46,15 +46,15 @@ class VisitorNamingCheck(Visitor):
         self.symbol_table = {}
         self.good_naming = True
 
-    def visit_dimensional_model(self, dimensional_model: DimensionalModel):
-        for table in dimensional_model.dimensional_table_list:
+    def visit_dimensional_schema(self, dimensional_schema: DimensionalSchema):
+        for table in dimensional_schema.dimensional_table_list:
             if table.name in self.symbol_table.keys():
                 dsl_logger.error(f"The name '{table.name}' is used twice as a table name")
                 self.good_naming = False
 
             self.symbol_table[table.name] = []
 
-        for table in dimensional_model.dimensional_table_list:
+        for table in dimensional_schema.dimensional_table_list:
             table.accept(self)
 
     def visit_dimensional_table(self, dimensional_table: DimensionalTable):
@@ -100,11 +100,11 @@ class VisitorSemanticCheck(Visitor):
         self.symbol_table = symbol_table
         self.join_graph = join_graph
 
-    def visit_dimensional_model(self, dimensional_model: DimensionalModel):
+    def visit_dimensional_schema(self, dimensional_schema: DimensionalSchema):
         fact = False
         dimension = False
 
-        for table in dimensional_model.dimensional_table_list:
+        for table in dimensional_schema.dimensional_table_list:
             if isinstance(table, Fact):
                 fact = True
             if isinstance(table, Dimension):
@@ -114,7 +114,7 @@ class VisitorSemanticCheck(Visitor):
             dsl_logger.error("A Dimensional Model must have at least one Dimension and one Fact table")
             self.good_semantic = False
 
-        for table in dimensional_model.dimensional_table_list:
+        for table in dimensional_schema.dimensional_table_list:
             table.accept(self)
 
 
@@ -201,8 +201,8 @@ class VisitorGetSelects(Visitor):
         super().__init__()
         self.selects_for_dimensions = []
 
-    def visit_dimensional_model(self, dimensional_model:DimensionalModel):
-        for table in dimensional_model.dimensional_table_list:
+    def visit_dimensional_schema(self, dimensional_schema:DimensionalSchema):
+        for table in dimensional_schema.dimensional_table_list:
             table.accept(self)
 
     def visit_dimensional_table(self, dimensional_table):
@@ -232,8 +232,8 @@ class VisitorGetTypes(Visitor):
         self.good_type = True
         self.join_graph = join_graph
 
-    def visit_dimensional_model(self, dimensional_model:DimensionalModel):
-        for dimension_table in dimensional_model.dimensional_table_list:
+    def visit_dimensional_schema(self, dimensional_schema:DimensionalSchema):
+        for dimension_table in dimensional_schema.dimensional_table_list:
             self.dimensions_attrs[dimension_table.name] = {}
             dimension_table.accept(self)
 
@@ -299,8 +299,8 @@ class VisitorGetLevel(Visitor):
         super().__init__()
         self.level_dict = {} #Keys are table names and values are tuples (attribute name, level)
 
-    def visit_dimensional_model(self, dimensional_model:DimensionalModel):
-         for table in dimensional_model.dimensional_table_list:
+    def visit_dimensional_schema(self, dimensional_schema:DimensionalSchema):
+         for table in dimensional_schema.dimensional_table_list:
              self.level_dict[table.name] = []
              table.accept(self)
 
@@ -335,7 +335,7 @@ class VisitorPostgreSQL(VisitorCodeGen):
         self.export_name = export_name
         self.level_dict = level_dict
 
-    def visit_dimensional_model(self, dimensional_model:DimensionalModel):
+    def visit_dimensional_schema(self, dimensional_model:DimensionalSchema):
         for table in dimensional_model.dimensional_table_list:
             table.accept(self)
 
@@ -539,8 +539,8 @@ class VisitorPostgreSQLCreate(VisitorCodeGen):
         self.export_name = export_name
         self.level_dict = level_dict
 
-    def visit_dimensional_model(self, dimensional_model:DimensionalModel):
-        for table in dimensional_model.dimensional_table_list:
+    def visit_dimensional_schema(self, dimensional_schema:DimensionalSchema):
+        for table in dimensional_schema.dimensional_table_list:
             table.accept(self)
 
     def visit_dimensional_table(self, dimensional_table:DimensionalTable):
@@ -652,8 +652,8 @@ class VisitorPostgreSQLSelect(VisitorCodeGen):
         self.export_name = export_name
         self.level_dict = level_dict
 
-    def visit_dimensional_model(self, dimensional_model:DimensionalModel):
-        for table in dimensional_model.dimensional_table_list:
+    def visit_dimensional_schema(self, dimensional_schema:DimensionalSchema):
+        for table in dimensional_schema.dimensional_table_list:
             table.accept(self)
 
     def visit_dimensional_table(self, dimensional_table:DimensionalTable):

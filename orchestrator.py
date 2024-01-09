@@ -27,21 +27,21 @@ class Orchestrator:
         ast = parser.parse(code)
         self.dimensional_model = ast
         symbol_table = VisitorNamingCheck()
-        symbol_table.visit_dimensional_model(ast)
+        symbol_table.visit_dimensional_schema(ast)
         
         semantic = VisitorSemanticCheck(symbol_table.symbol_table, self.join_graph)
         if symbol_table.good_naming:
-            semantic.visit_dimensional_model(ast)
+            semantic.visit_dimensional_schema(ast)
         
         type_check = VisitorGetTypes(self.join_graph)
         if semantic.good_semantic:
-            type_check.visit_dimensional_model(ast)
+            type_check.visit_dimensional_schema(ast)
             self.attr_types = type_check.dimensions_attrs
 
         self.code_is_good = symbol_table.good_naming and semantic.good_semantic and type_check.good_type
         if self.code_is_good:
             selects = VisitorGetSelects()
-            selects.visit_dimensional_model(ast)
+            selects.visit_dimensional_schema(ast)
             self.attr_to_select_for_dim = selects.selects_for_dimensions
 
         
@@ -60,7 +60,7 @@ class Orchestrator:
     
     def generate_querys(self, selected_joins):
         level_visitor = VisitorGetLevel()
-        level_visitor.visit_dimensional_model(self.dimensional_model)
+        level_visitor.visit_dimensional_schema(self.dimensional_model)
         source_visitor = {
             'PostgreSQL': VisitorPostgreSQLSelect(selected_joins, f"{self.dbname}-{self.dwname}-{self.script}-querys", level_visitor.level_dict)
             }
@@ -72,8 +72,8 @@ class Orchestrator:
         source_code_gen = source_visitor[self.source_sgbd]
         target_code_gen = target_visitor[self.target_sgbd]
 
-        source_code_gen.visit_dimensional_model(self.dimensional_model)
+        source_code_gen.visit_dimensional_schema(self.dimensional_model)
         source_code_gen.export_querys()
 
-        target_code_gen.visit_dimensional_model(self.dimensional_model)
+        target_code_gen.visit_dimensional_schema(self.dimensional_model)
         target_code_gen.export_querys()
